@@ -26,13 +26,7 @@ class ScriptVehicleRandomizer
     static void
     CreateCarNativeHook (NativeData *data)
     {
-        // This is to make streaming less prioritized to prevent crashes
-        static void *addr = hook::get_pattern (
-            "8b 15 ? ? ? ? a1 ? ? ? ? 8b 4c ? ? 83 ca 0c 52 50 51",
-            17);
-        
-        injector::scoped_fill<1> mUpdateStreamingFlags(addr, 0, 1, true);
-        
+       
         static int number          = 0;
         Vehicle    car             = mVehicles[RandomInt(mVehicles.size () - 1)];
         uint32_t originalHash      = data->Params[0].uint_param;

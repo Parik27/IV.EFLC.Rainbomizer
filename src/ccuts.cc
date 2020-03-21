@@ -45,6 +45,8 @@ class CutsceneRandomizer
     static bool InitialiseModelData()
     {
         FILE* modelFile = fopen("Cutscene_Models.txt", "r");
+        mModels.clear();
+        
         if(!modelFile)
             return false;
 

@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <functional>
+#include <cstdio>
 
 class CPed;
 
@@ -19,7 +20,7 @@ class Common
     static int mPreviousEpisode;
 
     static std::vector<std::function<void (int)>> &GetCallbacks ();
-
+    
 public:
 
     Common();
@@ -30,6 +31,12 @@ public:
     static int GetStoredEpisodeNumber();
     
     static void AddEpisodeChangeCallback(std::function<void(int)> callback);
+
+    static std::string GetRainbomizerFileName (const std::string &name,
+                                               const std::string  subdirs = "");
     
+    static FILE *      GetRainbomizerFile (const std::string &name,
+                                           const std::string &mode,
+                                           const std::string subdirs = "");
 };
 }; // namespace Rainbomizer

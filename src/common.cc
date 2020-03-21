@@ -3,6 +3,7 @@
 #include "CScrVM.hh"
 #include "CModelInfoStore.hh"
 #include "CModelInfo.hh"
+#include <filesystem>
 
 CPed *(*FindPlayerPed_48e602) (int);
 
@@ -108,7 +109,24 @@ Common::GetCallbacks ()
     static std::vector<std::function<void(int)>> mCallbacks;
     return mCallbacks;
 }
-    
+
+/*******************************************************/
+std::string
+GetRainbomizerFileName (const std::string &name, const std::string &subdirs)
+{
+    std::filesystem::create_directories ("rainbomizer/" + subdirs);
+    return "rainbomizer/" + subdirs + name;
+}
+
+/*******************************************************/
+FILE *
+GetRainbomizerFile (const std::string &name, const std::string &mode,
+                    const std::string &subdirs)
+{
+    return fopen (GetRainbomizerFileName (name, subdirs).c_str (),
+                  mode.c_str ());
+}
+
 /*******************************************************/
 std::vector<int> &
 Common::GetPedIndices ()

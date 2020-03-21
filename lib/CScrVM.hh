@@ -22,6 +22,19 @@ union CScriptParams
     char* cstr_param;
 };
 
+struct scrProgram {
+    unsigned int m_pszName;
+    unsigned int m_dwHash;
+    char * m_pCodeBlock;
+    unsigned int m_pStaticSeg;
+    unsigned int m_nCodeSize;
+    unsigned short m_wStaticSize;
+    unsigned short m_wArgCount;
+    unsigned short m_wUsageCount;
+    unsigned short field_1A;
+};
+
+
 /*******************************************************/
 struct NativeData
 {
@@ -41,8 +54,17 @@ public:
     static NativeHashPair **m_aNatives;
     static unsigned int *   m_nMaximumNatives;
 
+    static HashPair<scrProgram*>* &m_aScriptPrograms;
+    static unsigned int&     m_nNumScriptPrograms;
+    static unsigned int&     m_nMaxScriptPrograms;
+
+    static int*& m_pGlobals;
+
     static void InitialisePatterns ();
 
+    static scrProgram* GetScrProgram(const std::string &name);
+    static scrProgram* GetScrProgram(unsigned int hash);
+    
     static int GetNativeIndex(const std::string &name);
     static int GetNativeIndexTranslated(const std::string &name);
     static int GetNativeIndexTranslated(uint32_t hash);

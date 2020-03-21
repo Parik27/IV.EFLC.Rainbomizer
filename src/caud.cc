@@ -344,11 +344,18 @@ class SoundsRandomizer
                 str = "";
             }
 
+        static std::unique_ptr<char[]> ptr;
         if (CText::m_nEncoding == 8)
-            return str.data ();
+            {
+                ptr = std::make_unique<char[]> (str.length () + 1);
+                for (int i = 0; i < str.length (); i++)
+                    ptr.get ()[i] = str[i];
+                ptr.get ()[str.length ()] = 0;
+
+                return ptr.get ();
+            }
 
         // Conversion to widestring
-        static std::unique_ptr<char[]> ptr;
         ptr = std::make_unique<char[]> (str.length () * 2 + 2);
 
         for (int i = 0; i <= str.length (); i++)
