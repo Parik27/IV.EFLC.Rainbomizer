@@ -66,7 +66,7 @@ RGBToHSL (CARGB input)
 }
 
 /*******************************************************/
-class ColRand
+class ColourRandomizer
 {
     static int m_nTotalColours;
 
@@ -140,21 +140,21 @@ class ColRand
 
 public:
     /*******************************************************/
-    ColRand ()
+    ColourRandomizer ()
     {
         InitialiseAllComponents();
         
         RegisterHook ("0f ? ? 09 00 00 8d 8c 24 ? 01 00 00", 59, sscanf_a6e120,
-                      ColRand::RandomizeColourTable);
+                      ColourRandomizer::RandomizeColourTable);
 
         RegisterHook ("50 8d 8e e4 0f 00 00 51 8b ? e8", 10,
                       CVehicle__OriginalSetRandomColour,
-                      ColRand::RandomizeCarCols);
+                      ColourRandomizer::RandomizeCarCols);
 
         RegisterHook ("8d b7 e0 0f 00 00 b9 ? ? ? ? e8 ", 11, FUN_453920,
-                      ColRand::HookRender);
+                      ColourRandomizer::HookRender);
     }
 
 } _cols;
 
-int ColRand::m_nTotalColours = 0;
+int ColourRandomizer::m_nTotalColours = 0;

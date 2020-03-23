@@ -4,10 +4,24 @@
 #include "CModelInfoStore.hh"
 #include "CModelInfo.hh"
 #include <filesystem>
+#include "logger.hh"
 
 CPed *(*FindPlayerPed_48e602) (int);
 
 namespace Rainbomizer {
+
+/*******************************************************/
+std::string
+Common::GetEpisodeNameFromID (int id)
+{
+    switch (id)
+        {
+        case 0: return "IV";
+        case 1: return "TLAD";
+        case 2: return "TBOGT";
+        default: return std::to_string (id);
+        }
+}
 
 /*******************************************************/
 CPed *
@@ -19,10 +33,15 @@ Common::HandleEpisodicChanges (int num)
 
     if (episode != mPreviousEpisode)
         {
-            for (auto i : GetCallbacks())
+            Logger::LogMessage ("Detected episode switch: %d to %d",
+                                mPreviousEpisode, episode);
+            
+            mPreviousEpisode = episode;
+            
+            for (auto i : GetCallbacks ())
                 i (episode);
         }
-    mPreviousEpisode = episode;
+    
 
     return FindPlayerPed_48e602 (num);
 }
@@ -47,7 +66,7 @@ Common::Common ()
 void
 Common::AddEpisodeChangeCallback (std::function<void (int)> callback)
 {
-    GetCallbacks().push_back(callback);
+    GetCallbacks ().push_back (callback);
 }
 
 /*******************************************************/
@@ -89,6 +108,10 @@ Common::InitialiseIndices ()
                 }
         }
 
+    Logger::LogMessage ("Initialised model indices");
+    Logger::LogMessage ("Ped models: %d, Vehicle models: %d",
+                        mPedIndices.size (), mVehicleIndices.size ());
+
     mIndicesInitialised = true;
 }
 
@@ -96,9 +119,9 @@ Common::InitialiseIndices ()
 std::vector<int> &
 Common::GetVehicleIndices ()
 {
-    if(!mIndicesInitialised)
-        InitialiseIndices();
-    
+    if (!mIndicesInitialised)
+        InitialiseIndices ();
+
     return mVehicleIndices;
 }
 
@@ -106,13 +129,14 @@ Common::GetVehicleIndices ()
 std::vector<std::function<void (int)>> &
 Common::GetCallbacks ()
 {
-    static std::vector<std::function<void(int)>> mCallbacks;
+    static std::vector<std::function<void (int)>> mCallbacks;
     return mCallbacks;
 }
 
 /*******************************************************/
 std::string
-GetRainbomizerFileName (const std::string &name, const std::string &subdirs)
+Common::GetRainbomizerFileName (const std::string &name,
+                                const std::string &subdirs)
 {
     std::filesystem::create_directories ("rainbomizer/" + subdirs);
     return "rainbomizer/" + subdirs + name;
@@ -120,20 +144,36 @@ GetRainbomizerFileName (const std::string &name, const std::string &subdirs)
 
 /*******************************************************/
 FILE *
-GetRainbomizerFile (const std::string &name, const std::string &mode,
-                    const std::string &subdirs)
+Common::GetRainbomizerFile (const std::string &name, const std::string &mode,
+                            const std::string &subdirs)
 {
     return fopen (GetRainbomizerFileName (name, subdirs).c_str (),
                   mode.c_str ());
 }
 
 /*******************************************************/
+FILE *
+Common::GetRainbomizerDataFile (const std::string &name,
+                                const std::string &mode, bool episodic)
+{
+    std::string dirs
+        = episodic ? GetEpisodeNameFromID (GetStoredEpisodeNumber ()) : "";
+
+    FILE *f = GetRainbomizerFile (name, mode, "data/" + dirs + "/");
+    if(!f)
+        Logger::LogMessage ("Failed to read Rainbomizer data file: %s/data/%s",
+                            dirs.c_str(), name.c_str());
+
+    return f;
+}
+
+/*******************************************************/
 std::vector<int> &
 Common::GetPedIndices ()
 {
-    if(!mIndicesInitialised)
-        InitialiseIndices();
-    
+    if (!mIndicesInitialised)
+        InitialiseIndices ();
+
     return mPedIndices;
 }
 
@@ -142,5 +182,5 @@ std::vector<int> Common::mVehicleIndices;
 std::vector<int> Common::mPedIndices;
 int              Common::mPreviousEpisode = -1;
 
-Common           _utils;
+Common _utils;
 }; // namespace Rainbomizer

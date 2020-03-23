@@ -25,7 +25,7 @@ union CScriptParams
 struct scrProgram {
     unsigned int m_pszName;
     unsigned int m_dwHash;
-    char * m_pCodeBlock;
+    unsigned char * m_pCodeBlock;
     unsigned int m_pStaticSeg;
     unsigned int m_nCodeSize;
     unsigned short m_wStaticSize;

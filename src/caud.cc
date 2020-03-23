@@ -103,12 +103,15 @@ class SoundsRandomizer
     {
         mHook8f5b00.restore ();
 
-        auto &sound = mSounds[RandomInt (mSounds.size () - 1)];
-
-        identifier             = sound.sound.data ();
-        subtitle               = sound.subtitle.data ();
-        mBankAudioPairs[index] = {sound.bankHash, sound.sound};
-
+        if(mSounds.size() > 0)
+            {
+                auto &sound = mSounds[RandomInt (mSounds.size () - 1)];
+                
+                identifier             = sound.sound.data ();
+                subtitle               = sound.subtitle.data ();
+                mBankAudioPairs[index] = {sound.bankHash, sound.sound};
+            }
+        
         entity->AddLineToConversation (index, param_3, identifier, subtitle,
                                        param_6, param_7);
 
@@ -251,8 +254,12 @@ class SoundsRandomizer
         std::unordered_map<uint32_t, SoundPair> soundPairs;
         mSounds.clear ();
         char  line[128] = {0};
-        FILE *audioFile = fopen ("AudioBanks.txt", "r");
+        FILE *audioFile
+            = Rainbomizer::Common::GetRainbomizerDataFile ("AudioBanks.txt");
 
+        if(!audioFile)
+            return;
+        
         while (fgets (line, 128, audioFile))
             {
                 if (strlen (line) > 2 && line[0] != '#')

@@ -1,6 +1,7 @@
 #include "Utils.hh"
 #include <vector>
 #include <algorithm>
+#include "common.hh"
 
 int (*scanf__8665d0) (char *str, char *format, ...);
 
@@ -44,7 +45,8 @@ class CutsceneRandomizer
     /*******************************************************/
     static bool InitialiseModelData()
     {
-        FILE* modelFile = fopen("Cutscene_Models.txt", "r");
+        FILE *modelFile
+            = Rainbomizer::Common::GetRainbomizerDataFile ("CutsceneModels.txt");
         mModels.clear();
         
         if(!modelFile)
@@ -71,9 +73,12 @@ public:
     CutsceneRandomizer ()
     {
         InitialiseAllComponents ();
-        if (InitialiseModelData ())
-            RegisterHook ("e8 ? ? ? ? 8b 4c ? 3c 83 c4 1c", 0, scanf__8665d0,
-                          HookedAddCutsceneModel);
+        Rainbomizer::Common::AddEpisodeChangeCallback([](int)
+        {
+            InitialiseModelData();
+        });
+        RegisterHook ("e8 ? ? ? ? 8b 4c ? 3c 83 c4 1c", 0, scanf__8665d0,
+                      HookedAddCutsceneModel);
     }
 };
 

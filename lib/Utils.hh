@@ -28,8 +28,6 @@ void RegisterHook(const std::string &pattern, int offset, O &originalFunc, F hoo
     void *addr = hook::get_pattern (pattern, offset);
     ReadCall (addr, originalFunc);
     injector::MakeCALL (addr, hookedFunc);
-
-    printf("%p (%p) -> %p\n", addr, originalFunc, hookedFunc);
 }
 
 /*******************************************************/
@@ -38,8 +36,6 @@ void RegisterHook(const std::string &pattern, int offset, F hookedFunc)
 {
     void *addr = hook::get_pattern (pattern, offset);
     injector::MakeCALL (addr, hookedFunc);
-
-    printf("Overwriting %p -> %p\n", addr, hookedFunc);
 }
 
 /*******************************************************/
