@@ -1,5 +1,7 @@
 #include "CScrVM.hh"
 #include "Utils.hh"
+#include "config.hh"
+#include "logger.hh"
 
 class CheatRandomizer
 {
@@ -19,8 +21,12 @@ public:
     /*******************************************************/
     CheatRandomizer ()
     {
+        if(!ConfigManager::GetConfigs().cheat.enabled)
+            return;
+        
         InitialiseAllComponents();
 
         CNativeManager::OverwriteNative("ACTIVATE_CHEAT", ActivateCheatHook);
+        Rainbomizer::Logger::LogMessage("Initialised CheatsRandomizer");
     }
 } _cheats;

@@ -2,6 +2,8 @@
 #include <vector>
 #include <algorithm>
 #include "common.hh"
+#include "config.hh"
+#include "logger.hh"
 
 int (*scanf__8665d0) (char *str, char *format, ...);
 
@@ -72,6 +74,9 @@ public:
     /*******************************************************/
     CutsceneRandomizer ()
     {
+        if(!ConfigManager::GetConfigs().cutscenes.enabled)
+            return;
+        
         InitialiseAllComponents ();
         Rainbomizer::Common::AddEpisodeChangeCallback([](int)
         {
@@ -79,6 +84,8 @@ public:
         });
         RegisterHook ("e8 ? ? ? ? 8b 4c ? 3c 83 c4 1c", 0, scanf__8665d0,
                       HookedAddCutsceneModel);
+
+        Rainbomizer::Logger::LogMessage("Initialised CutsceneRandomizer");
     }
 };
 

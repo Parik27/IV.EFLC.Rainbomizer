@@ -65,6 +65,7 @@ Logger::LogMessage (const char *format, ...)
     va_end(args);
 
     fputc('\n', file);
+    fflush(file);
 }
 
 FILE *Logger::mFile = nullptr;

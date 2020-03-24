@@ -6,6 +6,8 @@
 #include "CModelInfoStore.hh"
 #include <set>
 #include "common.hh"
+#include "config.hh"
+#include "logger.hh"
 
 int (*GetPedModelForVehicle_ab333d)(int);
 CVehicleModelInfo* (*CModelInfoStore__AllocateVehicleModel9adc6d)(char*);
@@ -115,6 +117,9 @@ public:
     /*******************************************************/
     TrafficRandomizer ()
     {
+        if(!ConfigManager::GetConfigs().traffic.enabled)
+            return;
+        
         InitialiseAllComponents ();
         InitialiseSpawnHook ();
 
@@ -128,6 +133,8 @@ public:
         
         RegisterHook ("eb ? 0f bf 47 2e 50 e8 ? ? ? ? 83 c4 04 8b d8 ", 7,
                       GetPedModelForVehicle_ab333d, GetPedModelForVehicle);
+
+        Rainbomizer::Logger::LogMessage("Initialised TrafficRandomizer");
     }
 };
 

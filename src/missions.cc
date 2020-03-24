@@ -10,6 +10,7 @@
 #include <CMaths.hh>
 #include "logger.hh"
 #include "common.hh"
+#include "config.hh"
 
 int (__thiscall *scrThread__ParseOriginal) (scrThread *  scr,
                                             unsigned int param_2);
@@ -59,12 +60,18 @@ class MissionRandomizer
     static std::string
     GetNewMission (std::string old)
     {
+        auto &config = ConfigManager::GetConfigs().missions;
         std::transform (old.begin (), old.end (), old.begin (),
                         [] (unsigned char c) { return std::tolower (c); });
 
-        // return "PXDFcut";
         if (mMissionMaps.count (old))
-            return mMissionMaps[old]; // mForcedMission; //mMissionMaps[old];
+            {
+                if(config.forcedMissionEnabled)
+                    if(mMissionMaps.count(config.forcedMissionID))
+                        return config.forcedMissionID;
+                
+                return mMissionMaps[old]; 
+            }
         return old;
     }
 
@@ -409,11 +416,19 @@ public:
     /*******************************************************/
     MissionRandomizer ()
     {
+        if(!ConfigManager::GetConfigs().missions.enabled)
+            return;
+        
         InitialiseAllComponents ();
 
         Rainbomizer::Common::AddEpisodeChangeCallback ([] (int) {
             ReadMissionsFile ("Missions.txt");
-            InitialiseMissionsMap (time (NULL));
+
+            int seed = ConfigManager::GetConfigs().missions.seed;
+            if(seed == -1)
+                seed = time(NULL);
+            
+            InitialiseMissionsMap (seed);
         });
 
         InitialiseVFTableHooks ();
@@ -423,6 +438,8 @@ public:
         CNativeManager::OverwriteNative ("MARK_SCRIPT_AS_NO_LONGER_NEEDED",
                                          MarkScriptAsNoLongerNeeded);
         CNativeManager::OverwriteNative ("START_NEW_SCRIPT", StartNewScript);
+
+        Rainbomizer::Logger::LogMessage("Initialised MissionRandomizer");
     }
 };
 

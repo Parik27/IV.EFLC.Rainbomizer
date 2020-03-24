@@ -7,6 +7,8 @@
 #include "common.hh"
 #include "CCrypto.hh"
 #include <array>
+#include "config.hh"
+#include "logger.hh"
 
 // All the audio gxt tables
 const std::array<std::vector<std::string>, 3> gxtTables
@@ -402,6 +404,9 @@ public:
     /*******************************************************/
     SoundsRandomizer ()
     {
+        if(!ConfigManager::GetConfigs().sounds.enabled)
+            return;
+        
         InitialiseAllComponents ();
         Rainbomizer::Common::AddEpisodeChangeCallback (
             InitialiseRandomizationForEpisode);
@@ -430,6 +435,8 @@ public:
 
         RegisterHook ("f3 a4 50 b9 ? ? ? ? e8 ? ? ? ? 84 c0", 8,
                       CorrectSubtitleVariationLabelCheck);
+
+        Rainbomizer::Logger::LogMessage("Initialised SoundsRandomizer");
     }
 };
 

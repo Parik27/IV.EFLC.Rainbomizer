@@ -13,6 +13,8 @@
 #include "CStreaming.hh"
 #include "CCrypto.hh"
 #include "common.hh"
+#include "config.hh"
+#include "logger.hh"
 
 bool IsModelPartOfGroup(uint32_t hash, const std::vector<std::string> &mList)
 {
@@ -98,7 +100,9 @@ class WeaponRandomizer
             }
 
         auto newWeapon = mValidWeapons[RandomInt (mValidWeapons.size () - 1)];
-
+        if(ConfigManager::GetConfigs().weaponStats.enabled)
+            RandomizeWeaponStat(newWeapon);
+        
         weapons->GiveWeapon (newWeapon, ammo, param4, param5, shown);
         
         InitialiseRandomWeaponsHook ();
@@ -118,6 +122,9 @@ public:
     /*******************************************************/
     WeaponRandomizer ()
     {
+        if(!ConfigManager::GetConfigs().weapon.enabled)
+            return;
+        
         InitialiseAllComponents();        
         InitialiseRandomWeaponsHook ();
 
@@ -125,6 +132,8 @@ public:
         {
             mValidWeapons.clear();
         });
+
+        Rainbomizer::Logger::LogMessage("Initialised WeaponRandomizer");
     }
 };
 

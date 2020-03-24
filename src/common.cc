@@ -133,13 +133,43 @@ Common::GetCallbacks ()
     return mCallbacks;
 }
 
+struct GamePathA
+{
+    char _path[160 + 1];
+    char _temp_path[160 + 1];
+
+    GamePathA ()
+    {
+      _path[0]  = '\0';
+        HMODULE h = NULL;
+        h         = GetModuleHandleA (NULL);
+        GetModuleFileNameA (h, _path, MAX_PATH);
+        char *bslp = strrchr (_path, '\\');
+        char *fslp = strrchr (_path, '/');
+        char *slp  = (std::max) (bslp, fslp);
+        if (slp)
+            slp[1] = '\0';
+    }
+};
+
+/*******************************************************/
+char *
+GetGameDirRelativePathA (const char *subpath)
+{
+    static GamePathA gamePath;
+    strcpy (gamePath._temp_path, gamePath._path);
+    strcat (gamePath._temp_path, subpath);
+    return gamePath._temp_path;
+}
+
 /*******************************************************/
 std::string
 Common::GetRainbomizerFileName (const std::string &name,
                                 const std::string &subdirs)
 {
-    std::filesystem::create_directories ("rainbomizer/" + subdirs);
-    return "rainbomizer/" + subdirs + name;
+    std::string baseDir = GetGameDirRelativePathA (("rainbomizer/" + subdirs).c_str());
+    std::filesystem::create_directories (baseDir);
+    return baseDir + name;
 }
 
 /*******************************************************/
@@ -176,7 +206,7 @@ Common::GetPedIndices ()
 
     return mPedIndices;
 }
-
+    
 bool             Common::mIndicesInitialised = false;
 std::vector<int> Common::mVehicleIndices;
 std::vector<int> Common::mPedIndices;

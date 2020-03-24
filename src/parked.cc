@@ -1,7 +1,8 @@
 #include <CCarGenerator.hh>
 #include "Utils.hh"
 #include "common.hh"
-// 51 6a 00 8b ce e8 ?? ?? ?? ?? eb ?? 80 7c ?? ?? 00
+#include "config.hh"
+#include "logger.hh"
 
 bool (__thiscall *CCarGenerator__Processa90d71) (CCarGenerator *cgen,
                                                  char param_2, char param_3);
@@ -28,8 +29,13 @@ public:
     /*******************************************************/
     ParkedCarRandomizer ()
     {
+        if(!ConfigManager::GetConfigs().parkedCar.enabled)
+            return;
+        
         InitialiseAllComponents();
         RegisterHook ("51 6a 00 8b ce e8 ? ? ? ? eb ? 80 7c ? ? 00", 5,
                       CCarGenerator__Processa90d71, RandomizeCarGenerator);
+
+        Rainbomizer::Logger::LogMessage("Initialised ParkedCarRandomizer");
     }
 } _pcar;
