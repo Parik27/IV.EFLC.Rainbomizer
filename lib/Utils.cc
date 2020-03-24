@@ -9,7 +9,7 @@
 #include "CTimer.hh"
 #include "CVehicleFactory.hh"
 #include "CWeaponInfo.hh"
-#include "CWeaponModelInfo.h"
+//#include "CWeaponModelInfo.h"
 #include "CModelInfoStore.hh"
 #include "CText.hh"
 #include "audScriptAudioEntity.hh"
