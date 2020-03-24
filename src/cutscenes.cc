@@ -19,7 +19,7 @@ class CutsceneRandomizer
     {
         int ret = scanf__8665d0 (str, format, id, name, param5, param6, param7,
                                  param8);
-        strcpy (name, GetRandomModel(name).c_str());
+        strcpy (name, GetRandomModel (name).c_str ());
 
         return ret;
     }
@@ -45,22 +45,23 @@ class CutsceneRandomizer
     }
 
     /*******************************************************/
-    static bool InitialiseModelData()
+    static bool
+    InitialiseModelData ()
     {
-        FILE *modelFile
-            = Rainbomizer::Common::GetRainbomizerDataFile ("CutsceneModels.txt");
-        mModels.clear();
-        
-        if(!modelFile)
+        FILE *modelFile = Rainbomizer::Common::GetRainbomizerDataFile (
+            "CutsceneModels.txt");
+        mModels.clear ();
+
+        if (!modelFile)
             return false;
 
         char line[512] = {0};
-        mModels.push_back({});
-        while(fgets (line ,512, modelFile))
+        mModels.push_back ({});
+        while (fgets (line, 512, modelFile))
             {
-                if(strlen(line) < 2)
+                if (strlen (line) < 2)
                     {
-                        mModels.push_back(std::vector<std::string>());
+                        mModels.push_back (std::vector<std::string> ());
                         continue;
                     }
                 line[strcspn (line, "\n")] = 0;
@@ -74,18 +75,16 @@ public:
     /*******************************************************/
     CutsceneRandomizer ()
     {
-        if(!ConfigManager::GetConfigs().cutscenes.enabled)
+        if (!ConfigManager::GetConfigs ().cutscenes.enabled)
             return;
-        
+
         InitialiseAllComponents ();
-        Rainbomizer::Common::AddEpisodeChangeCallback([](int)
-        {
-            InitialiseModelData();
-        });
+        Rainbomizer::Common::AddEpisodeChangeCallback (
+            [] (int) { InitialiseModelData (); });
         RegisterHook ("e8 ? ? ? ? 8b 4c ? 3c 83 c4 1c", 0, scanf__8665d0,
                       HookedAddCutsceneModel);
 
-        Rainbomizer::Logger::LogMessage("Initialised CutsceneRandomizer");
+        Rainbomizer::Logger::LogMessage ("Initialised CutsceneRandomizer");
     }
 };
 

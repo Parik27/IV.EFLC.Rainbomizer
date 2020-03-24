@@ -40,8 +40,8 @@ struct PreviousChange
 {
     uint32_t hash = -1;
     uint32_t offset;
-    uint8_t originalValue;
-    uint8_t newValue;
+    uint8_t  originalValue;
+    uint8_t  newValue;
 };
 
 class MissionRandomizer
@@ -60,17 +60,17 @@ class MissionRandomizer
     static std::string
     GetNewMission (std::string old)
     {
-        auto &config = ConfigManager::GetConfigs().missions;
+        auto &config = ConfigManager::GetConfigs ().missions;
         std::transform (old.begin (), old.end (), old.begin (),
                         [] (unsigned char c) { return std::tolower (c); });
 
         if (mMissionMaps.count (old))
             {
-                if(config.forcedMissionEnabled)
-                    if(mMissionMaps.count(config.forcedMissionID))
+                if (config.forcedMissionEnabled)
+                    if (mMissionMaps.count (config.forcedMissionID))
                         return config.forcedMissionID;
-                
-                return mMissionMaps[old]; 
+
+                return mMissionMaps[old];
             }
         return old;
     }
@@ -140,13 +140,14 @@ class MissionRandomizer
                 {
                     strand = mOriginalMission.strand + 96;
 
-                    if(strand - 96 != mRandomizedMission.strand)
+                    if (strand - 96 != mRandomizedMission.strand)
                         {
                             mPreviousChange.hash = program->m_dwHash;
-                            mPreviousChange.offset = &strand - program->m_pCodeBlock;
+                            mPreviousChange.offset
+                                = &strand - program->m_pCodeBlock;
                             mPreviousChange.newValue = strand;
                         }
-                    
+
                     return;
                 }
 
@@ -246,7 +247,7 @@ class MissionRandomizer
                                             GetPlayerId (), 1);
             }
 
-        CScrVM::m_pGlobals[101] = std::max (CScrVM::m_pGlobals[101], 1);
+        CScrVM::m_pGlobals ()[101] = std::max (CScrVM::m_pGlobals ()[101], 1);
     }
 
     /*******************************************************/
@@ -314,7 +315,7 @@ class MissionRandomizer
             return;
 
         auto strands = reinterpret_cast<MissionStrandInfo *> (
-            &CScrVM::m_pGlobals[10982]);
+            &CScrVM::m_pGlobals ()[10982]);
 
         // Thread ended
         if (scr->m_context.eThreadState == 2
@@ -382,8 +383,8 @@ class MissionRandomizer
     ReadMissionsFile (const std::string &name)
     {
         FILE *file = Rainbomizer::Common::GetRainbomizerDataFile (name);
-        mMissionInfos.clear();
-        
+        mMissionInfos.clear ();
+
         if (!file)
             return false;
 
@@ -416,18 +417,18 @@ public:
     /*******************************************************/
     MissionRandomizer ()
     {
-        if(!ConfigManager::GetConfigs().missions.enabled)
+        if (!ConfigManager::GetConfigs ().missions.enabled)
             return;
-        
+
         InitialiseAllComponents ();
 
         Rainbomizer::Common::AddEpisodeChangeCallback ([] (int) {
             ReadMissionsFile ("Missions.txt");
 
-            int seed = ConfigManager::GetConfigs().missions.seed;
-            if(seed == -1)
-                seed = time(NULL);
-            
+            int seed = ConfigManager::GetConfigs ().missions.seed;
+            if (seed == -1)
+                seed = time (NULL);
+
             InitialiseMissionsMap (seed);
         });
 
@@ -439,7 +440,7 @@ public:
                                          MarkScriptAsNoLongerNeeded);
         CNativeManager::OverwriteNative ("START_NEW_SCRIPT", StartNewScript);
 
-        Rainbomizer::Logger::LogMessage("Initialised MissionRandomizer");
+        Rainbomizer::Logger::LogMessage ("Initialised MissionRandomizer");
     }
 };
 

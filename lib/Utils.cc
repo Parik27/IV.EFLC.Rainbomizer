@@ -18,8 +18,7 @@
 std::mt19937 &
 RandEngine ()
 {
-    thread_local static std::mt19937 engine{
-        (unsigned int) time (NULL)};
+    thread_local static std::mt19937 engine{(unsigned int) time (NULL)};
 
     return engine;
 }
@@ -41,12 +40,12 @@ RandomInt (int max)
 
 /*******************************************************/
 void
-InitialiseAllComponents()
+InitialiseAllComponents ()
 {
 
     static bool initialised = false;
-    
-    if(initialised)
+
+    if (initialised)
         return;
 
     CPedWeapons::InitialisePatterns ();
@@ -56,11 +55,11 @@ InitialiseAllComponents()
     CScrVM::InitialisePatterns ();
     CNativeManager::Initialise ();
     CVehicleFactory::InitialisePatterns ();
-    CTimer::InitialisePatterns();
-    CHud::InitialisePatterns();
-    CModelInfoStore::InitialisePatterns();
-    audScriptAudioEntity::InitialisePatterns();
-    CText::InitialisePatterns();
-    
+    CTimer::InitialisePatterns ();
+    CHud::InitialisePatterns ();
+    CModelInfoStore::InitialisePatterns ();
+    audScriptAudioEntity::InitialisePatterns ();
+    CText::InitialisePatterns ();
+
     initialised = true;
 }

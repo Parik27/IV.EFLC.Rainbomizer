@@ -75,8 +75,8 @@ class ColourRandomizer
     /*******************************************************/
     static void __fastcall HookRender (void *thisCritical)
     {
-        const int MAX_COLOURS = 73;
-        const float CYCLE_TIME = 3;
+        const int   MAX_COLOURS = 73;
+        const float CYCLE_TIME  = 3;
 
         static HSL  colours[MAX_COLOURS];
         static bool coloursInitialised = false;
@@ -98,11 +98,10 @@ class ColourRandomizer
                         CHud::aColours[i] = HSLToRGB (colours[i]);
                         colours[i].h
                             = fmod (colours[i].h
-                                        + CTimer::ms_fFrameTime * 360 / 10.0,
+                                        + CTimer::ms_fFrameTime () * 360 / 10.0,
                                     360);
                     }
             }
-
         return FUN_453920 (thisCritical);
     }
 
@@ -144,26 +143,27 @@ public:
     /*******************************************************/
     ColourRandomizer ()
     {
-        if(!ConfigManager::GetConfigs().colours.enabled)
+        if (!ConfigManager::GetConfigs ().colours.enabled)
             return;
-        
-        InitialiseAllComponents();
-        
-        if(ConfigManager::GetConfigs().colours.carcols)
+
+        InitialiseAllComponents ();
+
+        if (ConfigManager::GetConfigs ().colours.carcols)
             {
-                RegisterHook ("0f ? ? 09 00 00 8d 8c 24 ? 01 00 00", 59, sscanf_a6e120,
-                      ColourRandomizer::RandomizeColourTable);
+                RegisterHook ("0f ? ? 09 00 00 8d 8c 24 ? 01 00 00", 59,
+                              sscanf_a6e120,
+                              ColourRandomizer::RandomizeColourTable);
 
                 RegisterHook ("50 8d 8e e4 0f 00 00 51 8b ? e8", 10,
                               CVehicle__OriginalSetRandomColour,
                               ColourRandomizer::RandomizeCarCols);
             }
 
-        if(ConfigManager::GetConfigs().colours.hud)
+        if (ConfigManager::GetConfigs ().colours.hud)
             RegisterHook ("8d b7 e0 0f 00 00 b9 ? ? ? ? e8 ", 11, FUN_453920,
                           ColourRandomizer::HookRender);
 
-        Rainbomizer::Logger::LogMessage("Initialised ColourRandomizer");
+        Rainbomizer::Logger::LogMessage ("Initialised ColourRandomizer");
     }
 } _cols;
 

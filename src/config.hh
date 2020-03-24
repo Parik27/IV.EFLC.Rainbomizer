@@ -41,18 +41,22 @@ struct TrafficConfig : public BaseConfig
 /*******************************************************/
 struct ColourConfig : public BaseConfig
 {
-    bool                 hueCycle   = true;
-    bool                 carcols    = true;
-    bool                 hud        = false;
+    bool hueCycle = true;
+    bool carcols  = true;
+    bool hud      = false;
 
     void Read (std::shared_ptr<cpptoml::table> table);
 };
 
 /*******************************************************/
-struct CheatConfig : public BaseConfig { };
+struct CheatConfig : public BaseConfig
+{
+};
 
 /*******************************************************/
-struct WeaponConfig : public BaseConfig { };
+struct WeaponConfig : public BaseConfig
+{
+};
 
 /*******************************************************/
 struct ParkedCarConfig : public BaseConfig

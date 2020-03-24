@@ -8,8 +8,9 @@ class CLoadedGroup
 {
 public:
     int m_aMembers[64];
-    template<class UnaryFunction>
-    void for_each(UnaryFunction f)
+    template <class UnaryFunction>
+    void
+    for_each (UnaryFunction f)
     {
         for (auto i : m_aMembers)
             {
@@ -34,37 +35,39 @@ private:
     uint8_t pad__401[3];
 
 public:
-    CLoadedGroup  m_aAppropriatePeds;
-    CLoadedGroup  m_aInappropriatePeds;
-    CLoadedGroup  m_aSpecialPeds;
-    int           m_nUnk704;
-    int           m_nTotalPedBytesLoaded;
-    int           m_nTotalVehicleBytesLoaded;
+    CLoadedGroup m_aAppropriatePeds;
+    CLoadedGroup m_aInappropriatePeds;
+    CLoadedGroup m_aSpecialPeds;
+    int          m_nUnk704;
+    int          m_nTotalPedBytesLoaded;
+    int          m_nTotalVehicleBytesLoaded;
 
-    static CStreaming* ms_instance;
-    
+    static CStreaming *ms_instance;
+
     static void RequestResource (int index, int fileType, int flags);
-    static int GetStreamingFlags (int index, int fileType);
+    static int  GetStreamingFlags (int index, int fileType);
     static void LoadAllObjects (int bPriorityOnly);
     static bool HasResourceLoaded (int index, int fileType);
     static void MarkResourceAsNoLongerNeeded (int index, int fileType);
 
-    static CBaseModelInfo* GetModelAndIndexFromHash(unsigned int hash, int* indexOut);
-    static CBaseModelInfo* GetModelFromHashHash(unsigned int hash);
+    static CBaseModelInfo *GetModelAndIndexFromHash (unsigned int hash,
+                                                     int *        indexOut);
+    static CBaseModelInfo *GetModelFromHashHash (unsigned int hash);
 
-    static int& g_pFileTypeWdrIndex;
-    
-    static void InitialisePatterns();
+    static int &g_pFileTypeWdrIndex ();
+
+    static void InitialisePatterns ();
 
     ////////////////////////////////////////////////////
     // Utility functions (not game functions)
     ////////////////////////////////////////////////////
-    
+
     /// Loads a model (using g_pFileTypeWdrIndex) with a model name
     /// Returns true if the model was successfully loaded
-    static bool AttemptToLoadModel(const std::string &modelName, int numTries = 1);
+    static bool AttemptToLoadModel (const std::string &modelName,
+                                    int                numTries = 1);
 
     /// Loads a model (using g_pFileTypeWdrIndex) with a hash
     /// Returns true if the model was successfully loaded
-    static bool AttemptToLoadModel(uint32_t hash, int numTries = 1);
+    static bool AttemptToLoadModel (uint32_t hash, int numTries = 1);
 };

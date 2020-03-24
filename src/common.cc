@@ -35,13 +35,12 @@ Common::HandleEpisodicChanges (int num)
         {
             Logger::LogMessage ("Detected episode switch: %d to %d",
                                 mPreviousEpisode, episode);
-            
+
             mPreviousEpisode = episode;
-            
+
             for (auto i : GetCallbacks ())
                 i (episode);
         }
-    
 
     return FindPlayerPed_48e602 (num);
 }
@@ -73,7 +72,7 @@ Common::AddEpisodeChangeCallback (std::function<void (int)> callback)
 void
 Common::InitialiseIndices ()
 {
-    for (size_t i = 0; i < CModelInfoStore::m_nTotalModelPointers; i++)
+    for (size_t i = 0; i < CModelInfoStore::m_nTotalModelPointers(); i++)
         {
             auto info = CModelInfoStore::m_aModelPointers[i];
             auto type = info->__vmt->GetType ();
@@ -140,7 +139,7 @@ struct GamePathA
 
     GamePathA ()
     {
-      _path[0]  = '\0';
+        _path[0]  = '\0';
         HMODULE h = NULL;
         h         = GetModuleHandleA (NULL);
         GetModuleFileNameA (h, _path, MAX_PATH);
@@ -167,7 +166,8 @@ std::string
 Common::GetRainbomizerFileName (const std::string &name,
                                 const std::string &subdirs)
 {
-    std::string baseDir = GetGameDirRelativePathA (("rainbomizer/" + subdirs).c_str());
+    std::string baseDir
+        = GetGameDirRelativePathA (("rainbomizer/" + subdirs).c_str ());
     std::filesystem::create_directories (baseDir);
     return baseDir + name;
 }
@@ -190,9 +190,9 @@ Common::GetRainbomizerDataFile (const std::string &name,
         = episodic ? GetEpisodeNameFromID (GetStoredEpisodeNumber ()) : "";
 
     FILE *f = GetRainbomizerFile (name, mode, "data/" + dirs + "/");
-    if(!f)
+    if (!f)
         Logger::LogMessage ("Failed to read Rainbomizer data file: %s/data/%s",
-                            dirs.c_str(), name.c_str());
+                            dirs.c_str (), name.c_str ());
 
     return f;
 }
@@ -206,7 +206,7 @@ Common::GetPedIndices ()
 
     return mPedIndices;
 }
-    
+
 bool             Common::mIndicesInitialised = false;
 std::vector<int> Common::mVehicleIndices;
 std::vector<int> Common::mPedIndices;

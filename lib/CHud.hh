@@ -4,13 +4,13 @@
 #pragma once
 
 class CHud
-{    
+{
 public:
     // aColours[66]
-    static CARGB* aColours;
+    static CARGB *aColours;
 
     // aColourNameHashes
-    static int* aColourNameHashes;
+    static int *aColourNameHashes;
 
-    static void InitialisePatterns();
+    static void InitialisePatterns ();
 };

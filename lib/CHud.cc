@@ -1,8 +1,8 @@
 #include "CHud.hh"
 #include "Patterns/Patterns.hh"
 
-CARGB* CHud::aColours;
-int* CHud::aColourNameHashes;
+CARGB *CHud::aColours;
+int *  CHud::aColourNameHashes;
 
 /*******************************************************/
 void

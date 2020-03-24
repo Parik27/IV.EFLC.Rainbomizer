@@ -1,6 +1,6 @@
 #pragma once
 
-class scrThread;
+struct scrThread;
 
 struct scrThreadContext
 {
@@ -29,12 +29,12 @@ struct scrThreadContext
 
 struct scrThread__vftable
 {
-  int (__thiscall *deconstructor) (scrThread *scr, bool free);
-  void (__thiscall *Reset) (scrThread *scr, unsigned int hash, int newStack,
-                            void *stackSize);
-  int (__thiscall *ParseThread) (scrThread* scr, unsigned int param_2);
-  void (__thiscall *Loop) (scrThread* scr);
-  void (__thiscall *Kill) (scrThread* scr);
+    int (__thiscall *deconstructor) (scrThread *scr, bool free);
+    void (__thiscall *Reset) (scrThread *scr, unsigned int hash, int newStack,
+                              void *stackSize);
+    int (__thiscall *ParseThread) (scrThread *scr, unsigned int param_2);
+    void (__thiscall *Loop) (scrThread *scr);
+    void (__thiscall *Kill) (scrThread *scr);
 };
 
 struct scrThread
@@ -48,7 +48,7 @@ struct scrThread
     unsigned int        unk_data;
     char *              m_pszExitMessage;
 };
-static_assert(sizeof(scrThread) == 0x70);
+static_assert (sizeof (scrThread) == 0x70);
 
 class GtaThread : scrThread
 {
@@ -77,4 +77,4 @@ public:
     unsigned int field_A8;
     unsigned int field_AC;
 };
-static_assert(sizeof(GtaThread) == 176);
+static_assert (sizeof (GtaThread) == 176);

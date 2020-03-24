@@ -36,14 +36,11 @@ MissionConfig::Read (std::shared_ptr<cpptoml::table> table)
     CONFIG (table, forcedMissionID, "ForcedMissionID", std::string);
     CONFIG (table, forceSeed, "ForceSeed", bool);
 
-    std::string seed
-        = table->get_as<std::string> ("Seed").value_or ("");
+    std::string seed = table->get_as<std::string> ("Seed").value_or ("");
 
     if (seed != "")
         this->seed = std::hash<std::string>{}(seed);
 }
-
-
 
 /*******************************************************/
 void
@@ -105,7 +102,7 @@ ConfigManager::WriteDefaultConfig (const std::string &file)
     FILE *f = Rainbomizer::Common::GetRainbomizerFile (file.c_str (), "wb");
     if (f)
         {
-            fwrite (configDefault, sizeof(configDefault) - 1, 1, f);
+            fwrite (configDefault, sizeof (configDefault) - 1, 1, f);
             fclose (f);
         }
 }
@@ -128,7 +125,8 @@ ConfigManager::ConfigManager (const std::string &file)
     config = ParseDefaultConfig ();
     try
         {
-            config = cpptoml::parse_file (Rainbomizer::Common::GetRainbomizerFileName (file));
+            config = cpptoml::parse_file (
+                Rainbomizer::Common::GetRainbomizerFileName (file));
         }
     catch (const std::exception &e)
         {
@@ -175,5 +173,5 @@ ConfigManager::GetInstance ()
 const Configs &
 ConfigManager::GetConfigs ()
 {
-    return GetInstance()->mConfigs;
+    return GetInstance ()->mConfigs;
 }

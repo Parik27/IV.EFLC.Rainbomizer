@@ -105,15 +105,15 @@ class SoundsRandomizer
     {
         mHook8f5b00.restore ();
 
-        if(mSounds.size() > 0)
+        if (mSounds.size () > 0)
             {
                 auto &sound = mSounds[RandomInt (mSounds.size () - 1)];
-                
+
                 identifier             = sound.sound.data ();
                 subtitle               = sound.subtitle.data ();
                 mBankAudioPairs[index] = {sound.bankHash, sound.sound};
             }
-        
+
         entity->AddLineToConversation (index, param_3, identifier, subtitle,
                                        param_6, param_7);
 
@@ -232,9 +232,9 @@ class SoundsRandomizer
         std::unordered_map<uint32_t, SoundPair> &soundPairs)
     {
         int total = 0;
-        for (int i = 0; i < audScriptAudioEntity::g_nSoundMetadataLen; i++)
+        for (int i = 0; i < audScriptAudioEntity::g_nSoundMetadataLen(); i++)
             {
-                auto metadata = audScriptAudioEntity::g_aSoundMetadata[i];
+                auto metadata = audScriptAudioEntity::g_aSoundMetadata()[i];
                 for (int j = 0; j < metadata.size; j++)
                     {
                         uint32_t hash = metadata.sounds[j].hash;
@@ -259,9 +259,9 @@ class SoundsRandomizer
         FILE *audioFile
             = Rainbomizer::Common::GetRainbomizerDataFile ("AudioBanks.txt");
 
-        if(!audioFile)
+        if (!audioFile)
             return;
-        
+
         while (fgets (line, 128, audioFile))
             {
                 if (strlen (line) > 2 && line[0] != '#')
@@ -404,9 +404,9 @@ public:
     /*******************************************************/
     SoundsRandomizer ()
     {
-        if(!ConfigManager::GetConfigs().sounds.enabled)
+        if (!ConfigManager::GetConfigs ().sounds.enabled)
             return;
-        
+
         InitialiseAllComponents ();
         Rainbomizer::Common::AddEpisodeChangeCallback (
             InitialiseRandomizationForEpisode);
@@ -436,7 +436,7 @@ public:
         RegisterHook ("f3 a4 50 b9 ? ? ? ? e8 ? ? ? ? 84 c0", 8,
                       CorrectSubtitleVariationLabelCheck);
 
-        Rainbomizer::Logger::LogMessage("Initialised SoundsRandomizer");
+        Rainbomizer::Logger::LogMessage ("Initialised SoundsRandomizer");
     }
 };
 

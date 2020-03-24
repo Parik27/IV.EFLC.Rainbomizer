@@ -19,43 +19,47 @@ struct Vehicle
 class ScriptVehicleRandomizer
 {
 
-    static std::vector<Vehicle> mVehicles;
+    static std::vector<Vehicle>  mVehicles;
     static std::vector<uint32_t> mBoats;
     static std::vector<uint32_t> mHelis;
-    static injector::scoped_jmp mHookCreateCar;
+    static injector::scoped_jmp  mHookCreateCar;
 
     /*******************************************************/
-    static uint32_t GetVehicleForModel(uint32_t hash)
+    static uint32_t
+    GetVehicleForModel (uint32_t hash)
     {
-        for(auto i : mBoats)
-            if(i == hash)
-                return mBoats[RandomInt(mBoats.size() - 1)];
-        for(auto i : mHelis)
-            if(i == hash)
-                return mHelis[RandomInt(mHelis.size() - 1)];
-        
-        return CCrypto::HashString(mVehicles[RandomInt(mVehicles.size () - 1)].name.c_str());
+        for (auto i : mBoats)
+            if (i == hash)
+                return mBoats[RandomInt (mBoats.size () - 1)];
+        for (auto i : mHelis)
+            if (i == hash)
+                return mHelis[RandomInt (mHelis.size () - 1)];
+
+        return CCrypto::HashString (
+            mVehicles[RandomInt (mVehicles.size () - 1)].name.c_str ());
     }
-    
+
     /*******************************************************/
     static void
     CreateCarNativeHook (NativeData *data)
     {
-       
-        static int number          = 0;
-        //Vehicle    car             = mVehicles[RandomInt(mVehicles.size () - 1)];
-        uint32_t originalHash      = data->Params[0].uint_param;
-        
-        data->Params[0].uint_param = GetVehicleForModel(originalHash); //CCrypto::HashString (car.name.c_str ());
+
+        static int number = 0;
+        // Vehicle    car             = mVehicles[RandomInt(mVehicles.size () -
+        // 1)];
+        uint32_t originalHash = data->Params[0].uint_param;
+
+        data->Params[0].uint_param = GetVehicleForModel (
+            originalHash); // CCrypto::HashString (car.name.c_str ());
 
         // This does stuff related to unloading and loading the old/new vehicles
-        //CNativeManager::CallNative ("MARK_MODEL_AS_NO_LONGER_NEEDED",
-        //data->Params[0].uint_param);
+        // CNativeManager::CallNative ("MARK_MODEL_AS_NO_LONGER_NEEDED",
+        // data->Params[0].uint_param);
 
         // TODO: Replace this with random loaded vehicle once the exe is more
         // reverse engineered.
         // Fallback for when the model couldn't get loaded (Streaming limits)
-        if (!CStreaming::AttemptToLoadModel(data->Params[0].uint_param))
+        if (!CStreaming::AttemptToLoadModel (data->Params[0].uint_param))
             data->Params[0].uint_param = originalHash;
 
         CNativeManager::CallOriginalNative ("CREATE_CAR", data);
@@ -73,10 +77,10 @@ class ScriptVehicleRandomizer
                                   gameName, anims, anims2, frq, maxNum, f1, f2,
                                   f3, i1, f4, i2, flags);
         mVehicles.push_back ({model, type});
-        if(std::string(type) == "boat")
-            mBoats.push_back(CCrypto::HashStringLowercase(model));
-        else if(std::string(type) == "heli")
-            mHelis.push_back(CCrypto::HashStringLowercase(model));
+        if (std::string (type) == "boat")
+            mBoats.push_back (CCrypto::HashStringLowercase (model));
+        else if (std::string (type) == "heli")
+            mHelis.push_back (CCrypto::HashStringLowercase (model));
 
         return count;
     }
@@ -100,8 +104,8 @@ class ScriptVehicleRandomizer
     static void
     InitialiseCreateVehicleHook ()
     {
-        static void *addr = hook::get_pattern (
-            "55 57 8b 7c ? ? 8b 04 ? ? ? ? ? 85 c0 8b e9");
+        static void *addr
+            = hook::get_pattern ("55 57 8b 7c ? ? 8b 04 ? ? ? ? ? 85 c0 8b e9");
 
         mHookCreateCar.make_jmp (addr, CreateVehicleHook);
     }
@@ -110,24 +114,24 @@ public:
     /*******************************************************/
     ScriptVehicleRandomizer ()
     {
-        if(!ConfigManager::GetConfigs().scriptVehicle.enabled)
+        if (!ConfigManager::GetConfigs ().scriptVehicle.enabled)
             return;
-        
-        InitialiseAllComponents();
-        
+
+        InitialiseAllComponents ();
+
         RegisterHook ("8d 84 ? e4 00 00 00 50 68 ? ? ? ? 56 e8", 14,
                       scanf_aca2e7, CarListHook);
 
-        InitialiseCreateVehicleHook();
-        
-        CNativeManager::OverwriteNative ("CREATE_CAR", CreateCarNativeHook);
-        Rainbomizer::Logger::LogMessage("Initialised ScriptVehicleRandomizer");
-    }
-} ;
+        InitialiseCreateVehicleHook ();
 
-std::vector<Vehicle> ScriptVehicleRandomizer::mVehicles;
+        CNativeManager::OverwriteNative ("CREATE_CAR", CreateCarNativeHook);
+        Rainbomizer::Logger::LogMessage ("Initialised ScriptVehicleRandomizer");
+    }
+};
+
+std::vector<Vehicle>  ScriptVehicleRandomizer::mVehicles;
 std::vector<uint32_t> ScriptVehicleRandomizer::mHelis;
 std::vector<uint32_t> ScriptVehicleRandomizer::mBoats;
-injector::scoped_jmp ScriptVehicleRandomizer::mHookCreateCar{};
+injector::scoped_jmp  ScriptVehicleRandomizer::mHookCreateCar{};
 
 ScriptVehicleRandomizer _scr;

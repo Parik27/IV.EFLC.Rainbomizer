@@ -16,12 +16,13 @@
 #include "config.hh"
 #include "logger.hh"
 
-bool IsModelPartOfGroup(uint32_t hash, const std::vector<std::string> &mList)
+bool
+IsModelPartOfGroup (uint32_t hash, const std::vector<std::string> &mList)
 {
-    for(auto i : mList)
+    for (auto i : mList)
         {
-            if (CCrypto::HashString(i.c_str()) == hash)
-                return true;            
+            if (CCrypto::HashString (i.c_str ()) == hash)
+                return true;
         }
     return false;
 }
@@ -29,13 +30,13 @@ bool IsModelPartOfGroup(uint32_t hash, const std::vector<std::string> &mList)
 class WeaponRandomizer
 {
     static injector::scoped_jmp mHooka98500;
-    static std::vector<int> mValidWeapons;
+    static std::vector<int>     mValidWeapons;
 
     /*******************************************************/
     static void
     RandomizeWeaponStat (int index)
     {
-        auto info = CWeaponInfo::GetInfoFromIndex(index);
+        auto info = CWeaponInfo::GetInfoFromIndex (index);
 
         auto randomInfo = [] {
             return CWeaponInfo::GetInfoFromIndex (
@@ -43,16 +44,17 @@ class WeaponRandomizer
         };
 
         std::swap (randomInfo ()->clipSize, info->clipSize);
-        //std::swap (randomInfo ()->fireType, info->fireType);
+        // std::swap (randomInfo ()->fireType, info->fireType);
         std::swap (randomInfo ()->damageType, info->damageType);
         std::swap (randomInfo ()->targetRange, info->targetRange);
         std::swap (randomInfo ()->weaponRange, info->weaponRange);
         std::swap (randomInfo ()->statType, info->statType);
-        //std::swap (randomInfo ()->flags, info->flags);
-        //std::swap (randomInfo ()->m_nWeaponModelHash, info->m_nWeaponModelHash);
-        //std::swap (randomInfo ()->animGroup, info->animGroup);
-        //std::swap (randomInfo ()->animFireRate, info->animFireRate);
-        //std::swap (randomInfo ()->animBlindFireRate, info->animBlindFireRate);
+        // std::swap (randomInfo ()->flags, info->flags);
+        // std::swap (randomInfo ()->m_nWeaponModelHash,
+        // info->m_nWeaponModelHash); std::swap (randomInfo ()->animGroup,
+        // info->animGroup); std::swap (randomInfo ()->animFireRate,
+        // info->animFireRate); std::swap (randomInfo ()->animBlindFireRate,
+        // info->animBlindFireRate);
         std::swap (randomInfo ()->rumbleDuration, info->rumbleDuration);
         std::swap (randomInfo ()->rumbleIntensity, info->rumbleIntensity);
         std::swap (randomInfo ()->regenTime, info->regenTime);
@@ -66,8 +68,8 @@ class WeaponRandomizer
         std::swap (randomInfo ()->time, info->time);
         std::swap (randomInfo ()->fastTime, info->fastTime);
         std::swap (randomInfo ()->crouchTime, info->crouchTime);
-        //std::swap (randomInfo ()->animMeleeGroup1, info->animMeleeGroup1);
-        //std::swap (randomInfo ()->animMeleeGroup2, info->animMeleeGroup2);
+        // std::swap (randomInfo ()->animMeleeGroup1, info->animMeleeGroup1);
+        // std::swap (randomInfo ()->animMeleeGroup2, info->animMeleeGroup2);
         std::swap (randomInfo ()->muzzleFx, info->muzzleFx);
         std::swap (randomInfo ()->shellFx, info->shellFx);
         std::swap (randomInfo ()->trailFx, info->trailFx);
@@ -82,7 +84,7 @@ class WeaponRandomizer
 
         if (mValidWeapons.size () == 0)
             {
-                puts("Initialising new valid weapons array");
+                puts ("Initialising new valid weapons array");
                 // These models are exempt from randomization
                 const std::vector<std::string> mExceptions
                     = {"cj_rpg_rocket", "w_e2_grenade", "W_e2_rocket",
@@ -100,11 +102,11 @@ class WeaponRandomizer
             }
 
         auto newWeapon = mValidWeapons[RandomInt (mValidWeapons.size () - 1)];
-        if(ConfigManager::GetConfigs().weaponStats.enabled)
-            RandomizeWeaponStat(newWeapon);
-        
+        if (ConfigManager::GetConfigs ().weaponStats.enabled)
+            RandomizeWeaponStat (newWeapon);
+
         weapons->GiveWeapon (newWeapon, ammo, param4, param5, shown);
-        
+
         InitialiseRandomWeaponsHook ();
     }
 
@@ -122,22 +124,20 @@ public:
     /*******************************************************/
     WeaponRandomizer ()
     {
-        if(!ConfigManager::GetConfigs().weapon.enabled)
+        if (!ConfigManager::GetConfigs ().weapon.enabled)
             return;
-        
-        InitialiseAllComponents();        
+
+        InitialiseAllComponents ();
         InitialiseRandomWeaponsHook ();
 
-        Rainbomizer::Common::AddEpisodeChangeCallback([](int)
-        {
-            mValidWeapons.clear();
-        });
+        Rainbomizer::Common::AddEpisodeChangeCallback (
+            [] (int) { mValidWeapons.clear (); });
 
-        Rainbomizer::Logger::LogMessage("Initialised WeaponRandomizer");
+        Rainbomizer::Logger::LogMessage ("Initialised WeaponRandomizer");
     }
 };
 
-injector::scoped_jmp             WeaponRandomizer::mHooka98500{};
-std::vector<int>                 WeaponRandomizer::mValidWeapons;
+injector::scoped_jmp WeaponRandomizer::mHooka98500{};
+std::vector<int>     WeaponRandomizer::mValidWeapons;
 
 WeaponRandomizer _weap;

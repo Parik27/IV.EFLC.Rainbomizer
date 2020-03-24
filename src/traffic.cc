@@ -9,19 +9,19 @@
 #include "config.hh"
 #include "logger.hh"
 
-int (*GetPedModelForVehicle_ab333d)(int);
-CVehicleModelInfo* (*CModelInfoStore__AllocateVehicleModel9adc6d)(char*);
+int (*GetPedModelForVehicle_ab333d) (int);
+CVehicleModelInfo *(*CModelInfoStore__AllocateVehicleModel9adc6d) (char *);
 
 class TrafficRandomizer
 {
-   
+
     /*******************************************************/
     static int
     GetRandomCarToGenerate (bool *copCar, int param2, bool wanted,
                             bool smallworker, bool param5)
     {
         std::set<int> cars;
-        auto groups = CStreaming::ms_instance;
+        auto          groups = CStreaming::ms_instance;
 
         // We combine all four groups into one set (since the first two can
         // overlap)
@@ -50,7 +50,7 @@ class TrafficRandomizer
         // Vehicle should always be loaded if they're in the loaded groups, but
         // just in case
         if (CStreaming::HasResourceLoaded (*it,
-                                           CStreaming::g_pFileTypeWdrIndex))
+                                           CStreaming::g_pFileTypeWdrIndex ()))
             return *it;
 
         return -1;
@@ -65,7 +65,7 @@ class TrafficRandomizer
             {
                 int vehicle = vehicles[RandomInt (vehicles.size () - 1)];
                 if (CStreaming::HasResourceLoaded (
-                        vehicle, CStreaming::g_pFileTypeWdrIndex))
+                        vehicle, CStreaming::g_pFileTypeWdrIndex ()))
                     continue;
 
                 return vehicle;
@@ -87,7 +87,7 @@ class TrafficRandomizer
     GetPedModelForVehicle (int id)
     {
         // Similar to GetRandomCarToGenerate
-        
+
         std::set<int> peds;
         auto          groups = CStreaming::ms_instance;
 
@@ -102,12 +102,12 @@ class TrafficRandomizer
 
         if (peds.size () < 1)
             return -1;
-        
+
         auto it = peds.begin ();
         std::advance (it, RandomInt (peds.size () - 1));
-        
+
         if (CStreaming::HasResourceLoaded (*it,
-                                           CStreaming::g_pFileTypeWdrIndex))
+                                           CStreaming::g_pFileTypeWdrIndex ()))
             return *it;
 
         return -1;
@@ -117,24 +117,24 @@ public:
     /*******************************************************/
     TrafficRandomizer ()
     {
-        if(!ConfigManager::GetConfigs().traffic.enabled)
+        if (!ConfigManager::GetConfigs ().traffic.enabled)
             return;
-        
+
         InitialiseAllComponents ();
         InitialiseSpawnHook ();
 
         RegisterHook ("74 ? 50 8b cb e8 ? ? ? ? 8b f8 85 ff", 5,
                       RandomizeCarToLoad);
 
-        //injector::MakeNOP (0x0a40a0a, 6);
-        //injector::MakeNOP (0x0a40a15, 6);
-        //injector::MakeNOP (0x0a40a1f, 6);
-        //injector::MakeNOP (0x0a40a2c, 6);
-        
+        // injector::MakeNOP (0x0a40a0a, 6);
+        // injector::MakeNOP (0x0a40a15, 6);
+        // injector::MakeNOP (0x0a40a1f, 6);
+        // injector::MakeNOP (0x0a40a2c, 6);
+
         RegisterHook ("eb ? 0f bf 47 2e 50 e8 ? ? ? ? 83 c4 04 8b d8 ", 7,
                       GetPedModelForVehicle_ab333d, GetPedModelForVehicle);
 
-        Rainbomizer::Logger::LogMessage("Initialised TrafficRandomizer");
+        Rainbomizer::Logger::LogMessage ("Initialised TrafficRandomizer");
     }
 };
 

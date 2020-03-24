@@ -9,7 +9,6 @@
 #define RAINBOMIZER_BUILD "Build v0.1 - Beta"
 #endif
 
-
 namespace Rainbomizer {
 
 /*******************************************************/
@@ -36,19 +35,20 @@ Logger::GetLogFile ()
         {
             mFile = Common::GetRainbomizerFile (GetTimeNow () + ".txt", "a+",
                                                 "logs/");
-            if(!mFile)
+            if (!mFile)
                 {
-                    MessageBox(NULL, "Unable to open log file", "Error", MB_ICONHAND);
+                    MessageBox (NULL, "Unable to open log file", "Error",
+                                MB_ICONHAND);
                     mFile = stdout;
                 }
 
             fprintf (mFile, "===========================================\n");
             fprintf (mFile, "%d\n", (int) time (NULL));
-            fprintf (mFile, "Rainbomizer IV/EFLC Build: %s \n", RAINBOMIZER_BUILD);
+            fprintf (mFile, "Rainbomizer IV/EFLC Build: %s \n",
+                     RAINBOMIZER_BUILD);
             fprintf (mFile, "===========================================\n");
-            
         }
-    
+
     return mFile;
 }
 
@@ -56,16 +56,16 @@ Logger::GetLogFile ()
 void
 Logger::LogMessage (const char *format, ...)
 {
-    FILE* file = GetLogFile();
-    fprintf(file, "[%d]: ", int(time(NULL)));
+    FILE *file = GetLogFile ();
+    fprintf (file, "[%d]: ", int (time (NULL)));
 
     va_list args;
-    va_start(args, format);
-    vfprintf(file, format, args);
-    va_end(args);
+    va_start (args, format);
+    vfprintf (file, format, args);
+    va_end (args);
 
-    fputc('\n', file);
-    fflush(file);
+    fputc ('\n', file);
+    fflush (file);
 }
 
 FILE *Logger::mFile = nullptr;

@@ -4,7 +4,6 @@
 void (__thiscall *CText__LoadAdditionalText) (CText *, const char *, int);
 int (__thiscall *fiFile__readData7e9166) (void *, short *, int);
 
-
 /*******************************************************/
 void
 CText::LoadAdditionalText (const char *gxt, int slot)
@@ -17,7 +16,7 @@ CText::LoadAdditionalText (const char *gxt, int slot)
 int __fastcall CText::EncodingDetectHook (void *thisThingy, void *edx,
                                           short *out, int size)
 {
-    int ret = fiFile__readData7e9166(thisThingy, out, size);
+    int ret = fiFile__readData7e9166 (thisThingy, out, size);
 
     m_nEncoding = *out;
     return ret;
@@ -34,8 +33,8 @@ CText::InitialisePatterns ()
     g_Text = *hook::get_pattern<CText *> (
         "5e 6a 01 b9 ? ? ? ? e8 ? ? ? ? b0 01 c3 ", 4);
 
-    m_nTotalAdditionalTextSlots = *hook::get_pattern<uint8_t> (
-        "83 ff ? 7d ? 80 bc ? ? ? ? ? 00 ", 2);
+    m_nTotalAdditionalTextSlots
+        = *hook::get_pattern<uint8_t> ("83 ff ? 7d ? 80 bc ? ? ? ? ? 00 ", 2);
 
 #ifndef NO_WSTR_DETECT_HOOK
     RegisterHook ("8d ? ? ? ? 8b ce e8 ? ? ? ? bf 04 00 00 00", 7,
@@ -49,7 +48,7 @@ CText::InitialisePatterns ()
         return *((type *) &reinterpret_cast<char *> (this)[offset]);           \
     }
 #define GTEXT_MEMBER_ARR(type, name, offset)                                   \
-    type CText::name ()                                                       \
+    type CText::name ()                                                        \
     {                                                                          \
         return ((type) & reinterpret_cast<char *> (this)[offset]);             \
     }
@@ -78,6 +77,6 @@ GTEXT_MEMBER (CText_Data<CText__data2>, m_paGxtTables,
 #undef N
 #undef GTEXT_MEMBER
 
-CText *CText::g_Text = nullptr;
+CText *       CText::g_Text                      = nullptr;
 unsigned char CText::m_nTotalAdditionalTextSlots = 8;
-int CText::m_nEncoding = 8;
+int           CText::m_nEncoding                 = 8;

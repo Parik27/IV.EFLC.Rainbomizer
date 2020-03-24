@@ -59,13 +59,13 @@ public:
     static int m_nEncoding;
 #endif
 
-    CText_Data<CGxtEntry> &    m_aTextDataKeys ();
+    CText_Data<CGxtEntry> &   m_aTextDataKeys ();
     CText_Data<char> &        m_aTextDataStrings ();
-    CText_Data<CGxtEntry>*    m_aAdditionalTextDataKeys ();
-    CText_Data<char>*         m_aAdditionalTextDataStrings ();
-    bool*                     m_abAdditionalTextLoaded ();
-    bool*                     m_abStreamingAdditionalText ();
-    CText__data2*             field_A0 ();
+    CText_Data<CGxtEntry> *   m_aAdditionalTextDataKeys ();
+    CText_Data<char> *        m_aAdditionalTextDataStrings ();
+    bool *                    m_abAdditionalTextLoaded ();
+    bool *                    m_abStreamingAdditionalText ();
+    CText__data2 *            field_A0 ();
     CText__string *           m_szAdditionalTextNames ();
     int &                     m_nKeyGxtTable ();
     unsigned char &           m_cTextType ();
@@ -73,7 +73,7 @@ public:
     unsigned char &           field_166 ();
     unsigned char &           field_167 ();
     CText_Data<CText__data2> &m_paGxtTables ();
-    
+
     static CText *g_Text;
 
     void LoadAdditionalText (const char *gxt, int slot);

@@ -8,21 +8,23 @@ int (*CStreaming__GetStreamingFlags) (int index, int fileType);
 void (*CStreaming__LoadAllObjects) (int bPriorityOnly);
 bool (*CStreaming__HasResourceLoaded) (int index, int fileType);
 void (*CStreaming__MarkResourceAsNoLongerNeeded) (int index, int fileType);
-CBaseModelInfo* (*CStreaming__GetModelAndIndexFromHash) (uint32_t, int*);
-CBaseModelInfo* (*CStreaming__GetModelFromHash) (uint32_t);
-int* CStreaming__g_pFileTypeWdrIndex;
+CBaseModelInfo *(*CStreaming__GetModelAndIndexFromHash) (uint32_t, int *);
+CBaseModelInfo *(*CStreaming__GetModelFromHash) (uint32_t);
+int *CStreaming__g_pFileTypeWdrIndex;
 
 /*******************************************************/
-void InitialiseGetModelFunctions()
+void
+InitialiseGetModelFunctions ()
 {
-    auto pattern =  hook::pattern("8b 44 ? ? 89 44 ? ? 66 a1 ? ? ? ?");
-    ConvertCall(pattern.get(0).get<void>(), CStreaming__GetModelAndIndexFromHash);
-    ConvertCall(pattern.get(1).get<void>(), CStreaming__GetModelFromHash);
+    auto pattern = hook::pattern ("8b 44 ? ? 89 44 ? ? 66 a1 ? ? ? ?");
+    ConvertCall (pattern.get (0).get<void> (),
+                 CStreaming__GetModelAndIndexFromHash);
+    ConvertCall (pattern.get (1).get<void> (), CStreaming__GetModelFromHash);
 }
 
 /*******************************************************/
 void
-CStreaming::InitialisePatterns()
+CStreaming::InitialisePatterns ()
 {
     ConvertCall (SearchBack ("03 44 ? ? 51 50 b9 ? ? ? ? e8 ? ? ? ?",
                              "8b 44 24 08", 0x30),
@@ -43,13 +45,13 @@ CStreaming::InitialisePatterns()
                              0x30),
                  CStreaming__MarkResourceAsNoLongerNeeded);
 
-    InitialiseGetModelFunctions();
+    InitialiseGetModelFunctions ();
 
     ms_instance = *hook::get_pattern<CStreaming *> (
         "85 c0 0f 8c ? ? ? ? b9 ? ? ? ? e8 ? ? ? ?", 9);
 
     CStreaming__g_pFileTypeWdrIndex
-        = *hook::get_pattern<int*> ("8b f8 e9 ? ? ? ? a1 ? ? ? ?", 8);
+        = *hook::get_pattern<int *> ("8b f8 e9 ? ? ? ? a1 ? ? ? ?", 8);
 }
 
 /*******************************************************/
@@ -88,10 +90,10 @@ CStreaming::MarkResourceAsNoLongerNeeded (int index, int fileType)
 }
 
 /*******************************************************/
-CBaseModelInfo*
-CStreaming::GetModelAndIndexFromHash(unsigned int hash, int *indexOut)
+CBaseModelInfo *
+CStreaming::GetModelAndIndexFromHash (unsigned int hash, int *indexOut)
 {
-    return CStreaming__GetModelAndIndexFromHash(hash, indexOut);
+    return CStreaming__GetModelAndIndexFromHash (hash, indexOut);
 }
 
 /*******************************************************/
@@ -105,25 +107,29 @@ CStreaming::GetModelFromHashHash (unsigned int hash)
 bool
 CStreaming::AttemptToLoadModel (const std::string &modelName, int numTries)
 {
-    uint32_t hash = CCrypto::HashString(modelName.c_str());
-    return CStreaming::AttemptToLoadModel(hash, numTries);
+    uint32_t hash = CCrypto::HashString (modelName.c_str ());
+    return CStreaming::AttemptToLoadModel (hash, numTries);
 }
 
 /*******************************************************/
 bool
-CStreaming::AttemptToLoadModel(uint32_t hash, int numTries)
+CStreaming::AttemptToLoadModel (uint32_t hash, int numTries)
 {
     int index = -1;
-    CStreaming::GetModelAndIndexFromHash(hash, &index);
-    while(index > -1 && numTries--)
+    CStreaming::GetModelAndIndexFromHash (hash, &index);
+    while (index > -1 && numTries--)
         {
-            CStreaming::RequestResource(index, g_pFileTypeWdrIndex, 0);
-            CStreaming::LoadAllObjects(0);
-            if(CStreaming::HasResourceLoaded(index, g_pFileTypeWdrIndex))
+            CStreaming::RequestResource (index, g_pFileTypeWdrIndex (), 0);
+            CStreaming::LoadAllObjects (0);
+            if (CStreaming::HasResourceLoaded (index, g_pFileTypeWdrIndex ()))
                 return true;
         }
     return false;
 }
 
-int& CStreaming::g_pFileTypeWdrIndex = *CStreaming__g_pFileTypeWdrIndex;
-CStreaming* CStreaming::ms_instance = nullptr;
+int &
+CStreaming::g_pFileTypeWdrIndex ()
+{
+    return *CStreaming__g_pFileTypeWdrIndex;
+}
+CStreaming *CStreaming::ms_instance = nullptr;

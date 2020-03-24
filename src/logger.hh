@@ -8,8 +8,8 @@ namespace Rainbomizer {
 class Logger
 {
     static FILE *mFile;
-    static FILE* GetLogFile();
-    
+    static FILE *GetLogFile ();
+
 public:
     static void LogMessage (const char *format, ...);
 };

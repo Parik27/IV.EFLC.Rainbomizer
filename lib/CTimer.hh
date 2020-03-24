@@ -3,8 +3,7 @@
 class CTimer
 {
 public:
-  
-  static float &ms_fFrameTime;
+    static float &ms_fFrameTime ();
 
-  static void InitialisePatterns();
+    static void InitialisePatterns ();
 };

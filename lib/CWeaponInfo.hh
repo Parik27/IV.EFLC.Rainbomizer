@@ -1,25 +1,25 @@
 #pragma once
 #include <cstdint>
+#include <CMaths.hh>
 
 class CWeaponInfo
 {
 public:
-    
     uint32_t type;
     uint32_t slot;
-    int        fireType;
+    int      fireType;
     uint32_t damageType;
     uint32_t group;
-    float      targetRange;
-    float      weaponRange;
+    float    targetRange;
+    float    weaponRange;
     uint32_t statType;
-    uint32_t       flags;
+    uint32_t flags;
     uint32_t m_nWeaponModelHash;
     uint32_t animGroup;
-    float      animFireRate;
-    float      animBlindFireRate;
-    float      field_0x34;
-    float      field_0x38;
+    float    animFireRate;
+    float    animBlindFireRate;
+    float    field_0x34;
+    float    field_0x38;
     uint8_t  field_0x3c;
     uint8_t  field_0x3d;
     uint8_t  field_0x3e;
@@ -56,26 +56,26 @@ public:
     uint8_t  field_0x5d;
     uint8_t  field_0x5e;
     uint8_t  field_0x5f;
-    float      field_0x60;
-    float      field_0x64;
-    float      field_0x68;
-    float      field_0x6c;
+    float    field_0x60;
+    float    field_0x64;
+    float    field_0x68;
+    float    field_0x6c;
     uint32_t rumbleDuration;
-    float      rumbleIntensity;
+    float    rumbleIntensity;
     uint32_t regenTime;
     uint8_t  field_0x7c;
     uint8_t  field_0x7d;
     uint8_t  field_0x7e;
     uint8_t  field_0x7f;
-    uint8_t2 ammoonstreet;
-    uint8_t2 base;
-    uint8_t2 fps;
-    uint8_t2 clipSize;
-    short      ammoMax;
+    uint16_t ammoonstreet;
+    uint16_t base;
+    uint16_t fps;
+    uint16_t clipSize;
+    short    ammoMax;
     uint8_t  field_0x8a;
     uint8_t  field_0x8b;
     uint32_t timeBetweenShots;
-    float      force;
+    float    force;
     uint32_t time;
     uint32_t fastTime;
     uint32_t crouchTime;
@@ -115,16 +115,16 @@ public:
     uint8_t  field_0xcd;
     uint8_t  field_0xce;
     uint8_t  field_0xcf;
-    float      field_0xd0;
-    float      field_0xd4;
-    float      field_0xd8;
+    float    field_0xd0;
+    float    field_0xd4;
+    float    field_0xd8;
     uint32_t animMeleeGroup1;
     uint32_t animMeleeGroup2;
     uint32_t muzzleFx;
     uint32_t shellFx;
     uint32_t trailFx;
-    float      field_0xf0;
-    float      field_0xf4;
+    float    field_0xf0;
+    float    field_0xf4;
     uint8_t  field_0xf8;
     uint8_t  field_0xf9;
     uint8_t  field_0xfa;
@@ -133,8 +133,8 @@ public:
     uint8_t  field_0xfd;
     uint8_t  field_0xfe;
     uint8_t  field_0xff;
-    
-    static CWeaponInfo* GetInfoFromIndex(int index);
 
-    static void InitialisePatterns();
+    static CWeaponInfo *GetInfoFromIndex (int index);
+
+    static void InitialisePatterns ();
 };

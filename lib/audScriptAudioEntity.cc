@@ -3,8 +3,8 @@
 
 void (__thiscall *audScriptAudioEntity__AddLineToConversation) (
     audScriptAudioEntity *, int, int, char *, char *, int, int);
-int* audScriptAudioEntity__m_nSoundMetadataLen = nullptr;
-CSoundBank** audScriptAudioEntity__g_aSoundMetadata = nullptr;
+int *        audScriptAudioEntity__m_nSoundMetadataLen;
+CSoundBank **audScriptAudioEntity__g_aSoundMetadata;
 
 /*******************************************************/
 void
@@ -19,13 +19,13 @@ audScriptAudioEntity::AddLineToConversation (int index, int param_3,
 
 /*******************************************************/
 void
-audScriptAudioEntity::InitialisePatterns()
+audScriptAudioEntity::InitialisePatterns ()
 {
     ConvertCall (hook::get_pattern ("8b 44 ? ? 6b c0 70 56 8d 34 08 8b 4c ? ?"),
                  audScriptAudioEntity__AddLineToConversation);
 
-    char *addr = hook::get_pattern<char> (
-        "8b 15 ? ? ? ? a1 ? ? ? ? 8b 4c ? ? 55 ");
+    char *addr
+        = hook::get_pattern<char> ("8b 15 ? ? ? ? a1 ? ? ? ? 8b 4c ? ? 55 ");
 
     audScriptAudioEntity__m_nSoundMetadataLen
         = injector::ReadMemory<int *> (addr + 2);
@@ -34,7 +34,11 @@ audScriptAudioEntity::InitialisePatterns()
         = injector::ReadMemory<CSoundBank **> (addr + 7);
 }
 
-int &audScriptAudioEntity::g_nSoundMetadataLen
-    = *audScriptAudioEntity__m_nSoundMetadataLen;
-CSoundBank *&audScriptAudioEntity::g_aSoundMetadata
-    = *audScriptAudioEntity__g_aSoundMetadata;
+int &audScriptAudioEntity::g_nSoundMetadataLen()
+{
+    return *audScriptAudioEntity__m_nSoundMetadataLen;
+}
+CSoundBank *&audScriptAudioEntity::g_aSoundMetadata()
+{
+    return *audScriptAudioEntity__g_aSoundMetadata;
+}
