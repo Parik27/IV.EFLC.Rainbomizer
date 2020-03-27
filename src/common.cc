@@ -75,7 +75,7 @@ Common::InitialiseIndices ()
     for (size_t i = 0; i < CModelInfoStore::m_nTotalModelPointers(); i++)
         {
             auto info = CModelInfoStore::m_aModelPointers[i];
-            auto type = info->__vmt->GetType ();
+            auto type = info->GetType ();
 
             switch (type)
                 {

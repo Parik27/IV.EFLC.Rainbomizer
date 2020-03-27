@@ -11,26 +11,6 @@ CCrypto::HashString (const char *string, int seed)
     return CCrypto__HashString (string, seed);
 }
 
-uint32_t
-LowercaseHash (char *a1)
-{
-    uint32_t hash = 0;
-    size_t   len  = strlen (a1);
-
-    for (size_t i = 0; i < len; i++)
-        {
-            hash += tolower (a1[i]);
-            hash += (hash << 10);
-            hash ^= (hash >> 6);
-        }
-
-    hash += (hash << 3);
-    hash ^= (hash >> 11);
-    hash += (hash << 15);
-
-    return hash;
-}
-
 /*******************************************************/
 void
 CCrypto::InitialisePatterns ()

@@ -49,6 +49,7 @@ public:
     static void LoadAllObjects (int bPriorityOnly);
     static bool HasResourceLoaded (int index, int fileType);
     static void MarkResourceAsNoLongerNeeded (int index, int fileType);
+    static void FreeWdrModel (int index);
 
     static CBaseModelInfo *GetModelAndIndexFromHash (unsigned int hash,
                                                      int *        indexOut);

@@ -76,6 +76,29 @@ class WeaponRandomizer
     }
 
     /*******************************************************/
+    static void InitialiseWeaponsArray()
+    {
+        mValidWeapons.clear ();
+
+        // These models are exempt from randomization
+        const std::vector<std::string> mExceptions
+            = {"cj_rpg_rocket", "w_e2_grenade", "W_e2_rocket", "w_e1_grenade"};
+
+        const int TOTAL_WEAPONS = 0x3c;
+        for (int i = 0; i < TOTAL_WEAPONS; i++)
+            {
+                auto info = CWeaponInfo::GetInfoFromIndex (i);
+                int  hash = info->m_nWeaponModelHash;
+
+                if (hash && !IsModelPartOfGroup (hash, mExceptions))
+                    mValidWeapons.push_back (i);
+            }
+
+        Rainbomizer::Logger::LogMessage ("Initialised %d valid weapons\n",
+                                         mValidWeapons.size ());
+    }
+    
+    /*******************************************************/
     static void __fastcall RandomizeWeapon (CPedWeapons *weapons, void *edx,
                                             int weapon, int ammo, char param4,
                                             char param5, bool shown)
@@ -83,23 +106,7 @@ class WeaponRandomizer
         mHooka98500.restore ();
 
         if (mValidWeapons.size () == 0)
-            {
-                puts ("Initialising new valid weapons array");
-                // These models are exempt from randomization
-                const std::vector<std::string> mExceptions
-                    = {"cj_rpg_rocket", "w_e2_grenade", "W_e2_rocket",
-                       "w_e1_grenade"};
-
-                const int TOTAL_WEAPONS = 0x3c;
-                for (int i = 0; i < TOTAL_WEAPONS; i++)
-                    {
-                        auto info = CWeaponInfo::GetInfoFromIndex (i);
-                        if (info->m_nWeaponModelHash
-                            && !IsModelPartOfGroup (info->m_nWeaponModelHash,
-                                                    mExceptions))
-                            mValidWeapons.push_back (i);
-                    }
-            }
+            InitialiseWeaponsArray();
 
         auto newWeapon = mValidWeapons[RandomInt (mValidWeapons.size () - 1)];
         if (ConfigManager::GetConfigs ().weaponStats.enabled)

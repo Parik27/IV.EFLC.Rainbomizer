@@ -2,6 +2,7 @@
 #include "CStreaming.hh"
 #include "Utils.hh"
 #include "CCrypto.hh"
+#include "../src/logger.hh"
 
 void (*CStreaming__RequestResource) (int index, int fileType, int flags);
 int (*CStreaming__GetStreamingFlags) (int index, int fileType);
@@ -11,6 +12,7 @@ void (*CStreaming__MarkResourceAsNoLongerNeeded) (int index, int fileType);
 CBaseModelInfo *(*CStreaming__GetModelAndIndexFromHash) (uint32_t, int *);
 CBaseModelInfo *(*CStreaming__GetModelFromHash) (uint32_t);
 int *CStreaming__g_pFileTypeWdrIndex;
+void (*CStreaming__FreeModel) (int);
 
 /*******************************************************/
 void
@@ -44,6 +46,9 @@ CStreaming::InitialisePatterns ()
     ConvertCall (SearchBack ("6a 02 51 b9 ? ? ? ? e8 ? ? ? ? c3", "8b 44 24 08",
                              0x30),
                  CStreaming__MarkResourceAsNoLongerNeeded);
+
+    ReadCall (hook::get_pattern ("85 c0 7c ? 8b 4c ? 1c 50 e8", 9),
+              CStreaming__FreeModel);
 
     InitialiseGetModelFunctions ();
 
@@ -127,6 +132,14 @@ CStreaming::AttemptToLoadModel (uint32_t hash, int numTries)
     return false;
 }
 
+/*******************************************************/
+void
+CStreaming::FreeWdrModel(int index)
+{
+    CStreaming__FreeModel(index);
+}
+
+/*******************************************************/
 int &
 CStreaming::g_pFileTypeWdrIndex ()
 {

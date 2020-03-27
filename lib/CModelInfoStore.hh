@@ -20,4 +20,11 @@ public:
 
     static int  GetMaximumNumberOfPassengers (int index);
     static void InitialisePatterns ();
+
+    template <typename T>
+    static T*
+    GetModelInfoPointer (int index)
+    {
+        return (T *) m_aModelPointers[index];
+    }
 };
