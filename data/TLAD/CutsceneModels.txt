@@ -502,14 +502,6 @@ cspistol
 csshotgun
 cswhiskeyglass
 cszippo
-cs_elizabeta
-cs_luis
-cs_ashleya
-cs_brianj
-cs_frankie
-cs_maitre_d
-cs_niko
-cs_skank
 csbong
 cscasserole
 cscigarb
@@ -541,6 +533,7 @@ cschairpegoa
 cselizachair
 csstool
 cswheelchair
+csbox
 
 csbankdoor
 cselizabetadoor
@@ -756,7 +749,6 @@ cselizsidetable
 csscoffeetable
 cstooldraw
 
-csbox
 csexplosives
 
 cshandlebars
