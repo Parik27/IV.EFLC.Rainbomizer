@@ -26,7 +26,7 @@ cs_derrick2
 cs_dessie
 cs_eugene
 cs_evan2
-cs_gparty_1
+cs_gparty_01
 cs_gracie2
 cs_henrique
 cs_issac2
@@ -531,18 +531,6 @@ cspistol
 csshotgun
 cswhiskeyglass
 cszippo
-cs_luis
-cs_playboyx
-cs_bathroom
-cs_billy2
-cs_daisy
-cs_evan2
-cs_gracie2
-cs_niko2
-cs_roman2
-cs_tony
-cs_vicgirl
-cs_yusef
 csautoassault
 csbelt
 csbroom
