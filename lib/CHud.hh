@@ -12,5 +12,6 @@ public:
     // aColourNameHashes
     static int *aColourNameHashes;
 
+    static void InitialisePatternsCE ();
     static void InitialisePatterns ();
 };

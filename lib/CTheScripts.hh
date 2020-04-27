@@ -5,6 +5,7 @@
 #include <functional>
 #include <any>
 #include <cstdarg>
+#include <gtaThread.hh>
 
 template <typename T> class HashPair
 {
@@ -18,6 +19,7 @@ union CScriptParams
     int      int_param;
     uint32_t uint_param;
     void *   ptr_param;
+    float float_param;
     char *   cstr_param;
 };
 
@@ -40,16 +42,23 @@ struct NativeData
     void *         m_ret;
     uint8_t        __unk00[3];
     CScriptParams *Params;
+    
+    template<typename T>
+    T GetParam(int arg)
+    {
+        return *(T*) &Params[arg];
+    }
 };
 
 typedef HashPair<void (*) (NativeData *)> NativeHashPair;
 
 /*******************************************************/
-class CScrVM
+class CTheScripts
 {
 public:
     static bool m_bNeedTranslation;
 
+    static GtaThread*& m_pRunningThread();
     static NativeHashPair **m_aNatives;
     static unsigned int *   m_nMaximumNatives;
 
@@ -59,6 +68,7 @@ public:
 
     static int *&m_pGlobals ();
 
+    static void InitialisePatternsCE ();
     static void InitialisePatterns ();
 
     static scrProgram *GetScrProgram (const std::string &name);
@@ -137,5 +147,6 @@ public:
         CallNativeRet (nullptr, name, args...);
     }
 
+    static void InitialiseCE ();
     static void Initialise ();
 };

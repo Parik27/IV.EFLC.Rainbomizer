@@ -6,7 +6,7 @@
 #ifndef NDEBUG
 #define RAINBOMIZER_BUILD "Debug Build: " __DATE__ " " __TIME__
 #else
-#define RAINBOMIZER_BUILD "Build v0.1 - Beta"
+#define RAINBOMIZER_BUILD "Build v0.1 for Fry - Beta: " __DATE__ " " __TIME__
 #endif
 
 namespace Rainbomizer {

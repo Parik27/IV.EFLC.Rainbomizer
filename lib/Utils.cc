@@ -4,7 +4,7 @@
 #include "CCrypto.hh"
 #include "CHud.hh"
 #include "CPed.hh"
-#include "CScrVM.hh"
+#include "CTheScripts.hh"
 #include "CStreaming.hh"
 #include "CTimer.hh"
 #include "CVehicleFactory.hh"
@@ -13,6 +13,8 @@
 #include "CModelInfoStore.hh"
 #include "CText.hh"
 #include "audScriptAudioEntity.hh"
+#include "CPlayer.hh"
+#include "CPools.hh"
 
 /*******************************************************/
 std::mt19937 &
@@ -52,7 +54,7 @@ InitialiseAllComponents ()
     CWeaponInfo::InitialisePatterns ();
     CStreaming::InitialisePatterns ();
     CCrypto::InitialisePatterns ();
-    CScrVM::InitialisePatterns ();
+    CTheScripts::InitialisePatterns ();
     CNativeManager::Initialise ();
     CVehicleFactory::InitialisePatterns ();
     CTimer::InitialisePatterns ();
@@ -60,6 +62,9 @@ InitialiseAllComponents ()
     CModelInfoStore::InitialisePatterns ();
     audScriptAudioEntity::InitialisePatterns ();
     CText::InitialisePatterns ();
+    CPlayer::InitialisePatterns();
+    CPools::InitialisePatterns();
+    CPed::InitialisePatterns();
 
     initialised = true;
 }

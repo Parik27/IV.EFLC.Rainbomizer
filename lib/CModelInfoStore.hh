@@ -19,6 +19,8 @@ public:
     static int &m_nTotalModelPointers();
 
     static int  GetMaximumNumberOfPassengers (int index);
+    
+    static void InitialisePatternsCE ();
     static void InitialisePatterns ();
 
     template <typename T>

@@ -1,0 +1,43 @@
+#Thread	Original Vehicle	Seats	Cars	Bikes	Helicopters	Boats	Trains	Flags	Alternate Coordinates		
+roman1	Rom	2	Y	Y	Y	N	N				
+roman2	Rom	2	Y	Y	Y	N	N		0	0	0
+roman3	Rom	4	Y	N	Y	N	N		0	0	0
+roman4	Rom	2	Y	Y	Y	N	N				
+roman5	Rom	4	Y	N	Y	N	N		0	0	0
+michelle1	Merit	2	Y	Y	Y	N	N				
+vlad3	Blista	1	Y	Y	N	N	N	washable			
+faustin1	Speedo	2	Y	Y	Y	N	N				
+faustin5	Flatbed	1	Y	Y	Y	N	N		0	0	0
+brucie2	Oracle	1	Y	Y	Y	N	N		0	0	0
+brucie4	Comet	2	Y	Y	Y	N	N		0	0	0
+elizabeta4	Voodoo	1	Y	Y	Y	N	N		0	0	0
+packie1	Yankee	2	Y	Y	Y	N	N		0	0	0
+packie2	Dinghy	2	N	N	Y	Y	N		0	0	0
+cia3	Maverick	1	Y	Y	Y	N	N				
+cia4	Maverick	2	N	N	Y	N	N				
+gerry2	Pcj	1	Y	Y	Y	N	N		0	0	0
+derrick2	Squalo	2	N	N	Y	Y	N		0	0	0
+derrick2	Reefer	1	N	N	Y	Y	N		0	0	0
+derrick2	Dinghy	2	N	N	Y	Y	N		0	0	0
+derrick3	Biff	1	Y	Y	N	N	N				
+derrick3	Pstockade	4	Y	N	N	N	N				
+francis6	Romero	2	Y	Y	Y	N	N				
+ray1	Trash	2	Y	Y	Y	N	N		0	0	0
+gerry3b	Feltzer	2	Y	Y	Y	N	N		0	0	0
+ray5	Bobber	1	Y	Y	N	N	N				
+gerry4	Vincent	1	Y	Y	Y	N	N				
+gerry5	Vincent	4	Y	Y	Y	N	N		0	0	0
+bernie3	Tropic	2	N	N	Y	Y	N		0	0	0
+bernie3	Squalo	2	N	N	Y	Y	N		0	0	0
+bell6	Mule	1	Y	Y	Y	N	N				
+jimmy1	Schafter	4	Y	N	Y	N	N				
+bell2	Steed	2	Y	Y	Y	N	N		0	0	0
+bell2	Squalo	1	N	N	N	Y	N				
+bell7	Washington	2	Y	Y	N	N	N				
+bell7	Speedo	4	Y	N	Y	N	N		0	0	0
+gambetti1	Lokus	2	Y	Y	Y	N	N				
+gambetti3	Pony	1	Y	Y	Y	Y	N				
+finale2	Cognoscenti	2	Y	Y	Y	N	N				
+finale2	Squalo	1	N	N	N	Y	N				
+finale2	Sanchez	1	Y	Y	Y	N	N		0	0	0
+finale2	Annihilator	2	N	N	Y	Y	Y				

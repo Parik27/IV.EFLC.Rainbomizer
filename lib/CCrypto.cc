@@ -13,6 +13,14 @@ CCrypto::HashString (const char *string, int seed)
 
 /*******************************************************/
 void
+CCrypto::InitialisePatternsCE()
+{
+    ConvertCall (hook::get_pattern ("32 23 6e ed 60 4b e6 38 36 1e"),
+                 CCrypto__HashString);
+}
+
+/*******************************************************/
+void
 CCrypto::InitialisePatterns ()
 {
     CCrypto__HashString = hook::get_pattern<uint32_t (const char *, int)> (

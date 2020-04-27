@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.1.5)
-project(plugin_iv)
+project(rainbomizer)
 
 # C++20
 if (MSVC_VERSION GREATER_EQUAL "1900")

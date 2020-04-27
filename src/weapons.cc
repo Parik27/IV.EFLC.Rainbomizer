@@ -9,12 +9,14 @@
 #include "CPed.hh"
 #include <vector>
 #include "CWeaponInfo.hh"
-#include "CScrVM.hh"
+#include "CTheScripts.hh"
 #include "CStreaming.hh"
 #include "CCrypto.hh"
 #include "common.hh"
 #include "config.hh"
 #include "logger.hh"
+#include <CPlayer.hh>
+#include <random>
 
 bool
 IsModelPartOfGroup (uint32_t hash, const std::vector<std::string> &mList)
@@ -30,7 +32,8 @@ IsModelPartOfGroup (uint32_t hash, const std::vector<std::string> &mList)
 class WeaponRandomizer
 {
     static injector::scoped_jmp mHooka98500;
-    static std::vector<int>     mValidWeapons;
+    static std::vector<int>                mValidWeapons;
+    static std::discrete_distribution<int> mDistribution;
 
     /*******************************************************/
     static void
@@ -76,7 +79,58 @@ class WeaponRandomizer
     }
 
     /*******************************************************/
-    static void InitialiseWeaponsArray()
+    static void
+    InitialiseWeaponWeights ()
+    {
+        FILE *file
+            = Rainbomizer::Common::GetRainbomizerDataFile ("WeaponWeights.txt");
+        std::unordered_map<uint32_t, double> probabilities;
+
+        char line[256] = {0};
+
+        double sum_probability     = 0.0;
+        int    total_probabilities = 0;
+
+        if (file)
+            {
+                while (fgets (line, 256, file))
+                    {
+                        if (line[0] == '#' || strlen (line) < 5)
+                            continue;
+
+                        char   model[128]  = {0};
+                        double probability = 0.0;
+                        if (sscanf (line, "%s = %lf", model, &probability) == 2)
+                            {
+                                probabilities[CCrypto::HashStringLowercase (
+                                    model)]
+                                    = probability;
+                                sum_probability += probability;
+                                total_probabilities++;
+                            }
+                    }
+            }
+
+        double mean_probability
+            = total_probabilities ? sum_probability / total_probabilities : 1;
+
+        std::vector<double> weights;
+        for (auto i : mValidWeapons)
+            {
+                auto info = CWeaponInfo::GetInfoFromIndex (i);
+                if (probabilities.count (info->m_nWeaponModelHash))
+                    weights.push_back (probabilities[info->m_nWeaponModelHash]);
+                else
+                    weights.push_back (mean_probability);
+            }
+
+        mDistribution
+            = std::discrete_distribution<int>{weights.begin (), weights.end ()};
+    }
+
+    /*******************************************************/
+    static void
+    InitialiseWeaponsArray ()
     {
         mValidWeapons.clear ();
 
@@ -94,10 +148,44 @@ class WeaponRandomizer
                     mValidWeapons.push_back (i);
             }
 
-        Rainbomizer::Logger::LogMessage ("Initialised %d valid weapons\n",
+        InitialiseWeaponWeights ();
+        Rainbomizer::Logger::LogMessage ("Initialised %d valid weapons",
                                          mValidWeapons.size ());
     }
+
+    /*******************************************************/
+    static int
+    GetNewWeaponForWeapon (int weapon, bool player, std::mt19937 &engine)
+    {
+        if (CTheScripts::m_pRunningThread () && player
+            && CTheScripts::m_pRunningThread ()->m_szProgramName
+                   == std::string ("yusuf3")
+            && CWeaponInfo::GetInfoFromIndex (weapon)->m_nWeaponModelHash
+                   == CCrypto::HashStringLowercase ("w_e2_dsr1"))
+            return weapon;
+
+        return mValidWeapons[mDistribution (engine)];
+    }
     
+    /*******************************************************/
+    static int
+    GetNewWeaponForWeapon (int weapon, CPedWeapons *weapons)
+    {
+        thread_local static std::mt19937 engine{(unsigned int) time (NULL)};
+        bool isPlayer = &CPlayer::FindPlayerPed ()->m_pWeapons () == weapons;
+
+        // Don't randomize the weapon if it's the player's weapon and it wasn't
+        // a thread that gave it to the player
+        if (!CTheScripts::m_pRunningThread () && isPlayer)
+            return weapon;
+
+        if (std::find (mValidWeapons.begin (), mValidWeapons.end (), weapon)
+            != mValidWeapons.end ())
+            return GetNewWeaponForWeapon(weapon, isPlayer, engine); //
+
+        return weapon;
+    }
+
     /*******************************************************/
     static void __fastcall RandomizeWeapon (CPedWeapons *weapons, void *edx,
                                             int weapon, int ammo, char param4,
@@ -105,10 +193,7 @@ class WeaponRandomizer
     {
         mHooka98500.restore ();
 
-        if (mValidWeapons.size () == 0)
-            InitialiseWeaponsArray();
-
-        auto newWeapon = mValidWeapons[RandomInt (mValidWeapons.size () - 1)];
+        auto newWeapon = GetNewWeaponForWeapon (weapon, weapons);
         if (ConfigManager::GetConfigs ().weaponStats.enabled)
             RandomizeWeaponStat (newWeapon);
 
@@ -137,8 +222,10 @@ public:
         InitialiseAllComponents ();
         InitialiseRandomWeaponsHook ();
 
-        Rainbomizer::Common::AddEpisodeChangeCallback (
-            [] (int) { mValidWeapons.clear (); });
+        Rainbomizer::Common::AddEpisodeChangeCallback ([] (int) {
+            mValidWeapons.clear ();
+            InitialiseWeaponsArray ();
+        });
 
         Rainbomizer::Logger::LogMessage ("Initialised WeaponRandomizer");
     }
@@ -146,5 +233,6 @@ public:
 
 injector::scoped_jmp WeaponRandomizer::mHooka98500{};
 std::vector<int>     WeaponRandomizer::mValidWeapons;
+std::discrete_distribution<int> WeaponRandomizer::mDistribution;
 
 WeaponRandomizer _weap;

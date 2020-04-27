@@ -2,7 +2,7 @@
 
 #pragma once
 
-class CBaseModelInfo;
+struct CBaseModelInfo;
 
 class CLoadedGroup
 {
@@ -66,9 +66,10 @@ public:
     /// Loads a model (using g_pFileTypeWdrIndex) with a model name
     /// Returns true if the model was successfully loaded
     static bool AttemptToLoadModel (const std::string &modelName,
-                                    int                numTries = 1);
+                                    int numTries = 1, bool vehicle = false);
 
     /// Loads a model (using g_pFileTypeWdrIndex) with a hash
     /// Returns true if the model was successfully loaded
-    static bool AttemptToLoadModel (uint32_t hash, int numTries = 1);
+    static bool AttemptToLoadModel (uint32_t hash, int numTries = 1,
+                                    bool vehicle = false);
 };

@@ -27,6 +27,7 @@ public:
     void AddLineToConversation (int index, int param_3, char *identifier,
                                 char *subtitle, int param_6, int param_7);
 
+    static void InitialisePatternsCE ();
     static void InitialisePatterns ();
 
     static CSoundBank *&g_aSoundMetadata();

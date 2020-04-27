@@ -1,5 +1,5 @@
 #include <cstdio>
-#include "CScrVM.hh"
+#include "CTheScripts.hh"
 #include "Utils.hh"
 #include "CStreaming.hh"
 #include "CModelInfo.hh"

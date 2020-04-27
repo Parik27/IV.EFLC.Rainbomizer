@@ -1,7 +1,7 @@
 #include "Utils.hh"
 #include "injector/utility.hpp"
 #include <cstring>
-#include <CScrVM.hh>
+#include <CTheScripts.hh>
 #include <gtaThread.hh>
 #include <unordered_map>
 #include <random>
@@ -11,6 +11,7 @@
 #include "logger.hh"
 #include "common.hh"
 #include "config.hh"
+#include <array>
 
 int (__thiscall *scrThread__ParseOriginal) (scrThread *  scr,
                                             unsigned int param_2);
@@ -22,6 +23,7 @@ struct MissionInfo
     int     citiesUnlocked;
     int     citiesUnlockedStart;
     bool    phoneMission;
+    int     stackSize;
 };
 
 std::unordered_map<std::string, MissionInfo> mMissionInfos{};
@@ -42,6 +44,19 @@ struct PreviousChange
     uint32_t offset;
     uint8_t  originalValue;
     uint8_t  newValue;
+};
+
+enum eMissions : unsigned int
+{
+    // IV Missions
+    MISSION_ROMAN1 = 0xFCF2C3F4,
+    MISSION_GERRY1 = 0xFF61524E,
+
+    // TLAD Missions
+    MISSION_BILLY1 = 0x5BAA19E,
+
+    // TBoGT Missions
+    MISSION_TONY1 = 0x5BEE6FEC
 };
 
 class MissionRandomizer
@@ -162,7 +177,7 @@ class MissionRandomizer
     AdjustScriptCodeForNewStrand (const std::string &newThread,
                                   const std::string &originalThread)
     {
-        scrProgram *program = CScrVM::GetScrProgram (newThread);
+        scrProgram *program = CTheScripts::GetScrProgram (newThread);
 
         // Set the strand and mission hash for future reference
         mOriginalMission   = mMissionInfos[originalThread];
@@ -192,8 +207,16 @@ class MissionRandomizer
             {
                 data->Params[0].cstr_param = newThread.data ();
                 adjustScript               = true;
+
+                // 8192 is the default (forced) stack size, so if the forced
+                // stack size is set to 8192, use a greater stack size if the
+                // mission requests.
+
                 data->Params[1].int_param
-                    = std::max (8192, data->Params[1].int_param);
+                    = std::max (mMissionInfos[newThread].stackSize,
+                                (mMissionInfos[newThread].stackSize == 8192)
+                                    ? data->Params[1].int_param
+                                    : 0);
             }
 
         CNativeManager::CallOriginalNative ("START_NEW_SCRIPT", data);
@@ -226,15 +249,75 @@ class MissionRandomizer
     }
 
     /*******************************************************/
+    static MissionStrandInfo *
+    GetMissionStrand (int val)
+    {
+
+        static auto globals = std::array{10982, 12307, 12383};
+        static auto sizes   = std::array{84, 228, 229};
+        int         episode = Rainbomizer::Common::GetStoredEpisodeNumber ();
+
+        return reinterpret_cast<MissionStrandInfo *> (
+            &CTheScripts::m_pGlobals ()[globals[episode]
+                                        + sizes[episode] * val]);
+    }
+
+    /*******************************************************/
+    static void
+    ApplyMissionSpecificFixes ()
+    {
+        const int GERRY_CONTACT = 17645;
+
+        switch (mMissionHash)
+            {
+            // gerry1 - Actions Speak Louder Than Words
+            // You need Gerry's contact to call him for the bomb
+            case MISSION_GERRY1:
+                CTheScripts::m_pGlobals ()[GERRY_CONTACT] = 1;
+                break;
+            }
+    }
+
+    /*******************************************************/
+    static void
+    ApplyMissionEndSpecificFixes (bool passed)
+    {
+        switch (mMissionHash)
+            {
+                // billy1, roman1, tony1 - First missions so fade out and never
+                // fade back in
+
+            case MISSION_BILLY1:
+            case MISSION_TONY1:
+                if (!passed)
+                    CNativeManager::CallNative ("DO_SCREEN_FADE_IN", 1000);
+                break;
+
+                // roman1 freezes you at the end to play the 
+            case MISSION_ROMAN1:
+                if(!passed)
+                    CNativeManager::CallNative ("DO_SCREEN_FADE_IN", 1000);
+
+                CNativeManager::CallNative ("SET_PLAYER_CONTROL",
+                                            GetPlayerId (), 1);
+            }
+    }
+
+    /*******************************************************/
     static void
     HandleMissionStart ()
     {
 
-        CNativeManager::CallNativeRet (&mStoredIslandsUnlocked, "GET_INT_STAT",
-                                       STAT_CITIES_UNLOCKED);
+        if (mRandomizedMission.citiesUnlocked > 0)
+            {
+                CNativeManager::CallNativeRet (&mStoredIslandsUnlocked,
+                                               "GET_INT_STAT",
+                                               STAT_CITIES_UNLOCKED);
 
-        CNativeManager::CallNative ("SET_INT_STAT", STAT_CITIES_UNLOCKED,
-                                    mRandomizedMission.citiesUnlocked);
+                CNativeManager::CallNative ("SET_INT_STAT",
+                                            STAT_CITIES_UNLOCKED,
+                                            mRandomizedMission.citiesUnlocked);
+            }
 
         if (mOriginalMission.phoneMission && !mRandomizedMission.phoneMission)
             CNativeManager::CallNative ("DO_SCREEN_FADE_OUT", 1000);
@@ -247,7 +330,11 @@ class MissionRandomizer
                                             GetPlayerId (), 1);
             }
 
-        CScrVM::m_pGlobals ()[101] = std::max (CScrVM::m_pGlobals ()[101], 1);
+        if (Rainbomizer::Common::GetStoredEpisodeNumber () == 0)
+            CTheScripts::m_pGlobals ()[101]
+                = std::max (CTheScripts::m_pGlobals ()[101], 1);
+
+        ApplyMissionSpecificFixes ();
     }
 
     /*******************************************************/
@@ -263,6 +350,9 @@ class MissionRandomizer
     static void
     HandleMissionEnd ()
     {
+        if (mRandomizedMission.citiesUnlocked == -1)
+            return;
+
         int newCitiesUnlocked = mStoredIslandsUnlocked;
 
         if (mOriginalMission.citiesUnlockedStart != -1)
@@ -314,17 +404,19 @@ class MissionRandomizer
         if (mMissionHash == -1 || scr->m_context.dwScriptHash != mMissionHash)
             return;
 
-        auto strands = reinterpret_cast<MissionStrandInfo *> (
-            &CScrVM::m_pGlobals ()[10982]);
+        auto strand = GetMissionStrand (mOriginalMission.strand);
 
         // Thread ended
         if (scr->m_context.eThreadState == 2
-            || strands[mOriginalMission.strand].m_nLastMissionPassed != -1)
+            || strand->m_nLastMissionPassed != -1)
             {
+                bool passed = strand->m_nLastMissionPassed != -1;
+                
                 // And the mission was passed
-                if (strands[mOriginalMission.strand].m_nLastMissionPassed != -1)
+                if (passed)
                     HandleMissionPass ();
 
+                ApplyMissionEndSpecificFixes (passed);
                 HandleMissionEnd ();
                 mMissionHash = -1;
             }
@@ -397,17 +489,24 @@ class MissionRandomizer
                 char    thread[32] = {0};
                 Vector3 pos;
                 int     strand;
-                int     citiesUnlocked;
+                int     citiesUnlocked      = -1;
                 char    phoneMission        = 'N';
                 int     citiesUnlockedStart = -1;
+                int     stackSize           = 8192;
 
-                sscanf (line, "%s %*s %d %f %f %f %d %d %c", thread, &strand,
-                        &pos.x, &pos.y, &pos.z, &citiesUnlocked,
-                        &citiesUnlockedStart, &phoneMission);
+                sscanf (line,
+                        "%s %*s %d %f %f %f %d %d %c %*f %*f %*f %*c %*f %*f "
+                        "%*f %d",
+                        thread, &strand, &pos.x, &pos.y, &pos.z,
+                        &citiesUnlocked, &citiesUnlockedStart, &phoneMission,
+                        &stackSize);
 
-                mMissionInfos[thread]
-                    = {strand, pos, citiesUnlocked, citiesUnlockedStart,
-                       phoneMission == 'Y'};
+                mMissionInfos[thread] = {strand,
+                                         pos,
+                                         citiesUnlocked,
+                                         citiesUnlockedStart,
+                                         phoneMission == 'Y',
+                                         stackSize};
             }
 
         return true;

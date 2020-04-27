@@ -19,6 +19,23 @@ audScriptAudioEntity::AddLineToConversation (int index, int param_3,
 
 /*******************************************************/
 void
+audScriptAudioEntity::InitialisePatternsCE ()
+{
+    ConvertCall (hook::get_pattern ("8b 44 ? ? 56 8b 74 ? ? 6b f6 70 03 f1 "),
+                 audScriptAudioEntity__AddLineToConversation);
+
+    char *addr
+        = hook::get_pattern<char> ("55 56 ff 35 ? ? ? ? ff 35 ? ? ? ? ff b4 ? ? ? ? ? e8");
+
+    audScriptAudioEntity__m_nSoundMetadataLen
+        = injector::ReadMemory<int *> (addr + 4);
+
+    audScriptAudioEntity__g_aSoundMetadata
+        = injector::ReadMemory<CSoundBank **> (addr + 10);
+}
+
+/*******************************************************/
+void
 audScriptAudioEntity::InitialisePatterns ()
 {
     ConvertCall (hook::get_pattern ("8b 44 ? ? 6b c0 70 56 8d 34 08 8b 4c ? ?"),

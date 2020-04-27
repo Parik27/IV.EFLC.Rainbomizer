@@ -1,0 +1,18 @@
+#Weapon	=	Weight
+		
+w_bat	=	0.5
+w_cue	=	0.5
+w_knife	=	0.7
+w_glock	=	1.1
+w_eagle	=	1.1
+w_shotgun	=	0.9
+w_pumpshot	=	0.85
+w_uzi	=	1.3
+w_mp5	=	1.2
+w_ak47	=	1.1
+w_m4	=	1.1
+w_psg1	=	0.85
+w_rifle	=	1
+rpg	=	0.25
+w_grenade	=	0.25
+w_molotov	=	0.25

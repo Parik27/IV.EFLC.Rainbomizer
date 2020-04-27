@@ -2,7 +2,7 @@
 #include "CStreaming.hh"
 #include "Utils.hh"
 #include "CCrypto.hh"
-#include "../src/logger.hh"
+#include <CPools.hh>
 
 void (*CStreaming__RequestResource) (int index, int fileType, int flags);
 int (*CStreaming__GetStreamingFlags) (int index, int fileType);
@@ -12,7 +12,7 @@ void (*CStreaming__MarkResourceAsNoLongerNeeded) (int index, int fileType);
 CBaseModelInfo *(*CStreaming__GetModelAndIndexFromHash) (uint32_t, int *);
 CBaseModelInfo *(*CStreaming__GetModelFromHash) (uint32_t);
 int *CStreaming__g_pFileTypeWdrIndex;
-void (*CStreaming__FreeModel) (int);
+void (__stdcall *CStreaming__FreeModel) (int);
 
 /*******************************************************/
 void
@@ -110,18 +110,25 @@ CStreaming::GetModelFromHashHash (unsigned int hash)
 
 /*******************************************************/
 bool
-CStreaming::AttemptToLoadModel (const std::string &modelName, int numTries)
+CStreaming::AttemptToLoadModel (const std::string &modelName, int numTries,
+                                bool vehicle)
 {
     uint32_t hash = CCrypto::HashString (modelName.c_str ());
-    return CStreaming::AttemptToLoadModel (hash, numTries);
+    return CStreaming::AttemptToLoadModel (hash, numTries, vehicle);
 }
 
 /*******************************************************/
 bool
-CStreaming::AttemptToLoadModel (uint32_t hash, int numTries)
+CStreaming::AttemptToLoadModel (uint32_t hash, int numTries, bool vehicle)
 {
     int index = -1;
     CStreaming::GetModelAndIndexFromHash (hash, &index);
+
+    // Make sure there aren't already too many vehicles loaded
+    if (CPools::g_pVehicleStructPool ()->m_nCount
+        > CPools::g_pVehicleStructPool ()->m_nMaxElements - 5 && vehicle)
+        return false;
+
     while (index > -1 && numTries--)
         {
             CStreaming::RequestResource (index, g_pFileTypeWdrIndex (), 0);

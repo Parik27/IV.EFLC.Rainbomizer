@@ -78,5 +78,6 @@ public:
 
     void LoadAdditionalText (const char *gxt, int slot);
 
+    static void InitialisePatternsCE ();
     static void InitialisePatterns ();
 };

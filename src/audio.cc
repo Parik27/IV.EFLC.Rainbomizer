@@ -1,4 +1,4 @@
-#include "CScrVM.hh"
+#include "CTheScripts.hh"
 #include "Utils.hh"
 #include "injector/hooking.hpp"
 #include "audScriptAudioEntity.hh"

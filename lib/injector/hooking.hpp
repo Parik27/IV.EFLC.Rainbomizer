@@ -109,7 +109,7 @@ namespace injector
             scoped_basic& operator=(const scoped_basic& rhs) = delete;
             scoped_basic& operator=(scoped_basic&& rhs)
             {
-                if(this->saved = rhs.saved)
+                if((this->saved = rhs.saved))
                 {
                     assert(bufsize >= rhs.size);
 
