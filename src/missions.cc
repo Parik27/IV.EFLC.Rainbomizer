@@ -337,16 +337,19 @@ class MissionRandomizer
     static void
         HandleStartTeleportsForDefaultFades()
     {
-        CNativeManager::CallNative("LOAD_SCENE", mRandomizedMission.startPos.x,
-            mRandomizedMission.startPos.y,
-            mRandomizedMission.startPos.z);
+        if (mRandomizedMission.startPos.x < -0.1f || mRandomizedMission.startPos.x > 0.1f)
+        {
+            CNativeManager::CallNative("LOAD_SCENE", mRandomizedMission.startPos.x,
+                mRandomizedMission.startPos.y,
+                mRandomizedMission.startPos.z);
 
-        CNativeManager::CallNative("SET_CHAR_COORDINATES_NO_OFFSET",
-            GetPlayerChar(), mRandomizedMission.startPos.x,
-            mRandomizedMission.startPos.y,
-            mRandomizedMission.startPos.z);
+            CNativeManager::CallNative("SET_CHAR_COORDINATES_NO_OFFSET",
+                GetPlayerChar(), mRandomizedMission.startPos.x,
+                mRandomizedMission.startPos.y,
+                mRandomizedMission.startPos.z);
+        }
 
-        if (mMissionStarting && mRandomizedMission.citiesUnlocked > 0)
+        if (mRandomizedMission.citiesUnlocked > 0)
         {
             CNativeManager::CallNativeRet(&mStoredIslandsUnlocked,
                 "GET_INT_STAT",
@@ -362,7 +365,6 @@ class MissionRandomizer
     static void
     HandleMissionStart ()
     {
-        bool hasFadeHappened = false;
         if (mOriginalMission.phoneMission)
         {
             CNativeManager::CallNative("DO_SCREEN_FADE_OUT", 1000);
@@ -414,6 +416,8 @@ class MissionRandomizer
 
         CNativeManager::CallNative ("SET_INT_STAT", STAT_CITIES_UNLOCKED,
                                     newCitiesUnlocked);
+
+        Rainbomizer::Logger::LogMessage("Cities unlocked: %x", newCitiesUnlocked);
     }
 
     /*******************************************************/
@@ -431,13 +435,13 @@ class MissionRandomizer
         int faded = false;
         CNativeManager::CallNativeRet (&faded, "IS_SCREEN_FADED_OUT");
 
-        if (!faded && time (NULL) - miFadeTimer < 1)
+        if (!faded && time (NULL) - miFadeTimer < 11)
             return true;
 
         CNativeManager::CallNative ("ALLOW_GAME_TO_PAUSE_FOR_STREAMING", true);
 
         Vector3 posAfterFade;
-        if (mMissionStarting)
+        if (mMissionStarting && (mRandomizedMission.startPos.x < -0.1f || mRandomizedMission.startPos.x > 0.1f))
         {
             posAfterFade = mRandomizedMission.startPos;
         }
@@ -568,7 +572,7 @@ class MissionRandomizer
                 int     citiesUnlocked      = -1;
                 char    phoneMission        = 'N';
                 int     citiesUnlockedStart = -1;
-                Vector3 posStarting;
+                Vector3 posStarting = { 0.0f, 0.0f, 0.0f };
                 int     stackSize           = 8192;
 
                 sscanf (line,
