@@ -329,7 +329,7 @@ class MissionRandomizer
             case MISSION_ROMAN6:
             case MISSION_ROMAN7:
                 CTheScripts::m_pGlobals()[IS_BOHAN_SAFEHOUSE_OPEN] = originalBohanHouseState;
-                CTheScripts::m_pGlobals()[IS_ALGONQUIN_SAFEHOUSE_OPEN] = originalBohanHouseState;
+                CTheScripts::m_pGlobals()[IS_ALGONQUIN_SAFEHOUSE_OPEN] = originalAlgonquinHouseState;
             }
     }
     
@@ -337,17 +337,14 @@ class MissionRandomizer
     static void
         HandleStartTeleportsForDefaultFades()
     {
-        if (mRandomizedMission.startPos.x < -0.1f || mRandomizedMission.startPos.x > 0.1f)
-        {
-            CNativeManager::CallNative("LOAD_SCENE", mRandomizedMission.startPos.x,
+         CNativeManager::CallNative("LOAD_SCENE", mRandomizedMission.startPos.x,
                 mRandomizedMission.startPos.y,
                 mRandomizedMission.startPos.z);
 
-            CNativeManager::CallNative("SET_CHAR_COORDINATES_NO_OFFSET",
+         CNativeManager::CallNative("SET_CHAR_COORDINATES_NO_OFFSET",
                 GetPlayerChar(), mRandomizedMission.startPos.x,
                 mRandomizedMission.startPos.y,
                 mRandomizedMission.startPos.z);
-        }
 
         if (mRandomizedMission.citiesUnlocked > 0)
         {
@@ -416,8 +413,6 @@ class MissionRandomizer
 
         CNativeManager::CallNative ("SET_INT_STAT", STAT_CITIES_UNLOCKED,
                                     newCitiesUnlocked);
-
-        Rainbomizer::Logger::LogMessage("Cities unlocked: %x", newCitiesUnlocked);
     }
 
     /*******************************************************/
@@ -441,7 +436,7 @@ class MissionRandomizer
         CNativeManager::CallNative ("ALLOW_GAME_TO_PAUSE_FOR_STREAMING", true);
 
         Vector3 posAfterFade;
-        if (mMissionStarting && (mRandomizedMission.startPos.x < -0.1f || mRandomizedMission.startPos.x > 0.1f))
+        if (mMissionStarting)
         {
             posAfterFade = mRandomizedMission.startPos;
         }
@@ -572,7 +567,7 @@ class MissionRandomizer
                 int     citiesUnlocked      = -1;
                 char    phoneMission        = 'N';
                 int     citiesUnlockedStart = -1;
-                Vector3 posStarting = { 0.0f, 0.0f, 0.0f };
+                Vector3 posStarting = { 842.122f, 935.903f, 1.861f };
                 int     stackSize           = 8192;
 
                 sscanf (line,
