@@ -22,7 +22,6 @@ CPedWeapons::InitialisePatternsCE ()
                  CPedWeapons__GiveWeapon);
 }
 
-
 /*******************************************************/
 void
 CPedWeapons::InitialisePatterns ()
@@ -33,14 +32,15 @@ CPedWeapons::InitialisePatterns ()
 }
 
 /*******************************************************/
-CPedWeapons& CPed::m_pWeapons()
+CPedWeapons &
+CPed::m_pWeapons ()
 {
     return *(CPedWeapons *) (((char *) this) + CPed::m_pWeaponsOffset);
 }
 
 /*******************************************************/
 void
-CPed::InitialisePatternsCE()
+CPed::InitialisePatternsCE ()
 {
     CPed::m_pWeaponsOffset
         = *hook::get_pattern<int> ("6a 00 6a 00 6a 32 6a 07 8d", 10);

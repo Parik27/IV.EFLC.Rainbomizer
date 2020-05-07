@@ -20,9 +20,8 @@ public:
 
     CVehicle *CreateCar (int index, int unk0, int unk2, int unk3);
 
-    // 8b f0 3b f3 74 ?? 8b ce e8 ?? ?? ?? ?? c7 06 ?? ?? ?? ?? 89 35 ?? ?? ??
-    // ?? eb ??
     static void InitialisePatterns ();
+    static void InitialisePatternsCE ();
 
     static CVehicleFactory **g_pVehicleFactory;
 };

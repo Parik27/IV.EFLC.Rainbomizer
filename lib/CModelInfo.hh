@@ -29,7 +29,7 @@ struct CBaseModelInfo__vftable
     void *deconstructor;
     void *Initialise;
     void *m8;
-    eModelInfoType (__thiscall *GetType) (CBaseModelInfo*);
+    eModelInfoType (__thiscall *GetType) (CBaseModelInfo *);
     void *m10;
     void *m14;
     void *m18;
@@ -37,7 +37,7 @@ struct CBaseModelInfo__vftable
     void *m20;
     void *m24;
     void *m28;
-    void (__thiscall *Release) (CBaseModelInfo*);
+    void (__thiscall *Release) (CBaseModelInfo *);
     void *m30;
     void *m34;
     void *m38;
@@ -83,8 +83,8 @@ struct CBaseModelInfo : CVirtualBase
     uint8_t  field_5B;
     uint32_t field_5C;
 
-    eModelInfoType GetType();
-    void Release();
+    eModelInfoType GetType ();
+    void           Release ();
 };
 
 struct CVehicleModelInfo_obj1

@@ -16,15 +16,15 @@ public:
 
     static CBaseModelInfo **m_aModelPointers;
 
-    static int &m_nTotalModelPointers();
+    static int &m_nTotalModelPointers ();
 
-    static int  GetMaximumNumberOfPassengers (int index);
-    
+    static int GetMaximumNumberOfPassengers (int index);
+
     static void InitialisePatternsCE ();
     static void InitialisePatterns ();
 
     template <typename T>
-    static T*
+    static T *
     GetModelInfoPointer (int index)
     {
         return (T *) m_aModelPointers[index];

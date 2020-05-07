@@ -8,13 +8,13 @@ int *  CHud::aColourNameHashes;
 void
 CHud::InitialisePatternsCE ()
 {
-    aColours = *hook::get_pattern<CARGB *> (
-        "8b 54 ? ? 56 8b 0c ? ? ? ? ? 8b c1 ", 9);
+    aColours
+        = *hook::get_pattern<CARGB *> ("8b 54 ? ? 56 8b 0c ? ? ? ? ? 8b c1 ",
+                                       8);
 
-    aColourNameHashes = *hook::get_pattern<int *> (
-        "68 ff 00 00 00 ff 74 ? 40 89 04 ? ? ? ? ? ", 12);
+    aColourNameHashes
+        = *hook::get_pattern<int *> ("68 ff 00 00 00 ff 74 ? 40 89 04", 12);
 }
-
 
 /*******************************************************/
 void

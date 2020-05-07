@@ -22,13 +22,13 @@ struct VehiclePattern
     uint32_t    vehicleHash;
 
     std::vector<int> validIndices;
-    
+
     enum FLAGS
     {
-        GUNS     = 1,
-        WASHABLE = 2,
+        GUNS         = 1,
+        WASHABLE     = 2,
         START_ROTORS = 4,
-        NO_ROTORS = 8
+        NO_ROTORS    = 8
     };
     uint8_t flags;
 
@@ -58,35 +58,36 @@ class ScriptVehicleRandomizer
         std::vector<uint32_t> validVehicles;
 
         int index;
-        CStreaming::GetModelAndIndexFromHash(hash, &index);
+        CStreaming::GetModelAndIndexFromHash (hash, &index);
 
-        int seats = mSeatsCache.at(index);
-        
-        for(auto i : indices)
+        int seats = mSeatsCache.at (index);
+
+        for (auto i : indices)
             {
-                if(mSeatsCache.at(i) >= seats)
+                if (mSeatsCache.at (i) >= seats)
                     validVehicles.push_back (
                         CModelInfoStore::m_aModelPointers[i]->m_nModelHash);
             }
 
-        return validVehicles[RandomInt(validVehicles.size() - 1)];
+        return validVehicles[RandomInt (validVehicles.size () - 1)];
     }
-    
+
     /*******************************************************/
     static uint32_t
     GetVehicleForModel (uint32_t hash, uint8_t &flagsOut)
     {
-        for(const auto &i : mVehiclePatterns)
+        for (const auto &i : mVehiclePatterns)
             {
-                if(i.vehicleHash != hash)
+                if (i.vehicleHash != hash)
                     continue;
 
-                puts(CTheScripts::m_pRunningThread()->m_szProgramName);
-                if(i.thread != CTheScripts::m_pRunningThread()->m_szProgramName)
+                puts (CTheScripts::m_pRunningThread ()->m_szProgramName);
+                if (i.thread
+                    != CTheScripts::m_pRunningThread ()->m_szProgramName)
                     continue;
 
-                int vehicle = GetVehicleForPattern(i);
-                if(vehicle == -1)
+                int vehicle = GetVehicleForPattern (i);
+                if (vehicle == -1)
                     {
                         Rainbomizer::Logger::LogMessage (
                             "No matching vehicle found for pattern: %d",
@@ -95,12 +96,12 @@ class ScriptVehicleRandomizer
                     }
 
                 auto model = CModelInfoStore::m_aModelPointers[vehicle];
-                flagsOut = i.flags;
-                
+                flagsOut   = i.flags;
+
                 return model->m_nModelHash;
             }
-        
-        return GetVehicleWithSeatCheck(hash);
+
+        return GetVehicleWithSeatCheck (hash);
     }
 
     /*******************************************************/
@@ -109,11 +110,11 @@ class ScriptVehicleRandomizer
     {
         /* This flag removes both the rotors (tail and main) for a helicopter.
            These are components (extras) 1 and 3 (Tested by Fry) */
-        
+
         if (flags & VehiclePattern::NO_ROTORS)
             {
-                Rainbomizer::Logger::LogMessage("[NO_ROTORS]: %x", handle);
-                for(auto i : {1, 3})
+                Rainbomizer::Logger::LogMessage ("[NO_ROTORS]: %x", handle);
+                for (auto i : {1, 3})
                     CNativeManager::CallNative ("TURN_OFF_VEHICLE_EXTRA",
                                                 handle, i, true);
             }
@@ -123,7 +124,7 @@ class ScriptVehicleRandomizer
 
         if (flags & VehiclePattern::START_ROTORS)
             {
-                Rainbomizer::Logger::LogMessage("[START_ROTORS]: %x", handle);
+                Rainbomizer::Logger::LogMessage ("[START_ROTORS]: %x", handle);
                 CNativeManager::CallNative ("SET_HELI_BLADES_FULL_SPEED",
                                             handle);
             }

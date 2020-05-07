@@ -30,6 +30,6 @@ public:
     static void InitialisePatternsCE ();
     static void InitialisePatterns ();
 
-    static CSoundBank *&g_aSoundMetadata();
-    static int &        g_nSoundMetadataLen();
+    static CSoundBank *&g_aSoundMetadata ();
+    static int &        g_nSoundMetadataLen ();
 };

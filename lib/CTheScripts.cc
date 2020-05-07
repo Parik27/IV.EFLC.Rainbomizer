@@ -67,16 +67,16 @@ void
 CNativeManager::NativeHook ()
 {
     if (CTheScripts::GetNativeIndex (0x8b3fed78) == -1
-        && CTheScripts::GetNativeIndex (GetNativeTranslationTable().at (0x8b3fed78))
+        && CTheScripts::GetNativeIndex (
+               GetNativeTranslationTable ().at (0x8b3fed78))
                != -1)
         CTheScripts::m_bNeedTranslation = true;
 
     puts ("Jace me, Jace me!");
     for (auto i : *m_aNewNatives)
         {
-            auto &native
-                = (*CTheScripts::m_aNatives)[CTheScripts::GetNativeIndexTranslated (
-                    i.first)];
+            auto &native = (*CTheScripts::m_aNatives)
+                [CTheScripts::GetNativeIndexTranslated (i.first)];
             m_aOriginalNatives[i.first] = native.data;
             native.data                 = i.second;
         }
@@ -151,7 +151,8 @@ void
 CNativeManager::InitialiseCE ()
 {
     char *addr
-        = hook::get_pattern<char> ("8b 0d ? ? ? ? 8b 01 ff 50 04 e8 ? ? ? ? 68", 11);
+        = hook::get_pattern<char> ("8b 0d ? ? ? ? 8b 01 ff 50 04 e8 ? ? ? ? 68",
+                                   11);
     ReadCall (addr, CTheScripts__CreateScriptStore7ffa35);
 
     if (m_aNewNatives == nullptr)
@@ -195,8 +196,9 @@ InitialiseScriptProgramPatternsCE ()
 void
 InitialiseScriptProgramPatterns ()
 {
-    CTheScripts__m_aScriptPrograms = *hook::get_pattern<HashPair<scrProgram *> **> (
-        "a1 ? ? ? ? 5f c7 44 d0 04 00 00 00 0", 1);
+    CTheScripts__m_aScriptPrograms
+        = *hook::get_pattern<HashPair<scrProgram *> **> (
+            "a1 ? ? ? ? 5f c7 44 d0 04 00 00 00 0", 1);
 
     CTheScripts__m_nNumScriptPrograms = *hook::get_pattern<unsigned int *> (
         "a1 ? ? ? ? 5f c7 44 d0 04 00 00 00 0", 16);
@@ -218,15 +220,14 @@ CTheScripts::InitialisePatternsCE ()
     InitialiseScriptProgramPatternsCE ();
 
     // 8b 48 08 8b 15 ?? ?? ?? ?? a1 ?? ?? ?? ??
-    //8b 57 18 8b 40 08 89 44 ? ? a1 ? ? ? ?
-    
+    // 8b 57 18 8b 40 08 89 44 ? ? a1 ? ? ? ?
+
     CTheScripts__m_pGlobals
         = *hook::get_pattern<int **> ("8b 57 18 8b 40 08 89 44 ? ? a1", 11);
 
     CTheScripts__m_pRunningThread
         = *hook::get_pattern<GtaThread **> ("83 f8 03 0f 84 ? ? ? ? 8b 35", 11);
 }
-
 
 /*******************************************************/
 void
@@ -269,7 +270,8 @@ CNativeManager::CallNativeRaw (const std::string &name, NativeData *data)
 {
     uint32_t hash = CCrypto::HashStringLowercase (name.c_str ());
     auto &   native
-        = (*CTheScripts::m_aNatives)[CTheScripts::GetNativeIndexTranslated (hash)];
+        = (*CTheScripts::m_aNatives)[CTheScripts::GetNativeIndexTranslated (
+            hash)];
 
     native.data (data);
 }

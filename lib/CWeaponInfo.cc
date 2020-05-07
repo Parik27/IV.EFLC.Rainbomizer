@@ -14,6 +14,13 @@ CWeaponInfo::GetInfoFromIndex (int index)
 
 /*******************************************************/
 void
+CWeaponInfo::InitialisePatternsCE ()
+{
+    CWeaponInfo::InitialisePatterns ();
+}
+
+/*******************************************************/
+void
 CWeaponInfo::InitialisePatterns ()
 {
     ConvertCall (hook::get_pattern ("8b 44 24 04 83 f8 3c 7d ?"),

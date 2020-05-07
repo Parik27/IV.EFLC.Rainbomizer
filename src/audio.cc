@@ -124,8 +124,9 @@ class SoundsRandomizer
     static void
     InitialiseAddLineToConversationHook ()
     {
-        static void *addr
-            = hook::get_pattern ("8b 44 ? ? 6b c0 70 56 8d 34 08 8b 4c ? ?");
+        static void *addr = hook::get_pattern (
+            VersionedData ("8b 44 ? ? 6b c0 70 56 8d 34 08 8b 4c",
+                           "8b 44 ? ? 56 8b 74 ? ? 6b f6 70 03 f1"));
 
         mHook8f5b00.make_jmp (addr, RandomizeConversationLine);
     }
@@ -232,9 +233,9 @@ class SoundsRandomizer
         std::unordered_map<uint32_t, SoundPair> &soundPairs)
     {
         int total = 0;
-        for (int i = 0; i < audScriptAudioEntity::g_nSoundMetadataLen(); i++)
+        for (int i = 0; i < audScriptAudioEntity::g_nSoundMetadataLen (); i++)
             {
-                auto metadata = audScriptAudioEntity::g_aSoundMetadata()[i];
+                auto metadata = audScriptAudioEntity::g_aSoundMetadata ()[i];
                 for (int j = 0; j < metadata.size; j++)
                     {
                         uint32_t hash = metadata.sounds[j].hash;
@@ -413,28 +414,42 @@ public:
 
         InitialiseAddLineToConversationHook ();
 
-        RegisterHook ("8d bd f0 15 00 00 57 8b ce e8", 9,
-                      audScriptAudioEntity__IsSFXSound8f6959,
+        RegisterHook (VersionedData ("8d bd f0 15 00 00 57 8b ce e8",
+                                     "8d 83 f0 15 00 00 50 8b ce e8"),
+                      9, audScriptAudioEntity__IsSFXSound8f6959,
                       SetNextBankAudioHash1);
 
-        RegisterHook ("b9 ? ? ? ? e8 ? ? ? ? 80 bd d2 2b 00 00 00", 5,
-                      CorrectSubtitles);
+        RegisterHook (
+            VersionedData ("b9 ? ? ? ? e8 ? ? ? ? 80 bd d2 2b 00 00 00",
+                           "b9 ? ? ? ? 50 e8 ? ? ? ? 80 bb d2 2b 00 00 00 "),
+            VersionedData (5, 6), CorrectSubtitles);
 
-        RegisterHook ("50 89 44 ? ? e8 ? ? ? ? 83 c4 08 50", 5,
-                      CorrectBankHash);
+        RegisterHook (
+            VersionedData ("50 89 44 ? ? e8 ? ? ? ? 83 c4 08 50",
+                           "50 6a 00 51 89 4c ? ? e8 ? ? ? ? 83 c4 08 "),
+            VersionedData (5, 8), CorrectBankHash);
 
-        RegisterHook ("8b 4c ? ? 51 52 6a 00 50 e8 ? ? ? ?", 9,
-                      CorrectBankHash);
+        RegisterHook (VersionedData ("8b 4c ? ? 51 52 6a 00 50 e8",
+                                     "8b f1 ff 74 ? ? 6a 00 50 e8"),
+                      9, CorrectBankHash);
 
-        RegisterHook ("57 52 c6 86 09 02 00 00 00 e8", 9, CorrectBankHash);
+        RegisterHook (VersionedData ("57 52 c6 86 09 02 00 00 00 e8",
+                                     "ff 74 ? 48 c6 87 09 02 00 00 00 e8 "),
+                      VersionedData (9, 11), CorrectBankHash);
 
-        RegisterHook ("57 50 6a 00 52 e8 ? ? ? ? 83 c4 08", 5, CorrectBankHash);
+        RegisterHook (VersionedData ("57 50 6a 00 52 e8 ? ? ? ? 83 c4 08",
+                                     "56 50 6a 00 ff 74 ? 54 e8 "),
+                      VersionedData (5, 8), CorrectBankHash);
 
-        RegisterHook ("50 8d ? ? ? ? ? 89 7c ? ? e8 ? ? ? ? eb ?", 11,
-                      FUN_0091cac0__8f8a86, SetNextBankAudioHash2);
+        RegisterHook (
+            VersionedData ("50 8d ? ? ? ? ? 89 7c ? ? e8 ? ? ? ? eb ?",
+                           "05 38 2e 00 00 03 c3 50 e8 ? ? ? ? 8b 54 ? ? eb ?"),
+            VersionedData (11, 8), FUN_0091cac0__8f8a86, SetNextBankAudioHash2);
 
-        RegisterHook ("f3 a4 50 b9 ? ? ? ? e8 ? ? ? ? 84 c0", 8,
-                      CorrectSubtitleVariationLabelCheck);
+        RegisterHook (
+            VersionedData ("f3 a4 50 b9 ? ? ? ? e8 ? ? ? ? 84 c0",
+                           "f3 a4 50 b9 ? ? ? ? e8 ? ? ? ? b9 ? ? ? ? 84 c0 "),
+            8, CorrectSubtitleVariationLabelCheck);
 
         Rainbomizer::Logger::LogMessage ("Initialised SoundsRandomizer");
     }

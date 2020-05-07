@@ -95,11 +95,12 @@ class ColourRandomizer
                     }
                 for (int i = 0; i < MAX_COLOURS; i++)
                     {
-                        CHud::aColours[i] = HSLToRGB (colours[i]);
-                        colours[i].h
-                            = fmod (colours[i].h
-                                        + CTimer::ms_fFrameTime () * 360 / 10.0,
-                                    360);
+                        double time = 1000.0 * clock () / CLOCKS_PER_SEC;
+
+                        auto [h, s, l] = colours[i];
+                        h              = fmod (time / 10 + h, 360);
+
+                        CHud::aColours[i] = HSLToRGB ({h, s, l});
                     }
             }
         return FUN_453920 (thisCritical);
@@ -150,13 +151,17 @@ public:
 
         if (ConfigManager::GetConfigs ().colours.carcols)
             {
-                RegisterHook ("0f ? ? 09 00 00 8d 8c 24 ? 01 00 00", 59,
-                              sscanf_a6e120,
-                              ColourRandomizer::RandomizeColourTable);
+                RegisterHook (
+                    VersionedData ("0f ? ? 09 00 00 8d 8c 24 ? 01 00 00",
+                                   "8d ? ? b0 02 00 00 68 ? ? ? ? 50 e8"),
+                    VersionedData (59, 13), sscanf_a6e120,
+                    ColourRandomizer::RandomizeColourTable);
 
-                RegisterHook ("50 8d 8e e4 0f 00 00 51 8b ? e8", 10,
-                              CVehicle__OriginalSetRandomColour,
-                              ColourRandomizer::RandomizeCarCols);
+                RegisterHook (
+                    VersionedData ("50 8d 8e e4 0f 00 00 51 8b ? e8",
+                                   "50 8b cb e8 ? ? ? ? c6 87 98 0f 00 00 ff "),
+                    VersionedData (10, 3), CVehicle__OriginalSetRandomColour,
+                    ColourRandomizer::RandomizeCarCols);
             }
 
         if (ConfigManager::GetConfigs ().colours.hud)

@@ -19,9 +19,50 @@ void
 InitialiseGetModelFunctions ()
 {
     auto pattern = hook::pattern ("8b 44 ? ? 89 44 ? ? 66 a1 ? ? ? ?");
-    ConvertCall (pattern.get (0).get<void> (),
+    ConvertCall (pattern.get (VersionedData (0, 1)).get<void> (),
                  CStreaming__GetModelAndIndexFromHash);
-    ConvertCall (pattern.get (1).get<void> (), CStreaming__GetModelFromHash);
+    ConvertCall (pattern.get (VersionedData (1, 0)).get<void> (),
+                 CStreaming__GetModelFromHash);
+}
+
+/*******************************************************/
+void
+CStreaming::InitialisePatternsCE ()
+{
+    ConvertCall (
+        SearchBack (
+            "6b c0 64 8b ? ? ? ? ? 03 44 ? ? b9 ? ? ? ? 50 e8 ? ? ? ? c3",
+            "8b 44 24 08", 0x10),
+        CStreaming__RequestResource);
+
+    ConvertCall (SearchBack ("8d 0c 40 a1 ? ? ? ? 0f b7 44 c8 0e c3 ",
+                             "8b 44 24 08", 0x30),
+                 CStreaming__GetStreamingFlags);
+
+    ConvertCall (hook::get_pattern (
+                     "8b 0d ? ? ? ? ff 74 ? ? 8b 01 ff 50 18 c3 "),
+                 CStreaming__LoadAllObjects);
+
+    ConvertCall (SearchBack ("80 e1 03 33 c0 80 f9 01 0f 94", "8b 44 24 08",
+                             0x30),
+                 CStreaming__HasResourceLoaded);
+
+    ConvertCall (
+        SearchBack (
+            "6b c0 64 6a 02 8b ? ? ? ? ? 03 44 ? ? b9 ? ? ? ? 50 e8 ? ? ? ? ",
+            "8b 44 24 08", 0x30),
+        CStreaming__MarkResourceAsNoLongerNeeded);
+
+    ReadCall (hook::get_pattern ("3b c7 74 ? 50 8b cb e8 ? ? ? ? ", 7),
+              CStreaming__FreeModel);
+
+    InitialiseGetModelFunctions (); // Same patterns for CE
+
+    ms_instance = *hook::get_pattern<CStreaming *> (
+        "b9 ? ? ? ? e8 ? ? ? ? 85 c0 0f 88 ? ? ? ? ", 1);
+
+    CStreaming__g_pFileTypeWdrIndex = *hook::get_pattern<int *> (
+        "ff 35 ? ? ? ? b9 ? ? ? ? e8 ? ? ? ? 50 e8 ? ? ? ? 83 c4 08 ", 2);
 }
 
 /*******************************************************/
@@ -113,7 +154,7 @@ bool
 CStreaming::AttemptToLoadModel (const std::string &modelName, int numTries,
                                 bool vehicle)
 {
-    uint32_t hash = CCrypto::HashString (modelName.c_str ());
+    uint32_t hash = CCrypto::HashStringLowercase (modelName.c_str ());
     return CStreaming::AttemptToLoadModel (hash, numTries, vehicle);
 }
 
@@ -126,7 +167,8 @@ CStreaming::AttemptToLoadModel (uint32_t hash, int numTries, bool vehicle)
 
     // Make sure there aren't already too many vehicles loaded
     if (CPools::g_pVehicleStructPool ()->m_nCount
-        > CPools::g_pVehicleStructPool ()->m_nMaxElements - 5 && vehicle)
+            > CPools::g_pVehicleStructPool ()->m_nMaxElements - 5
+        && vehicle)
         return false;
 
     while (index > -1 && numTries--)
@@ -141,9 +183,9 @@ CStreaming::AttemptToLoadModel (uint32_t hash, int numTries, bool vehicle)
 
 /*******************************************************/
 void
-CStreaming::FreeWdrModel(int index)
+CStreaming::FreeWdrModel (int index)
 {
-    CStreaming__FreeModel(index);
+    CStreaming__FreeModel (index);
 }
 
 /*******************************************************/

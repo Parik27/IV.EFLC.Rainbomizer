@@ -21,6 +21,15 @@ int  RandomInt (int max);
 int  RandomInt (int min, int max);
 void InitialiseAllComponents ();
 
+bool IsCompleteEdition ();
+
+template <typename T>
+inline auto
+VersionedData (T preCE, T CE)
+{
+    return IsCompleteEdition () ? CE : preCE;
+}
+
 /*******************************************************/
 template <typename F, typename O>
 void

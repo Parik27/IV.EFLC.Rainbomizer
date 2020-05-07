@@ -57,6 +57,7 @@ public:
 
     static int &g_pFileTypeWdrIndex ();
 
+    static void InitialisePatternsCE ();
     static void InitialisePatterns ();
 
     ////////////////////////////////////////////////////

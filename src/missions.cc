@@ -64,10 +64,8 @@ enum eMissions : unsigned int
     MISSION_TONY1 = 0x5BEE6FEC
 };
 
-const int IS_BOHAN_SAFEHOUSE_OPEN = 9955;
+const int IS_BOHAN_SAFEHOUSE_OPEN     = 9955;
 const int IS_ALGONQUIN_SAFEHOUSE_OPEN = 9966;
-int originalBohanHouseState;
-int originalAlgonquinHouseState;
 
 class MissionRandomizer
 {
@@ -76,11 +74,15 @@ class MissionRandomizer
     static MissionInfo                                  mOriginalMission;
     static int                                          mStoredIslandsUnlocked;
     static uint32_t                                     mMissionHash;
-    static bool                                         mbFading;
-    static int                                          miFadeTimer;
     static PreviousChange                               mPreviousChange;
+    static int                                          mStoredBohanHouseState;
     static const char *                                 mForcedMission;
-    static bool                                         mMissionStarting;
+
+    // Related to teleportation
+    static bool    mbFading;
+    static bool    mbFadeInAfterTeleport;
+    static int     miFadeTimer;
+    static Vector3 mvPosAfterFade;
 
     /*******************************************************/
     static std::string
@@ -242,11 +244,7 @@ class MissionRandomizer
     static int
     GetPlayerId ()
     {
-        int playerId = 0;
-
-        CNativeManager::CallNativeRet (&playerId, "GET_PLAYER_ID");
-
-        return playerId;
+        return CNativeManager::CallNativeRet<int> ("GET_PLAYER_ID");
     }
 
     /*******************************************************/
@@ -288,16 +286,15 @@ class MissionRandomizer
                 break;
 
             // It's Your Call, Easy Fare, Jamaican Heat, Uncle Vlad
-            // Sets Bohan and Algonquin safehouses as their state affects 
+            // Sets Bohan and Algonquin safehouses as their state affects
             // the spawning of Roman's taxi
             case MISSION_ROMAN2:
             case MISSION_ROMAN5:
             case MISSION_ROMAN6:
             case MISSION_ROMAN7:
-                originalBohanHouseState = CTheScripts::m_pGlobals()[IS_BOHAN_SAFEHOUSE_OPEN];
-                originalAlgonquinHouseState = CTheScripts::m_pGlobals()[IS_ALGONQUIN_SAFEHOUSE_OPEN];
-                CTheScripts::m_pGlobals()[IS_BOHAN_SAFEHOUSE_OPEN] = 0;
-                CTheScripts::m_pGlobals()[IS_ALGONQUIN_SAFEHOUSE_OPEN] = 0;
+                mStoredBohanHouseState
+                    = CTheScripts::m_pGlobals ()[IS_BOHAN_SAFEHOUSE_OPEN];
+                CTheScripts::m_pGlobals ()[IS_BOHAN_SAFEHOUSE_OPEN] = 0;
             }
     }
 
@@ -316,76 +313,85 @@ class MissionRandomizer
                     CNativeManager::CallNative ("DO_SCREEN_FADE_IN", 1000);
                 break;
 
-                // roman1 freezes you at the end to play the safehouse intro scene
+                // roman1 freezes you at the end to play the safehouse intro
+                // scene
             case MISSION_ROMAN1:
-                if(!passed)
+                if (!passed)
                     CNativeManager::CallNative ("DO_SCREEN_FADE_IN", 1000);
 
                 CNativeManager::CallNative ("SET_PLAYER_CONTROL",
                                             GetPlayerId (), 1);
                 break;
+
             case MISSION_ROMAN2:
             case MISSION_ROMAN5:
             case MISSION_ROMAN6:
             case MISSION_ROMAN7:
-                CTheScripts::m_pGlobals()[IS_BOHAN_SAFEHOUSE_OPEN] = originalBohanHouseState;
-                CTheScripts::m_pGlobals()[IS_ALGONQUIN_SAFEHOUSE_OPEN] = originalAlgonquinHouseState;
+                CTheScripts::m_pGlobals ()[IS_BOHAN_SAFEHOUSE_OPEN]
+                    = mStoredBohanHouseState;
             }
     }
-    
+
     /*******************************************************/
     static void
-        HandleStartTeleportsForDefaultFades()
+    TeleportPlayerImmediately (const Vector3 &dest)
     {
-         CNativeManager::CallNative("LOAD_SCENE", mRandomizedMission.startPos.x,
-                mRandomizedMission.startPos.y,
-                mRandomizedMission.startPos.z);
+        CNativeManager::CallNative ("ALLOW_GAME_TO_PAUSE_FOR_STREAMING", true);
 
-         CNativeManager::CallNative("SET_CHAR_COORDINATES_NO_OFFSET",
-                GetPlayerChar(), mRandomizedMission.startPos.x,
-                mRandomizedMission.startPos.y,
-                mRandomizedMission.startPos.z);
+        CNativeManager::CallNative ("LOAD_SCENE", dest.x, dest.y, dest.z);
 
-        if (mRandomizedMission.citiesUnlocked > 0)
-        {
-            CNativeManager::CallNativeRet(&mStoredIslandsUnlocked,
-                "GET_INT_STAT",
-                STAT_CITIES_UNLOCKED);
+        CNativeManager::CallNative ("SET_CHAR_COORDINATES_NO_OFFSET",
+                                    GetPlayerChar (), dest.x, dest.y, dest.z);
+    }
 
-            CNativeManager::CallNative("SET_INT_STAT",
-                STAT_CITIES_UNLOCKED,
-                mRandomizedMission.citiesUnlocked);
-        }
+    /*******************************************************/
+    static void
+    TeleportPlayerWithFades (const Vector3 &position, bool fadeIn = true)
+    {
+        CNativeManager::CallNative ("DO_SCREEN_FADE_OUT", 1000);
+
+        mbFading              = true;
+        miFadeTimer           = time (NULL);
+        mbFadeInAfterTeleport = fadeIn;
+        mvPosAfterFade        = position;
     }
 
     /*******************************************************/
     static void
     HandleMissionStart ()
     {
-        if (mOriginalMission.phoneMission)
-        {
-            CNativeManager::CallNative("DO_SCREEN_FADE_OUT", 1000);
-            mbFading = true;
-            mMissionStarting = true;
-            miFadeTimer = time(NULL);
-        }
+        const int PLAYER_PHONE_MODEL = 101;
 
-        else if (mRandomizedMission.phoneMission
-                 && !mOriginalMission.phoneMission)
-             {
-                HandleStartTeleportsForDefaultFades();
+        // Set the number of unlocked cities to lock/unlock cities
+        if (mRandomizedMission.citiesUnlocked > 0)
+            {
+                CNativeManager::CallNativeRet (&mStoredIslandsUnlocked,
+                                               "GET_INT_STAT",
+                                               STAT_CITIES_UNLOCKED);
+
+                CNativeManager::CallNative ("SET_INT_STAT",
+                                            STAT_CITIES_UNLOCKED,
+                                            mRandomizedMission.citiesUnlocked);
+            }
+
+        if (mOriginalMission.phoneMission)
+            TeleportPlayerWithFades (mRandomizedMission.startPos,
+                                     mRandomizedMission.phoneMission);
+
+        else
+            TeleportPlayerImmediately (mRandomizedMission.startPos);
+
+        if (mRandomizedMission.phoneMission && !mOriginalMission.phoneMission)
+            {
                 CNativeManager::CallNative ("DO_SCREEN_FADE_IN", 1000);
                 CNativeManager::CallNative ("SET_PLAYER_CONTROL",
                                             GetPlayerId (), 1);
             }
-        else
-        {
-            HandleStartTeleportsForDefaultFades();
-        }
 
+        // Give the player a phone if they don't have one (GTAIV only)
         if (Rainbomizer::Common::GetStoredEpisodeNumber () == 0)
-            CTheScripts::m_pGlobals ()[101]
-                = std::max (CTheScripts::m_pGlobals ()[101], 1);
+            CTheScripts::m_pGlobals ()[PLAYER_PHONE_MODEL]
+                = std::max (CTheScripts::m_pGlobals ()[PLAYER_PHONE_MODEL], 1);
 
         ApplyMissionSpecificFixes ();
     }
@@ -394,9 +400,7 @@ class MissionRandomizer
     static void
     HandleMissionPass ()
     {
-        CNativeManager::CallNative ("DO_SCREEN_FADE_OUT", 1000);
-        mbFading    = true;
-        miFadeTimer = time (NULL);
+        TeleportPlayerWithFades (mOriginalMission.endPos);
     }
 
     /*******************************************************/
@@ -424,51 +428,20 @@ class MissionRandomizer
     static bool
     HandleFadingCode (scrThread *scr)
     {
+        const int FADE_TIMEOUT = 11;
+
         if (!mbFading)
             return false;
 
-        int faded = false;
-        CNativeManager::CallNativeRet (&faded, "IS_SCREEN_FADED_OUT");
-
-        if (!faded && time (NULL) - miFadeTimer < 11)
+        if (!CNativeManager::CallNativeRet<bool> ("IS_SCREEN_FADED_OUT")
+            && time (NULL) - miFadeTimer < FADE_TIMEOUT)
             return true;
 
-        CNativeManager::CallNative ("ALLOW_GAME_TO_PAUSE_FOR_STREAMING", true);
-
-        Vector3 posAfterFade;
-        if (mMissionStarting)
-        {
-            posAfterFade = mRandomizedMission.startPos;
-        }
-        else
-        {
-            posAfterFade = mOriginalMission.endPos;
-        }
-
-        CNativeManager::CallNative ("LOAD_SCENE", posAfterFade.x,
-                                                posAfterFade.y,
-                                                posAfterFade.z);
-
-        CNativeManager::CallNative ("SET_CHAR_COORDINATES_NO_OFFSET",
-                                    GetPlayerChar (), posAfterFade.x,
-                                                    posAfterFade.y,
-                                                    posAfterFade.z);
-
-        if (mMissionStarting && mRandomizedMission.citiesUnlocked > 0)
-        {
-            CNativeManager::CallNativeRet(&mStoredIslandsUnlocked,
-                "GET_INT_STAT",
-                STAT_CITIES_UNLOCKED);
-
-            CNativeManager::CallNative("SET_INT_STAT",
-                STAT_CITIES_UNLOCKED,
-                mRandomizedMission.citiesUnlocked);
-        }
-
-        CNativeManager::CallNative ("DO_SCREEN_FADE_IN", 1000);
+        TeleportPlayerImmediately (mvPosAfterFade);
+        if (mbFadeInAfterTeleport)
+            CNativeManager::CallNative ("DO_SCREEN_FADE_IN", 1000);
 
         mbFading = false;
-        mMissionStarting = false;
         return false;
     }
 
@@ -486,7 +459,7 @@ class MissionRandomizer
             || strand->m_nLastMissionPassed != -1)
             {
                 bool passed = strand->m_nLastMissionPassed != -1;
-                
+
                 // And the mission was passed
                 if (passed)
                     HandleMissionPass ();
@@ -518,7 +491,16 @@ class MissionRandomizer
 
         scrThread__vftable *scrThread_vftable
             = *hook::get_pattern<scrThread__vftable *> (
-                "68 04 20 00 00 c7 06 ? ? ? ? 89 6e 58", 7);
+                VersionedData ("68 04 20 00 00 c7 06 ? ? ? ? 89 6e 58",
+                               "8b 30 57 8b f9 6a 00 c7 07"),
+                VersionedData (7, 9));
+
+        // Unprotect memory because DEP
+        DWORD oldProtect;
+        injector::UnprotectMemory (gtaThread_vftable,
+                                   sizeof (scrThread__vftable), oldProtect);
+        injector::UnprotectMemory (scrThread_vftable,
+                                   sizeof (scrThread__vftable), oldProtect);
 
         scrThread__ParseOriginal = gtaThread_vftable->ParseThread;
 
@@ -567,7 +549,7 @@ class MissionRandomizer
                 int     citiesUnlocked      = -1;
                 char    phoneMission        = 'N';
                 int     citiesUnlockedStart = -1;
-                Vector3 posStarting = { 842.122f, 935.903f, 1.861f };
+                Vector3 posStarting         = {842.122f, 935.903f, 1.861f};
                 int     stackSize           = 8192;
 
                 sscanf (line,
@@ -575,7 +557,8 @@ class MissionRandomizer
                         "%*f %d",
                         thread, &strand, &pos.x, &pos.y, &pos.z,
                         &citiesUnlocked, &citiesUnlockedStart, &phoneMission,
-                        &posStarting.x, &posStarting.y, &posStarting.z, &stackSize);
+                        &posStarting.x, &posStarting.y, &posStarting.z,
+                        &stackSize);
 
                 mMissionInfos[thread] = {strand,
                                          pos,
@@ -626,9 +609,11 @@ MissionInfo    MissionRandomizer::mOriginalMission;
 uint32_t       MissionRandomizer::mMissionHash           = -1;
 int            MissionRandomizer::mStoredIslandsUnlocked = -1;
 bool           MissionRandomizer::mbFading               = false;
+bool           MissionRandomizer::mbFadeInAfterTeleport  = true;
 int            MissionRandomizer::miFadeTimer            = 0;
 const char *   MissionRandomizer::mForcedMission         = "roman14";
 PreviousChange MissionRandomizer::mPreviousChange;
-bool           MissionRandomizer::mMissionStarting       = false;
+int            MissionRandomizer::mStoredBohanHouseState = 0;
+Vector3        MissionRandomizer::mvPosAfterFade;
 
 MissionRandomizer _missions;

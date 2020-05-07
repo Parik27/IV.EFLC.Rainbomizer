@@ -17,7 +17,8 @@ struct CVehicleStruct;
 class CPools
 {
 public:
-    static CPool<CVehicleStruct>*& g_pVehicleStructPool();
+    static CPool<CVehicleStruct> *&g_pVehicleStructPool ();
 
-    static void InitialisePatterns();
+    static void InitialisePatterns ();
+    static void InitialisePatternsCE ();
 };

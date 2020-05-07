@@ -24,8 +24,8 @@ audScriptAudioEntity::InitialisePatternsCE ()
     ConvertCall (hook::get_pattern ("8b 44 ? ? 56 8b 74 ? ? 6b f6 70 03 f1 "),
                  audScriptAudioEntity__AddLineToConversation);
 
-    char *addr
-        = hook::get_pattern<char> ("55 56 ff 35 ? ? ? ? ff 35 ? ? ? ? ff b4 ? ? ? ? ? e8");
+    char *addr = hook::get_pattern<char> (
+        "55 56 ff 35 ? ? ? ? ff 35 ? ? ? ? ff b4 ? ? ? ? ? e8");
 
     audScriptAudioEntity__m_nSoundMetadataLen
         = injector::ReadMemory<int *> (addr + 4);
@@ -51,11 +51,13 @@ audScriptAudioEntity::InitialisePatterns ()
         = injector::ReadMemory<CSoundBank **> (addr + 7);
 }
 
-int &audScriptAudioEntity::g_nSoundMetadataLen()
+int &
+audScriptAudioEntity::g_nSoundMetadataLen ()
 {
     return *audScriptAudioEntity__m_nSoundMetadataLen;
 }
-CSoundBank *&audScriptAudioEntity::g_aSoundMetadata()
+CSoundBank *&
+audScriptAudioEntity::g_aSoundMetadata ()
 {
     return *audScriptAudioEntity__g_aSoundMetadata;
 }

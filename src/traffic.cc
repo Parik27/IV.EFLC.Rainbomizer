@@ -77,8 +77,9 @@ class TrafficRandomizer
     void
     InitialiseSpawnHook ()
     {
-        void *addr
-            = hook::get_pattern ("81 ec 04 01 00 00 e8 ? ? ? ? 85 c0 7f ?");
+        void *addr = hook::get_pattern (VersionedData (
+            "81 ec 04 01 00 00 e8 ? ? ? ? 85 c0 7f ?",
+            "81 ec 08 01 00 00 a1 ? ? ? ? 33 c4 89 84 ? ? ? ? ? 56 8b b4"));
         injector::MakeJMP (addr, GetRandomCarToGenerate);
     }
 
@@ -123,16 +124,15 @@ public:
         InitialiseAllComponents ();
         InitialiseSpawnHook ();
 
-        RegisterHook ("74 ? 50 8b cb e8 ? ? ? ? 8b f8 85 ff", 5,
-                      RandomizeCarToLoad);
+        RegisterHook (VersionedData ("74 ? 50 8b cb e8 ? ? ? ? 8b f8 85 ff",
+                                     "74 ? 51 8b cb e8 ? ? ? ? 8b f8 85 ff"),
+                      5, RandomizeCarToLoad);
 
-        // injector::MakeNOP (0x0a40a0a, 6);
-        // injector::MakeNOP (0x0a40a15, 6);
-        // injector::MakeNOP (0x0a40a1f, 6);
-        // injector::MakeNOP (0x0a40a2c, 6);
-
-        RegisterHook ("eb ? 0f bf 47 2e 50 e8 ? ? ? ? 83 c4 04 8b d8 ", 7,
-                      GetPedModelForVehicle_ab333d, GetPedModelForVehicle);
+        RegisterHook (
+            VersionedData ("eb ? 0f bf 47 2e 50 e8 ? ? ? ? 83 c4 04 8b d8 ",
+                           "0f bf 47 2e 50 e8 ? ? ? ? 83 c4 04 8b f0 "),
+            VersionedData (7, 5), GetPedModelForVehicle_ab333d,
+            GetPedModelForVehicle);
 
         Rainbomizer::Logger::LogMessage ("Initialised TrafficRandomizer");
     }

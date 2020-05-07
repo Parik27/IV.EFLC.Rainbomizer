@@ -2,31 +2,6 @@
 #include "Utils.hh"
 #include "Patterns/Patterns.hh"
 
-uint32_t (*CCrypto__HashString) (const char *, int);
-
-/*******************************************************/
-uint32_t
-CCrypto::HashString (const char *string, int seed)
-{
-    return CCrypto__HashString (string, seed);
-}
-
-/*******************************************************/
-void
-CCrypto::InitialisePatternsCE()
-{
-    ConvertCall (hook::get_pattern ("32 23 6e ed 60 4b e6 38 36 1e"),
-                 CCrypto__HashString);
-}
-
-/*******************************************************/
-void
-CCrypto::InitialisePatterns ()
-{
-    CCrypto__HashString = hook::get_pattern<uint32_t (const char *, int)> (
-        "8b 4c 24 08 56 8b 74 24 08 80 3e 22 0f 94 c2", 0);
-}
-
 /*******************************************************/
 uint32_t __cdecl CCrypto::HashStringLowercase (const char *param_1)
 

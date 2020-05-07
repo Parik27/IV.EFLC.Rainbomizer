@@ -137,4 +137,5 @@ public:
     static CWeaponInfo *GetInfoFromIndex (int index);
 
     static void InitialisePatterns ();
+    static void InitialisePatternsCE ();
 };

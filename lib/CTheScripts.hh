@@ -19,7 +19,7 @@ union CScriptParams
     int      int_param;
     uint32_t uint_param;
     void *   ptr_param;
-    float float_param;
+    float    float_param;
     char *   cstr_param;
 };
 
@@ -42,11 +42,12 @@ struct NativeData
     void *         m_ret;
     uint8_t        __unk00[3];
     CScriptParams *Params;
-    
-    template<typename T>
-    T GetParam(int arg)
+
+    template <typename T>
+    T
+    GetParam (int arg)
     {
-        return *(T*) &Params[arg];
+        return *(T *) &Params[arg];
     }
 };
 
@@ -58,7 +59,7 @@ class CTheScripts
 public:
     static bool m_bNeedTranslation;
 
-    static GtaThread*& m_pRunningThread();
+    static GtaThread *&     m_pRunningThread ();
     static NativeHashPair **m_aNatives;
     static unsigned int *   m_nMaximumNatives;
 
@@ -138,6 +139,15 @@ public:
         CallNativeRaw (name, &data);
 
         delete[] data.Params;
+    }
+
+    template <typename T, typename... Args>
+    static T
+    CallNativeRet (const std::string &name, Args... args)
+    {
+        int ret;
+        CallNativeRet (&ret, name, args...);
+        return (T) ret;
     }
 
     template <typename... Args>

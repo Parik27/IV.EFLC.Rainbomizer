@@ -49,8 +49,10 @@ Common::HandleEpisodicChanges (int num)
 Common::Common ()
 {
     InitialiseAllComponents ();
-    RegisterHook ("e8 ? ? ? ? 8b f0 83 c4 04 85 f6 74 ? 8b 06 ", 0,
-                  FindPlayerPed_48e602, Common::HandleEpisodicChanges);
+    RegisterHook (VersionedData ("e8 ? ? ? ? 8b f0 83 c4 04 85 f6 74 ? 8b 06 ",
+                                 "a3 ? ? ? ? a3 ? ? ? ? e8 ? ? ? ? 6a 00 e8"),
+                  VersionedData (0, 17), FindPlayerPed_48e602,
+                  Common::HandleEpisodicChanges);
 
     // Add a callback to reset the indices
     this->AddEpisodeChangeCallback ([&] (int) {
@@ -72,7 +74,7 @@ Common::AddEpisodeChangeCallback (std::function<void (int)> callback)
 void
 Common::InitialiseIndices ()
 {
-    for (size_t i = 0; i < CModelInfoStore::m_nTotalModelPointers(); i++)
+    for (size_t i = 0; i < CModelInfoStore::m_nTotalModelPointers (); i++)
         {
             auto info = CModelInfoStore::m_aModelPointers[i];
             auto type = info->GetType ();

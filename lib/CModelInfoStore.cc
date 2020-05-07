@@ -15,18 +15,16 @@ CModelInfoStore::InitialisePatternsCE ()
     m_aModelPointers = *hook::get_pattern<CBaseModelInfo **> (
         "83 c4 04 89 3c ? ? ? ? ? 8b 77 3c 6a 10", 6);
 
-    //e8 ? ? ? ? ff 35 ? ? ? ? 8d ? ? 28 e8 ? ? ? ? 
+    // e8 ? ? ? ? ff 35 ? ? ? ? 8d ? ? 28 e8 ? ? ? ?
     CModelLookup__superlod = reinterpret_cast<CModelLookup *> (
         *hook::get_pattern<char *> (
             "e8 ? ? ? ? ff 35 ? ? ? ? 8d ? ? 28 e8 ? ? ? ?", 7)
         - 4);
 
-    
     ConvertCall (hook::get_pattern (
                      "8b 44 ? ? 33 c9 8b 04 ? ? ? ? ? ba 01 00 00 00 "),
                  CModelInfoStore__GetMaximumNumberOfPassengers);
 }
-
 
 /*******************************************************/
 void
@@ -56,7 +54,8 @@ CModelInfoStore::GetMaximumNumberOfPassengers (int index)
     return CModelInfoStore__GetMaximumNumberOfPassengers (index);
 }
 
-int &CModelInfoStore::m_nTotalModelPointers()
+int &
+CModelInfoStore::m_nTotalModelPointers ()
 {
     return *CModelInfoStore__nTotalModelPointers;
 }

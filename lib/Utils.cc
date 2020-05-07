@@ -2,6 +2,7 @@
 #include <ctime>
 
 #include "CCrypto.hh"
+#include "Patterns/Patterns.hh"
 #include "CHud.hh"
 #include "CPed.hh"
 #include "CTheScripts.hh"
@@ -41,6 +42,18 @@ RandomInt (int max)
 }
 
 /*******************************************************/
+bool
+IsCompleteEdition ()
+{
+    // There might be a better way to do this, but this works for now :P
+    static bool ce
+        = hook::pattern ("83 f8 03 0f 84 ? ? ? ? a1").size () == 0
+          && hook::pattern ("83 f8 03 0f 84 ? ? ? ? 8b 35").size () != 0;
+
+    return ce;
+}
+
+/*******************************************************/
 void
 InitialiseAllComponents ()
 {
@@ -50,21 +63,37 @@ InitialiseAllComponents ()
     if (initialised)
         return;
 
-    CPedWeapons::InitialisePatterns ();
-    CWeaponInfo::InitialisePatterns ();
-    CStreaming::InitialisePatterns ();
-    CCrypto::InitialisePatterns ();
-    CTheScripts::InitialisePatterns ();
-    CNativeManager::Initialise ();
-    CVehicleFactory::InitialisePatterns ();
-    CTimer::InitialisePatterns ();
-    CHud::InitialisePatterns ();
-    CModelInfoStore::InitialisePatterns ();
-    audScriptAudioEntity::InitialisePatterns ();
-    CText::InitialisePatterns ();
-    CPlayer::InitialisePatterns();
-    CPools::InitialisePatterns();
-    CPed::InitialisePatterns();
-
+    if (IsCompleteEdition ())
+        {
+            CPedWeapons::InitialisePatternsCE ();
+            CWeaponInfo::InitialisePatternsCE ();
+            CStreaming::InitialisePatternsCE ();
+            CTheScripts::InitialisePatternsCE ();
+            CNativeManager::InitialiseCE ();
+            CVehicleFactory::InitialisePatternsCE ();
+            CHud::InitialisePatternsCE ();
+            CModelInfoStore::InitialisePatternsCE ();
+            audScriptAudioEntity::InitialisePatternsCE ();
+            CText::InitialisePatternsCE ();
+            CPlayer::InitialisePatternsCE ();
+            CPools::InitialisePatternsCE ();
+            CPed::InitialisePatternsCE ();
+        }
+    else
+        {
+            CPedWeapons::InitialisePatterns ();
+            CWeaponInfo::InitialisePatterns ();
+            CStreaming::InitialisePatterns ();
+            CTheScripts::InitialisePatterns ();
+            CNativeManager::Initialise ();
+            CVehicleFactory::InitialisePatterns ();
+            CHud::InitialisePatterns ();
+            CModelInfoStore::InitialisePatterns ();
+            audScriptAudioEntity::InitialisePatterns ();
+            CText::InitialisePatterns ();
+            CPlayer::InitialisePatterns ();
+            CPools::InitialisePatterns ();
+            CPed::InitialisePatterns ();
+        }
     initialised = true;
 }

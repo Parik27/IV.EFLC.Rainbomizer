@@ -11,4 +11,5 @@ public:
     static CEntity *FindPlayerEntity (CPlayer *player = nullptr);
 
     static void InitialisePatterns ();
+    static void InitialisePatternsCE ();
 };

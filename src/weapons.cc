@@ -23,7 +23,7 @@ IsModelPartOfGroup (uint32_t hash, const std::vector<std::string> &mList)
 {
     for (auto i : mList)
         {
-            if (CCrypto::HashString (i.c_str ()) == hash)
+            if (CCrypto::HashStringLowercase (i.c_str ()) == hash)
                 return true;
         }
     return false;
@@ -31,7 +31,7 @@ IsModelPartOfGroup (uint32_t hash, const std::vector<std::string> &mList)
 
 class WeaponRandomizer
 {
-    static injector::scoped_jmp mHooka98500;
+    static injector::scoped_jmp            mHooka98500;
     static std::vector<int>                mValidWeapons;
     static std::discrete_distribution<int> mDistribution;
 
@@ -166,7 +166,7 @@ class WeaponRandomizer
 
         return mValidWeapons[mDistribution (engine)];
     }
-    
+
     /*******************************************************/
     static int
     GetNewWeaponForWeapon (int weapon, CPedWeapons *weapons)
@@ -181,7 +181,7 @@ class WeaponRandomizer
 
         if (std::find (mValidWeapons.begin (), mValidWeapons.end (), weapon)
             != mValidWeapons.end ())
-            return GetNewWeaponForWeapon(weapon, isPlayer, engine); //
+            return GetNewWeaponForWeapon (weapon, isPlayer, engine); //
 
         return weapon;
     }
@@ -206,8 +206,10 @@ class WeaponRandomizer
     static void
     InitialiseRandomWeaponsHook ()
     {
-        static void *addr
-            = hook::get_pattern ("e8 ? ? ? ? 8b ? 24 1c 8b ? 04 83 c4 04", -11);
+        static void *addr = hook::get_pattern (
+            VersionedData ("e8 ? ? ? ? 8b ? 24 1c 8b ? 04 83 c4 04",
+                           "53 55 56 8b f1 8b 4c ? ? 57 51 "),
+            VersionedData (-11, 0));
 
         mHooka98500.make_jmp (addr, WeaponRandomizer::RandomizeWeapon);
     }
@@ -231,8 +233,8 @@ public:
     }
 };
 
-injector::scoped_jmp WeaponRandomizer::mHooka98500{};
-std::vector<int>     WeaponRandomizer::mValidWeapons;
+injector::scoped_jmp            WeaponRandomizer::mHooka98500{};
+std::vector<int>                WeaponRandomizer::mValidWeapons;
 std::discrete_distribution<int> WeaponRandomizer::mDistribution;
 
 WeaponRandomizer _weap;

@@ -1,9 +1,10 @@
 #include "CModelInfo.hh"
 
 /*******************************************************/
-eModelInfoType CBaseModelInfo::GetType()
+eModelInfoType
+CBaseModelInfo::GetType ()
 {
-  return this->__vmt->GetType(this);
+    return this->__vmt->GetType (this);
 }
 
 /*******************************************************/

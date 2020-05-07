@@ -13,15 +13,14 @@ public:
     static void InitialisePatterns ();
 };
 
-
 class CPed
 {
     static int m_pWeaponsOffset;
-    
-public:
-    char __unk00[672] = {0};
-    CPedWeapons& m_pWeapons();
 
-    static void InitialisePatternsCE();
-    static void InitialisePatterns();
+public:
+    char         __unk00[672] = {0};
+    CPedWeapons &m_pWeapons ();
+
+    static void InitialisePatternsCE ();
+    static void InitialisePatterns ();
 };

@@ -23,21 +23,20 @@ int __fastcall CText::EncodingDetectHook (void *thisThingy, void *edx,
 }
 #endif
 
-//80 bc 3b f0 00 00 00 00 74 ?? 8d 04 dd ec 01 00 00 
 /*******************************************************/
 void
 CText::InitialisePatternsCE ()
 {
     ConvertCall (hook::get_pattern (
-                     "80 bc 3b f0 00 00 00 00 74 ?? 8d 04 dd ec 01 00 00 ",
-                     -53),
+                     "80 bc 3b f0 00 00 00 00 74 ? 8d 04 dd ec 01 00 00 ", -53),
                  CText__LoadAdditionalText);
 
     g_Text = *hook::get_pattern<CText *> (
         "5e 6a 01 b9 ? ? ? ? e8 ? ? ? ? b0 01 c3 ", 4);
 
     m_nTotalAdditionalTextSlots
-        = *hook::get_pattern<uint8_t> ("8d ? ? 14 ba ? ? ? ? be ? ? ? ? 90  ", 10);
+        = *hook::get_pattern<uint8_t> ("8d ? ? 14 ba ? ? ? ? be ? ? ? ? 90  ",
+                                       10);
 
 #ifndef NO_WSTR_DETECT_HOOK
     RegisterHook ("6a 02 8d 44 ? 1c 50 8b cf e8 ? ? ? ? be 04 00 00 00 ", 9,
