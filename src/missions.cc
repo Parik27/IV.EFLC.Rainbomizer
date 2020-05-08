@@ -12,6 +12,7 @@
 #include "common.hh"
 #include "config.hh"
 #include <array>
+#include <CCrypto.hh>
 
 int (__thiscall *scrThread__ParseOriginal) (scrThread *  scr,
                                             unsigned int param_2);
@@ -74,6 +75,7 @@ class MissionRandomizer
     static MissionInfo                                  mOriginalMission;
     static int                                          mStoredIslandsUnlocked;
     static uint32_t                                     mMissionHash;
+    static uint32_t                                     mOriginalMissionHash;
     static PreviousChange                               mPreviousChange;
     static int                                          mStoredBohanHouseState;
     static const char *                                 mForcedMission;
@@ -196,6 +198,8 @@ class MissionRandomizer
         mOriginalMission   = mMissionInfos[originalThread];
         mRandomizedMission = mMissionInfos[newThread];
         mMissionHash       = program->m_dwHash;
+        mOriginalMissionHash
+            = CCrypto::HashStringLowercase (originalThread.c_str ());
 
         HandleMissionStart ();
 
@@ -329,6 +333,21 @@ class MissionRandomizer
             case MISSION_ROMAN7:
                 CTheScripts::m_pGlobals ()[IS_BOHAN_SAFEHOUSE_OPEN]
                     = mStoredBohanHouseState;
+                break;
+            }
+
+        /*******************************************************/
+        switch (mOriginalMissionHash)
+            {
+                // Fade out if the first missions are failed
+                // because some missions require fade-outs to have happened
+                // before starting. Some missions do the fade-outs themselves,
+                // others don't
+            case MISSION_BILLY1:
+            case MISSION_TONY1:
+            case MISSION_ROMAN1:
+                if (!passed)
+                    CNativeManager::CallNative ("DO_SCREEN_FADE_OUT", 1000);
             }
     }
 
@@ -607,6 +626,7 @@ std::unordered_map<std::string, std::string> MissionRandomizer::mMissionMaps{};
 MissionInfo    MissionRandomizer::mRandomizedMission;
 MissionInfo    MissionRandomizer::mOriginalMission;
 uint32_t       MissionRandomizer::mMissionHash           = -1;
+uint32_t       MissionRandomizer::mOriginalMissionHash   = -1;
 int            MissionRandomizer::mStoredIslandsUnlocked = -1;
 bool           MissionRandomizer::mbFading               = false;
 bool           MissionRandomizer::mbFadeInAfterTeleport  = true;

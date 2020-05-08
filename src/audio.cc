@@ -165,7 +165,8 @@ class SoundsRandomizer
                 CText::g_Text->LoadAdditionalText (i.c_str (), 1);
                 if (!CText::g_Text->m_abAdditionalTextLoaded ()[1])
                     {
-                        printf ("Failed to load: %s\n", i.c_str ());
+                        Rainbomizer::Logger::LogMessage ("Failed to load: %s",
+                                                         i.c_str ());
                         continue;
                     }
 
@@ -246,8 +247,8 @@ class SoundsRandomizer
                             }
                     }
             }
-        // printf ("R1_AA: %d\n", soundPairs[0xB1402896].bankHash);
-        printf ("Total Bank Slots resolved: %d\n", total);
+        
+        Rainbomizer::Logger::LogMessage ("Total Bank Slots resolved: %d\n", total);
     }
 
     /*******************************************************/
@@ -272,7 +273,8 @@ class SoundsRandomizer
                     }
             }
 
-        printf ("Number of voice lines: %d\n", soundPairs.size ());
+        Rainbomizer::Logger::LogMessage ("Number of voice lines: %d",
+                                         soundPairs.size ());
         FindBankSlotsForSoundPairs (soundPairs);
 
         std::for_each (soundPairs.begin (), soundPairs.end (),

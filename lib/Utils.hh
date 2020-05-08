@@ -56,7 +56,6 @@ void *
 SearchBack (const std::string &pattern, const std::string &pattern2,
             int max_offset, int offset = 0)
 {
-    puts (pattern.c_str ());
     injector::memory_pointer_raw addr = hook::get_pattern (pattern);
 
     return hook::make_range_pattern ((addr - max_offset).as_int (),

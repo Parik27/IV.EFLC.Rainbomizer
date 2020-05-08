@@ -13,6 +13,7 @@
 #include <unordered_map>
 #include <gtaThread.hh>
 #include <array>
+#include <bitset>
 
 int (*scanf_aca2e7) (char *, char *, ...);
 
@@ -32,6 +33,7 @@ struct VehiclePattern
     };
     uint8_t flags;
 
+    std::vector<bool> moveConditions;
     Vector3 moveCoords;
 };
 
@@ -74,14 +76,13 @@ class ScriptVehicleRandomizer
 
     /*******************************************************/
     static uint32_t
-    GetVehicleForModel (uint32_t hash, uint8_t &flagsOut)
+    GetVehicleForModel (uint32_t hash, uint8_t &flagsOut, Vector3& move)
     {
         for (const auto &i : mVehiclePatterns)
             {
                 if (i.vehicleHash != hash)
                     continue;
 
-                puts (CTheScripts::m_pRunningThread ()->m_szProgramName);
                 if (i.thread
                     != CTheScripts::m_pRunningThread ()->m_szProgramName)
                     continue;
@@ -95,9 +96,14 @@ class ScriptVehicleRandomizer
                         continue;
                     }
 
-                auto model = CModelInfoStore::m_aModelPointers[vehicle];
-                flagsOut   = i.flags;
+                auto model = static_cast<CVehicleModelInfo *> (
+                    CModelInfoStore::m_aModelPointers[vehicle]);
 
+                flagsOut = i.flags;
+
+                if(i.moveConditions[model->m_nType])
+                    move = i.moveCoords;
+                
                 return model->m_nModelHash;
             }
 
@@ -138,11 +144,16 @@ class ScriptVehicleRandomizer
         static int number       = 0;
         uint32_t   originalHash = data->Params[0].uint_param;
         uint8_t    flags        = 0;
+        Vector3    moveCoords   = {0, 0, 0};
 
-        data->Params[0].uint_param = GetVehicleForModel (originalHash, flags);
-        Rainbomizer::Logger::LogMessage ("Replacing %x with %x", originalHash,
-                                         data->Params[0].uint_param);
+        data->Params[0].uint_param
+            = GetVehicleForModel (originalHash, flags, moveCoords);
 
+        // Move the vehicle to an alternative coordinate
+        data->Params[1].float_param += moveCoords.x;
+        data->Params[2].float_param += moveCoords.y;
+        data->Params[3].float_param += moveCoords.z;
+        
         // This does stuff related to unloading and loading the old/new vehicles
         // CNativeManager::CallNative ("MARK_MODEL_AS_NO_LONGER_NEEDED",
         // data->Params[0].uint_param);
@@ -290,12 +301,6 @@ class ScriptVehicleRandomizer
 
                 out.push_back (i);
             }
-
-        for (auto i : out)
-            {
-                printf ("%d, ", i);
-            }
-        printf ("\n");
         return out;
     }
 
@@ -331,12 +336,18 @@ class ScriptVehicleRandomizer
                 auto flagsInt = ReadFlags (flags);
 
                 mVehiclePatterns.push_back (
-                    {threadName, hash,
+                    {threadName,
+                     hash,
                      GenerateValidIndicesForPattern (hash, seats, cars != 'N',
                                                      bikes != 'N', helis != 'N',
                                                      boats != 'N',
                                                      trains != 'N', flagsInt),
-                     flagsInt, move});
+                     flagsInt,
+                     
+                     {cars == 'C', bikes == 'C', boats == 'C', trains == 'C',
+                      helis == 'C', false},
+
+                     move});
             }
     }
 

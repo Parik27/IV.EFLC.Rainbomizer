@@ -2,6 +2,8 @@
 #include "Utils.hh"
 #include "config.hh"
 #include "logger.hh"
+#include <vector>
+#include <array>
 
 class CheatRandomizer
 {

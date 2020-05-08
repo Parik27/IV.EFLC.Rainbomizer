@@ -1,0 +1,54 @@
+#Thread	Original Vehicle	Seats	Cars	Bikes	Helicopters	Boats	Trains	Flags	Alternate Coordinates			Alt Coord Notes
+									X	Y	Z	
+tony1	Schafter2	4	Y	N	Y	N	N					
+tony3	Schafter2	2	Y	Y	Y	N	N					
+tony3	Caddy	2	Y	Y	Y	Y	N					
+tony3	Fxt	4	Y	N	Y	Y	N					
+tony2	Schafter2	2	Y	Y	Y	N	N					
+friends1	Cavalcade2	4	Y	N	Y	N	N					
+friends1	Annihilator	4	Y	Y	Y	Y	N					
+friends1	NStockade	4	Y	N	Y	Y	N					
+friends2	Cavalcade2	4	Y	N	N	N	N					
+friends2	Reefer	-1	N	N	N	Y	N					
+friends2	Tropic	-1	N	N	N	Y	N					
+yusuf1	Jetmax	2	N	N	C	Y	N	none	5.6946	7.5799	1.22252	
+yusuf1	Dinghy	4	N	N	N	Y	N					
+yusuf1	Buzzard	2	N	N	Y	N	N	guns				
+yusuf2	Superd2	2	Y	Y	Y	N	N					
+yusuf3	Swift	2	N	N	N	N	N					
+yusuf3	APC	1	Y	Y	Y	N	N	guns+no_rotors				
+brother1	Buffalo	2	Y	Y	Y	N	N					
+brother1	Smuggler	4	Y	N	Y	Y	N					
+brother1	Dinghy	-1	N	N	C	Y	N	start_rotors	0	0	26	
+brother2	Buffalo	2	Y	Y	Y	N	N					
+brother2	Jetmax	-1	N	N	C	Y	N	none	-4.7889	-1.711	9.8423	
+brother2	Floater	-1	N	N	N	Y	N					
+brother2	Blade	-1	N	N	N	Y	N					
+brother2	Smuggler	-1	N	N	N	Y	N					
+brother2	F620	1	Y	Y	Y	N	N					
+brother2	Bullet	1	Y	Y	Y	N	N					
+brother2	Comet	1	Y	Y	Y	N	N					
+brother2	Buffalo	1	Y	Y	Y	N	N					
+brother3	Buffalo	4	Y	N	Y	N	N					
+brother3	Turismo	1	Y	Y	N	N	N					
+brother3	F620	1	Y	Y	N	N	N					
+brother3	Bullet	1	Y	Y	N	N	N					
+tony4a	Schafter2	4	Y	N	Y	N	N	no_rotors				
+tony7	Limo2	4	Y	Y	Y	N	N					
+tony6	Schafter2	2	Y	Y	Y	N	N					
+tony4b	Swift	2	N	N	Y	N	N					
+tony9	Maverick	2	Y	Y	Y	N	N					
+bulgarin1	Landstalker	4	Y	N	N	N	N					
+bulgarin2	Oracle	2	Y	Y	Y	N	N					
+bulgarin2	Maverick	2	N	N	Y	N	N					
+yusuf4	Superd2	2	Y	Y	Y	N	N					
+yusuf4	Polmav	4	Y	N	Y	Y	Y					
+yusuf4	Annihilator	4	Y	N	Y	Y	Y					
+tony10	Schafter2	2	Y	Y	Y	N	N					
+tony10	Squalo	4	N	N	N	Y	N					
+rocco1	Rebla	4	Y	N	Y	Y	N					
+rocco1	Schafter 	4	Y	N	Y	Y	N					
+rocco1	Nrg900	2	Y	Y	Y	Y	N					
+tony11	Schafter2	2	Y	Y	Y	N	N					
+tony11	Bati2	2	Y	Y	Y	N	N					
+tony8	Buzzard	1	N	N	Y	N	N	guns				

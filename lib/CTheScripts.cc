@@ -72,7 +72,6 @@ CNativeManager::NativeHook ()
                != -1)
         CTheScripts::m_bNeedTranslation = true;
 
-    puts ("Jace me, Jace me!");
     for (auto i : *m_aNewNatives)
         {
             auto &native = (*CTheScripts::m_aNatives)
