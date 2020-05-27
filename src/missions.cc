@@ -14,8 +14,7 @@
 #include <array>
 #include <CCrypto.hh>
 
-int (__thiscall *scrThread__ParseOriginal) (scrThread *  scr,
-                                            unsigned int param_2);
+int (__thiscall *scrThread__RunOriginal) (scrThread *scr, unsigned int param_2);
 
 struct MissionInfo
 {
@@ -46,23 +45,6 @@ struct PreviousChange
     uint32_t offset;
     uint8_t  originalValue;
     uint8_t  newValue;
-};
-
-enum eMissions : unsigned int
-{
-    // IV Missions
-    MISSION_ROMAN1 = 0xFCF2C3F4,
-    MISSION_ROMAN2 = 0xCF9C6948,
-    MISSION_ROMAN5 = 0x96A4F776,
-    MISSION_ROMAN6 = 0x8836DA9A,
-    MISSION_ROMAN7 = 0x3A27BE7D,
-    MISSION_GERRY1 = 0xFF61524E,
-
-    // TLAD Missions
-    MISSION_BILLY1 = 0x5BAA19E,
-
-    // TBoGT Missions
-    MISSION_TONY1 = 0x5BEE6FEC
 };
 
 const int IS_BOHAN_SAFEHOUSE_OPEN     = 9955;
@@ -195,11 +177,10 @@ class MissionRandomizer
         scrProgram *program = CTheScripts::GetScrProgram (newThread);
 
         // Set the strand and mission hash for future reference
-        mOriginalMission   = mMissionInfos[originalThread];
-        mRandomizedMission = mMissionInfos[newThread];
-        mMissionHash       = program->m_dwHash;
-        mOriginalMissionHash
-            = CCrypto::HashStringLowercase (originalThread.c_str ());
+        mOriginalMission     = mMissionInfos[originalThread];
+        mRandomizedMission   = mMissionInfos[newThread];
+        mMissionHash         = program->m_dwHash;
+        mOriginalMissionHash = CCrypto::atStringHash (originalThread.c_str ());
 
         HandleMissionStart ();
 
@@ -285,17 +266,17 @@ class MissionRandomizer
             {
             // gerry1 - Actions Speak Louder Than Words
             // You need Gerry's contact to call him for the bomb
-            case MISSION_GERRY1:
+            case "gerry1"_joaat:
                 CTheScripts::m_pGlobals ()[GERRY_CONTACT] = 1;
                 break;
 
             // It's Your Call, Easy Fare, Jamaican Heat, Uncle Vlad
             // Sets Bohan and Algonquin safehouses as their state affects
             // the spawning of Roman's taxi
-            case MISSION_ROMAN2:
-            case MISSION_ROMAN5:
-            case MISSION_ROMAN6:
-            case MISSION_ROMAN7:
+            case "roman2"_joaat:
+            case "roman5"_joaat:
+            case "roman6"_joaat:
+            case "roman7"_joaat:
                 mStoredBohanHouseState
                     = CTheScripts::m_pGlobals ()[IS_BOHAN_SAFEHOUSE_OPEN];
                 CTheScripts::m_pGlobals ()[IS_BOHAN_SAFEHOUSE_OPEN] = 0;
@@ -311,15 +292,15 @@ class MissionRandomizer
                 // billy1, roman1, tony1 - First missions so fade out and never
                 // fade back in
 
-            case MISSION_BILLY1:
-            case MISSION_TONY1:
+            case "billy1"_joaat:
+            case "tony1"_joaat:
                 if (!passed)
                     CNativeManager::CallNative ("DO_SCREEN_FADE_IN", 1000);
                 break;
 
                 // roman1 freezes you at the end to play the safehouse intro
                 // scene
-            case MISSION_ROMAN1:
+            case "roman1"_joaat:
                 if (!passed)
                     CNativeManager::CallNative ("DO_SCREEN_FADE_IN", 1000);
 
@@ -327,10 +308,10 @@ class MissionRandomizer
                                             GetPlayerId (), 1);
                 break;
 
-            case MISSION_ROMAN2:
-            case MISSION_ROMAN5:
-            case MISSION_ROMAN6:
-            case MISSION_ROMAN7:
+            case "roman2"_joaat:
+            case "roman5"_joaat:
+            case "roman6"_joaat:
+            case "roman7"_joaat:
                 CTheScripts::m_pGlobals ()[IS_BOHAN_SAFEHOUSE_OPEN]
                     = mStoredBohanHouseState;
                 break;
@@ -343,9 +324,9 @@ class MissionRandomizer
                 // because some missions require fade-outs to have happened
                 // before starting. Some missions do the fade-outs themselves,
                 // others don't
-            case MISSION_BILLY1:
-            case MISSION_TONY1:
-            case MISSION_ROMAN1:
+            case "billy1"_joaat:
+            case "tony1"_joaat:
+            case "roman1"_joaat:
                 if (!passed)
                     CNativeManager::CallNative ("DO_SCREEN_FADE_OUT", 1000);
             }
@@ -490,13 +471,13 @@ class MissionRandomizer
     }
 
     /*******************************************************/
-    static int __fastcall ParseThreadHook (scrThread *scr, void *edx,
-                                           unsigned int param_2)
+    static int __fastcall RunThreadHook (scrThread *scr, void *edx,
+                                         unsigned int param_2)
     {
         if (HandleFadingCode (scr))
             return 0;
 
-        int ret = scrThread__ParseOriginal (scr, param_2);
+        int ret = scrThread__RunOriginal (scr, param_2);
         return (HandleMissionState (scr), ret);
     }
 
@@ -510,9 +491,9 @@ class MissionRandomizer
 
         scrThread__vftable *scrThread_vftable
             = *hook::get_pattern<scrThread__vftable *> (
-                VersionedData ("68 04 20 00 00 c7 06 ? ? ? ? 89 6e 58",
-                               "8b 30 57 8b f9 6a 00 c7 07"),
-                VersionedData (7, 9));
+                ByVersion ("68 04 20 00 00 c7 06 ? ? ? ? 89 6e 58",
+                           "8b 30 57 8b f9 6a 00 c7 07"),
+                ByVersion (7, 9));
 
         // Unprotect memory because DEP
         DWORD oldProtect;
@@ -521,10 +502,10 @@ class MissionRandomizer
         injector::UnprotectMemory (scrThread_vftable,
                                    sizeof (scrThread__vftable), oldProtect);
 
-        scrThread__ParseOriginal = gtaThread_vftable->ParseThread;
+        scrThread__RunOriginal = gtaThread_vftable->Run;
 
-        ConvertCall (ParseThreadHook, gtaThread_vftable->ParseThread);
-        ConvertCall (ParseThreadHook, scrThread_vftable->ParseThread);
+        ConvertCall (RunThreadHook, gtaThread_vftable->Run);
+        ConvertCall (RunThreadHook, scrThread_vftable->Run);
     }
 
     /*******************************************************/

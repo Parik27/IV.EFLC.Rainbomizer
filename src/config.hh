@@ -33,6 +33,8 @@ struct TrafficConfig : public BaseConfig
     bool enableCars        = true;
     bool enableBikes       = true;
 
+    bool enableRandomPeds = true;
+
     int defaultModel = 0;
 
     void Read (std::shared_ptr<cpptoml::table> table);
@@ -66,6 +68,11 @@ struct ParkedCarConfig : public BaseConfig
 /*******************************************************/
 struct SoundsConfig : public BaseConfig
 {
+    bool RandomizeVoiceLines = true;
+    bool RandomizeGameSFX    = true;
+    bool RandomizeGameMusic  = true;
+
+    void Read (std::shared_ptr<cpptoml::table> table);
 };
 
 /*******************************************************/

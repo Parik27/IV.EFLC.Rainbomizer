@@ -16,7 +16,6 @@
 #include <map>
 #endif
 
-
 #if PATTERNS_USE_HINTS
 
 // from boost someplace
@@ -138,7 +137,7 @@ public:
 };
 
 void pattern::Initialize(std::string_view pattern)
-{
+{	
 	// get the hash for the base pattern
 #if PATTERNS_USE_HINTS
 	m_hash = fnv_1()(pattern);

@@ -17,15 +17,17 @@ ConvertCall (Addr address, Func &func)
     func = Func (address);
 }
 
-int  RandomInt (int max);
-int  RandomInt (int min, int max);
-void InitialiseAllComponents ();
+float RandomFloat (float max);
+float RandomFloat (float min, float max);
+int   RandomInt (int max);
+int   RandomInt (int min, int max);
+void  InitialiseAllComponents ();
 
 bool IsCompleteEdition ();
 
 template <typename T>
 inline auto
-VersionedData (T preCE, T CE)
+ByVersion (T preCE, T CE)
 {
     return IsCompleteEdition () ? CE : preCE;
 }

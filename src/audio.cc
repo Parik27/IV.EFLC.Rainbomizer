@@ -9,6 +9,8 @@
 #include <array>
 #include "config.hh"
 #include "logger.hh"
+#include "audEngine.hh"
+#include "CModelInfoStore.hh"
 
 // All the audio gxt tables
 const std::array<std::vector<std::string>, 3> gxtTables
@@ -82,6 +84,12 @@ bool (__stdcall *audScriptAudioEntity__IsSFXSound8f6959) (char *);
 void (__thiscall *FUN_0091cac0__8f8a86) (audScriptAudioEntity *, char *, char *,
                                          char *, float, int, char);
 
+audSoundMetadata *(__thiscall *MetadataGetAtOffset_77752f) (
+    audConfigMetadata<audSoundMetadata> *, uint32_t);
+
+audSoundMetadata *(__thiscall *MetadataGetByHash_77753d) (
+    audConfigMetadata<audSoundMetadata> *, uint32_t);
+
 struct SoundPair
 {
     uint32_t    bankHash = -1;
@@ -125,8 +133,8 @@ class SoundsRandomizer
     InitialiseAddLineToConversationHook ()
     {
         static void *addr = hook::get_pattern (
-            VersionedData ("8b 44 ? ? 6b c0 70 56 8d 34 08 8b 4c",
-                           "8b 44 ? ? 56 8b 74 ? ? 6b f6 70 03 f1"));
+            ByVersion ("8b 44 ? ? 6b c0 70 56 8d 34 08 8b 4c",
+                       "8b 44 ? ? 56 8b 74 ? ? 6b f6 70 03 f1"));
 
         mHook8f5b00.make_jmp (addr, RandomizeConversationLine);
     }
@@ -180,14 +188,14 @@ class SoundsRandomizer
     static bool
     DoesTextLabelExist (const std::string &label)
     {
-        return mTexts.count (CCrypto::HashStringLowercase (label.c_str ()));
+        return mTexts.count (CCrypto::atStringHash (label.c_str ()));
     }
 
     /*******************************************************/
     static std::string
     GetTextLabel (const std::string &label)
     {
-        uint32_t hash = CCrypto::HashStringLowercase (label.c_str ());
+        uint32_t hash = CCrypto::atStringHash (label.c_str ());
         if (mTexts.count (hash))
             return mTexts[hash];
         return "";
@@ -207,9 +215,8 @@ class SoundsRandomizer
         SoundPair pair;
         if ((pair.sound = GetTextLabel (bank + "A"), pair.sound != ""))
             {
-                pair.subtitle = bank;
-                pairs[CCrypto::HashStringLowercase (pair.sound.c_str ())]
-                    = pair;
+                pair.subtitle                                      = bank;
+                pairs[CCrypto::atStringHash (pair.sound.c_str ())] = pair;
             }
         else
             {
@@ -221,8 +228,7 @@ class SoundsRandomizer
                              pair.sound == ""))
                             break;
 
-                        pairs[CCrypto::HashStringLowercase (
-                            pair.sound.c_str ())]
+                        pairs[CCrypto::atStringHash (pair.sound.c_str ())]
                             = pair;
                     }
             }
@@ -247,8 +253,9 @@ class SoundsRandomizer
                             }
                     }
             }
-        
-        Rainbomizer::Logger::LogMessage ("Total Bank Slots resolved: %d\n", total);
+
+        Rainbomizer::Logger::LogMessage ("Total Bank Slots resolved: %d\n",
+                                         total);
     }
 
     /*******************************************************/
@@ -296,7 +303,7 @@ class SoundsRandomizer
         if (mCorrectedBankHash != -1)
             return mCorrectedBankHash;
 
-        return CCrypto::HashStringLowercase (str);
+        return CCrypto::atStringHash (str);
     }
 
     /*******************************************************/
@@ -309,7 +316,7 @@ class SoundsRandomizer
                 return mCorrectedBankHash;
             }
 
-        return CCrypto::HashStringLowercase (str);
+        return CCrypto::atStringHash (str);
     }
 
     /*******************************************************/
@@ -349,7 +356,7 @@ class SoundsRandomizer
         std::string str;
         try
             {
-                str = mTexts.at (CCrypto::HashStringLowercase (txt));
+                str = mTexts.at (CCrypto::atStringHash (txt));
             }
         catch (const std::out_of_range &e)
             {
@@ -403,6 +410,225 @@ class SoundsRandomizer
         return DoesTextLabelExist (label);
     }
 
+    void
+    InitialiseVoiceLineRandomizerPatches ()
+    {
+        if (!ConfigManager::GetConfigs ().sounds.RandomizeVoiceLines)
+            return;
+
+        InitialiseAddLineToConversationHook ();
+
+        RegisterHook (ByVersion ("8d bd f0 15 00 00 57 8b ce e8",
+                                 "8d 83 f0 15 00 00 50 8b ce e8"),
+                      9, audScriptAudioEntity__IsSFXSound8f6959,
+                      SetNextBankAudioHash1);
+
+        RegisterHook (
+            ByVersion ("b9 ? ? ? ? e8 ? ? ? ? 80 bd d2 2b 00 00 00",
+                       "b9 ? ? ? ? 50 e8 ? ? ? ? 80 bb d2 2b 00 00 00 "),
+            ByVersion (5, 6), CorrectSubtitles);
+
+        RegisterHook (ByVersion ("50 89 44 ? ? e8 ? ? ? ? 83 c4 08 50",
+                                 "50 6a 00 51 89 4c ? ? e8 ? ? ? ? 83 c4 08 "),
+                      ByVersion (5, 8), CorrectBankHash);
+
+        RegisterHook (ByVersion ("8b 4c ? ? 51 52 6a 00 50 e8",
+                                 "8b f1 ff 74 ? ? 6a 00 50 e8"),
+                      9, CorrectBankHash);
+
+        RegisterHook (ByVersion ("57 52 c6 86 09 02 00 00 00 e8",
+                                 "ff 74 ? 48 c6 87 09 02 00 00 00 e8 "),
+                      ByVersion (9, 11), CorrectBankHash);
+
+        RegisterHook (ByVersion ("57 50 6a 00 52 e8 ? ? ? ? 83 c4 08",
+                                 "56 50 6a 00 ff 74 ? 54 e8 "),
+                      ByVersion (5, 8), CorrectBankHash);
+
+        RegisterHook (
+            ByVersion ("50 8d ? ? ? ? ? 89 7c ? ? e8 ? ? ? ? eb ?",
+                       "05 38 2e 00 00 03 c3 50 e8 ? ? ? ? 8b 54 ? ? eb ?"),
+            ByVersion (11, 8), FUN_0091cac0__8f8a86, SetNextBankAudioHash2);
+
+        RegisterHook (
+            ByVersion ("f3 a4 50 b9 ? ? ? ? e8 ? ? ? ? 84 c0",
+                       "f3 a4 50 b9 ? ? ? ? e8 ? ? ? ? b9 ? ? ? ? 84 c0 "),
+            8, CorrectSubtitleVariationLabelCheck);
+    }
+
+    /*******************************************************/
+    /* Sfx Randomizer Patches                              */
+    /*******************************************************/
+    static __fastcall audBaseGameMetadata *
+    RandomizeGameMetadataRequestByName (audEngine *engine, void *edx,
+                                        const char *name)
+    {
+        return RandomizeGameMetadataRequestByHash (engine, edx,
+                                                   CCrypto::atStringHash (
+                                                       name));
+    }
+
+    /*******************************************************/
+    static __fastcall audBaseGameMetadata *
+    RandomizeGameMetadataRequestByHash (audEngine *engine, void *edx,
+                                        uint32_t hash)
+    {
+        auto metadata = audEngine::sm_Instance->GetGameMetadata ();
+
+        // Types that will be randomized by this function
+        std::array randomizedTypes{GM_CRIME,        GM_WEAPON,
+                                   GM_DOOR,         GM_INTERIOR,
+                                   GM_AMBIENT_ZONE, GM_COLLISION,
+                                   GM_CLOTHING,     GM_AMBIENT_EMITTER,
+                                   GM_FOOTSTEPS,    GM_MELEE_COMBAT,
+                                   GM_PED,          GM_VEHICLE};
+
+        auto object = metadata->GetByHash (hash);
+        if (!object
+            || std::find (std::begin (randomizedTypes),
+                          std::end (randomizedTypes), object->Type)
+                   == std::end (randomizedTypes))
+            return object;
+
+        // Special case required for them because the size of the vehicle
+        // metadata structure differs for helicopters and boats.
+        if (object->Type == GM_VEHICLE)
+            {
+                CVehicleModelInfo *originalInfo
+                    = CModelInfoStore::GetModelInfoPointer<CVehicleModelInfo> (
+                        CModelInfoStore::FindVehicleModelWithGameName (hash));
+
+                // Get a new vehicle of the same type
+                std::vector<CVehicleModelInfo *> validVehicles;
+                for (auto i : Rainbomizer::Common::GetVehicleIndices ())
+                    {
+                        auto info = CModelInfoStore::GetModelInfoPointer<
+                            CVehicleModelInfo> (i);
+
+                        switch (originalInfo->m_nType)
+                            {
+                            case VEHICLE_TYPE_CAR:
+                                case VEHICLE_TYPE_BIKE: {
+                                    if (info->m_nType == VEHICLE_TYPE_CAR
+                                        || info->m_nType == VEHICLE_TYPE_BIKE)
+                                        validVehicles.push_back (info);
+
+                                    break;
+                                }
+
+                            default:
+                                if (info->m_nType == originalInfo->m_nType)
+                                    validVehicles.push_back (info);
+                            }
+                    }
+
+                return metadata->GetByHash (CCrypto::atStringHash (
+                    validVehicles[RandomInt (validVehicles.size () - 1)]
+                        ->m_szGameName));
+            }
+
+        std::vector<audBaseGameMetadata *> objects;
+
+        metadata->for_each ([&] (audBaseGameMetadata *obj, uint32_t hash) {
+            if (obj->Type == object->Type)
+                objects.push_back (obj);
+        });
+
+        return objects[RandomInt (objects.size () - 1)];
+    }
+
+    /*******************************************************/
+    /* Music Randomizer Patches                            */
+    /*******************************************************/
+    static audSoundMetadata *
+    GetRandomizedGameMusic (audConfigMetadata<audSoundMetadata> *mgr,
+                            audSoundMetadata *metadata, uint32_t orHash)
+    {
+        std::vector<audSoundMetadata *> validDatas;
+
+        // Alright, we should keep that but skip randomizing the cutscenes
+        // themselves
+        std::array randomizedTypes{audLoopingSound, audStreamingSound};
+
+        if (!metadata
+            || std::find (std::begin (randomizedTypes),
+                          std::end (randomizedTypes), metadata->Type)
+                   == std::end (randomizedTypes))
+            return metadata;
+
+        mgr->for_each ([&] (audSoundMetadata *obj, uint32_t hash) {
+            if (obj->Type == metadata->Type)
+                validDatas.push_back (obj);
+        });
+
+        return validDatas[RandomInt (validDatas.size () - 1)];
+    }
+
+    /*******************************************************/
+    static __fastcall audSoundMetadata *
+    GetRandomizedGameMusicByOffset (audConfigMetadata<audSoundMetadata> *mgr,
+                                    void *edx, uint32_t offset)
+    {
+        auto metadata = MetadataGetAtOffset_77752f (mgr, offset);
+        return GetRandomizedGameMusic (mgr, metadata, offset);
+    }
+
+    /*******************************************************/
+    static __fastcall audSoundMetadata *
+    GetRandomizedGameMusicByHash (audConfigMetadata<audSoundMetadata> *mgr,
+                                  void *edx, uint32_t hash)
+    {
+        auto metadata = MetadataGetByHash_77753d (mgr, hash);
+        return GetRandomizedGameMusic (mgr, metadata, hash);
+    }
+
+    /*******************************************************/
+    void
+    InitialiseMusicRandomizerPatches ()
+    {
+        if (!ConfigManager::GetConfigs ().sounds.RandomizeGameMusic)
+            return;
+
+        RegisterHook (ByVersion ("74 ? 8b 44 ? ? 50 e8 ? ? ? ? eb",
+                                 "8b f1 74 ? e8 ? ? ? ? eb ? e8"),
+                      ByVersion (7, 4), MetadataGetAtOffset_77752f,
+                      GetRandomizedGameMusicByOffset);
+
+        RegisterHook (ByVersion ("74 ? 8b 44 ? ? 50 e8 ? ? ? ? eb",
+                                 "8b f1 74 ? e8 ? ? ? ? eb ? e8"),
+                      ByVersion (21, 11), MetadataGetByHash_77753d,
+                      GetRandomizedGameMusicByHash);
+    }
+
+    /*******************************************************/
+    void
+    InitialiseSfxRandomizerPatches ()
+    {
+        if (!ConfigManager::GetConfigs ().sounds.RandomizeGameSFX)
+            return;
+
+        void *   ItemByNameAddr;
+        uint32_t GameMetaOffset = audEngine::GetGameMetadataOffset ();
+
+        ReadCall (hook::get_pattern ("53 55 8b e9 68 ? ? ? ? b9 ? ? ? ? e8",
+                                     14),
+                  ItemByNameAddr);
+
+        hook::pattern ("81 c1 ? ? ? ? e9")
+            .for_each_result ([&] (hook::pattern_match m) {
+                if (*m.get<uint32_t> (2) == GameMetaOffset)
+                    {
+                        if (m.get<void> () == ItemByNameAddr)
+                            injector::MakeJMP (
+                                m.get<void> (),
+                                RandomizeGameMetadataRequestByName);
+                        else
+                            injector::MakeJMP (
+                                m.get<void> (),
+                                RandomizeGameMetadataRequestByHash);
+                    }
+            });
+    }
+
 public:
     /*******************************************************/
     SoundsRandomizer ()
@@ -414,44 +640,9 @@ public:
         Rainbomizer::Common::AddEpisodeChangeCallback (
             InitialiseRandomizationForEpisode);
 
-        InitialiseAddLineToConversationHook ();
-
-        RegisterHook (VersionedData ("8d bd f0 15 00 00 57 8b ce e8",
-                                     "8d 83 f0 15 00 00 50 8b ce e8"),
-                      9, audScriptAudioEntity__IsSFXSound8f6959,
-                      SetNextBankAudioHash1);
-
-        RegisterHook (
-            VersionedData ("b9 ? ? ? ? e8 ? ? ? ? 80 bd d2 2b 00 00 00",
-                           "b9 ? ? ? ? 50 e8 ? ? ? ? 80 bb d2 2b 00 00 00 "),
-            VersionedData (5, 6), CorrectSubtitles);
-
-        RegisterHook (
-            VersionedData ("50 89 44 ? ? e8 ? ? ? ? 83 c4 08 50",
-                           "50 6a 00 51 89 4c ? ? e8 ? ? ? ? 83 c4 08 "),
-            VersionedData (5, 8), CorrectBankHash);
-
-        RegisterHook (VersionedData ("8b 4c ? ? 51 52 6a 00 50 e8",
-                                     "8b f1 ff 74 ? ? 6a 00 50 e8"),
-                      9, CorrectBankHash);
-
-        RegisterHook (VersionedData ("57 52 c6 86 09 02 00 00 00 e8",
-                                     "ff 74 ? 48 c6 87 09 02 00 00 00 e8 "),
-                      VersionedData (9, 11), CorrectBankHash);
-
-        RegisterHook (VersionedData ("57 50 6a 00 52 e8 ? ? ? ? 83 c4 08",
-                                     "56 50 6a 00 ff 74 ? 54 e8 "),
-                      VersionedData (5, 8), CorrectBankHash);
-
-        RegisterHook (
-            VersionedData ("50 8d ? ? ? ? ? 89 7c ? ? e8 ? ? ? ? eb ?",
-                           "05 38 2e 00 00 03 c3 50 e8 ? ? ? ? 8b 54 ? ? eb ?"),
-            VersionedData (11, 8), FUN_0091cac0__8f8a86, SetNextBankAudioHash2);
-
-        RegisterHook (
-            VersionedData ("f3 a4 50 b9 ? ? ? ? e8 ? ? ? ? 84 c0",
-                           "f3 a4 50 b9 ? ? ? ? e8 ? ? ? ? b9 ? ? ? ? 84 c0 "),
-            8, CorrectSubtitleVariationLabelCheck);
+        InitialiseVoiceLineRandomizerPatches ();
+        InitialiseSfxRandomizerPatches ();
+        InitialiseMusicRandomizerPatches ();
 
         Rainbomizer::Logger::LogMessage ("Initialised SoundsRandomizer");
     }

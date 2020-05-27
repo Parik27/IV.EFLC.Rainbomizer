@@ -23,7 +23,7 @@ IsModelPartOfGroup (uint32_t hash, const std::vector<std::string> &mList)
 {
     for (auto i : mList)
         {
-            if (CCrypto::HashStringLowercase (i.c_str ()) == hash)
+            if (CCrypto::atStringHash (i.c_str ()) == hash)
                 return true;
         }
     return false;
@@ -102,8 +102,7 @@ class WeaponRandomizer
                         double probability = 0.0;
                         if (sscanf (line, "%s = %lf", model, &probability) == 2)
                             {
-                                probabilities[CCrypto::HashStringLowercase (
-                                    model)]
+                                probabilities[CCrypto::atStringHash (model)]
                                     = probability;
                                 sum_probability += probability;
                                 total_probabilities++;
@@ -161,7 +160,7 @@ class WeaponRandomizer
             && CTheScripts::m_pRunningThread ()->m_szProgramName
                    == std::string ("yusuf3")
             && CWeaponInfo::GetInfoFromIndex (weapon)->m_nWeaponModelHash
-                   == CCrypto::HashStringLowercase ("w_e2_dsr1"))
+                   == CCrypto::atStringHash ("w_e2_dsr1"))
             return weapon;
 
         return mValidWeapons[mDistribution (engine)];
@@ -169,7 +168,7 @@ class WeaponRandomizer
 
     /*******************************************************/
     static int
-    GetNewWeaponForWeapon (int weapon, CPedWeapons *weapons)
+    GetNewWeaponForWeapon (int weapon, CPedInventory *weapons)
     {
         thread_local static std::mt19937 engine{(unsigned int) time (NULL)};
         bool isPlayer = &CPlayer::FindPlayerPed ()->m_pWeapons () == weapons;
@@ -187,7 +186,7 @@ class WeaponRandomizer
     }
 
     /*******************************************************/
-    static void __fastcall RandomizeWeapon (CPedWeapons *weapons, void *edx,
+    static void __fastcall RandomizeWeapon (CPedInventory *weapons, void *edx,
                                             int weapon, int ammo, char param4,
                                             char param5, bool shown)
     {
@@ -207,9 +206,9 @@ class WeaponRandomizer
     InitialiseRandomWeaponsHook ()
     {
         static void *addr = hook::get_pattern (
-            VersionedData ("e8 ? ? ? ? 8b ? 24 1c 8b ? 04 83 c4 04",
-                           "53 55 56 8b f1 8b 4c ? ? 57 51 "),
-            VersionedData (-11, 0));
+            ByVersion ("e8 ? ? ? ? 8b ? 24 1c 8b ? 04 83 c4 04",
+                       "53 55 56 8b f1 8b 4c ? ? 57 51 "),
+            ByVersion (-11, 0));
 
         mHooka98500.make_jmp (addr, WeaponRandomizer::RandomizeWeapon);
     }

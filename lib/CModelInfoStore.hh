@@ -23,6 +23,9 @@ public:
     static void InitialisePatternsCE ();
     static void InitialisePatterns ();
 
+    static uint32_t FindVehicleModelWithGameName (uint32_t hash);
+    static uint32_t FindVehicleModelWithGameName (const char *name);
+
     template <typename T>
     static T *
     GetModelInfoPointer (int index)

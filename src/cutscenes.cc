@@ -81,8 +81,8 @@ public:
         InitialiseAllComponents ();
         Rainbomizer::Common::AddEpisodeChangeCallback (
             [] (int) { InitialiseModelData (); });
-        RegisterHook (VersionedData ("e8 ? ? ? ? 8b 4c ? 3c 83 c4 1c",
-                                     "e8 ? ? ? ? 8b 74 ? ? 83 c4 1c "),
+        RegisterHook (ByVersion ("e8 ? ? ? ? 8b 4c ? 3c 83 c4 1c",
+                                 "e8 ? ? ? ? 8b 74 ? ? 83 c4 1c "),
                       0, scanf__8665d0, HookedAddCutsceneModel);
 
         Rainbomizer::Logger::LogMessage ("Initialised CutsceneRandomizer");

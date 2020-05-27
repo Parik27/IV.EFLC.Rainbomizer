@@ -10,7 +10,7 @@
 #include "CTimer.hh"
 #include "CVehicleFactory.hh"
 #include "CWeaponInfo.hh"
-//#include "CWeaponModelInfo.h"
+#include "audEngine.hh"
 #include "CModelInfoStore.hh"
 #include "CText.hh"
 #include "audScriptAudioEntity.hh"
@@ -24,6 +24,21 @@ RandEngine ()
     thread_local static std::mt19937 engine{(unsigned int) time (NULL)};
 
     return engine;
+}
+
+/*******************************************************/
+float
+RandomFloat (float min, float max)
+{
+    std::uniform_real_distribution<float> dist{min, max};
+    return dist (RandEngine ());
+}
+
+/*******************************************************/
+float
+RandomInt (float max)
+{
+    return RandomFloat (0, max);
 }
 
 /*******************************************************/
@@ -65,7 +80,7 @@ InitialiseAllComponents ()
 
     if (IsCompleteEdition ())
         {
-            CPedWeapons::InitialisePatternsCE ();
+            CPedInventory::InitialisePatternsCE ();
             CWeaponInfo::InitialisePatternsCE ();
             CStreaming::InitialisePatternsCE ();
             CTheScripts::InitialisePatternsCE ();
@@ -74,6 +89,7 @@ InitialiseAllComponents ()
             CHud::InitialisePatternsCE ();
             CModelInfoStore::InitialisePatternsCE ();
             audScriptAudioEntity::InitialisePatternsCE ();
+            audEngine::InitialisePatternsCE ();
             CText::InitialisePatternsCE ();
             CPlayer::InitialisePatternsCE ();
             CPools::InitialisePatternsCE ();
@@ -81,7 +97,7 @@ InitialiseAllComponents ()
         }
     else
         {
-            CPedWeapons::InitialisePatterns ();
+            CPedInventory::InitialisePatterns ();
             CWeaponInfo::InitialisePatterns ();
             CStreaming::InitialisePatterns ();
             CTheScripts::InitialisePatterns ();
@@ -90,6 +106,7 @@ InitialiseAllComponents ()
             CHud::InitialisePatterns ();
             CModelInfoStore::InitialisePatterns ();
             audScriptAudioEntity::InitialisePatterns ();
+            audEngine::InitialisePatterns ();
             CText::InitialisePatterns ();
             CPlayer::InitialisePatterns ();
             CPools::InitialisePatterns ();

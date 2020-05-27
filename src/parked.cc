@@ -34,11 +34,11 @@ public:
             return;
 
         InitialiseAllComponents ();
-        RegisterHook (VersionedData (
-                          "51 6a 00 8b ce e8 ? ? ? ? eb ? 80 7c ? ? 00",
-                          "ff 74 ? ? 8b ce 6a 00 e8 ? ? ? ? eb ? 80 7c ? ? 00"),
-                      VersionedData (5, 8), CCarGenerator__Processa90d71,
-                      RandomizeCarGenerator);
+        RegisterHook (
+            ByVersion ("51 6a 00 8b ce e8 ? ? ? ? eb ? 80 7c ? ? 00",
+                       "ff 74 ? ? 8b ce 6a 00 e8 ? ? ? ? eb ? 80 7c ? ? 00"),
+            ByVersion (5, 8), CCarGenerator__Processa90d71,
+            RandomizeCarGenerator);
 
         Rainbomizer::Logger::LogMessage ("Initialised ParkedCarRandomizer");
     }

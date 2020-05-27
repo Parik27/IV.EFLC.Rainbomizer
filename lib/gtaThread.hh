@@ -32,8 +32,8 @@ struct scrThread__vftable
     int (__thiscall *deconstructor) (scrThread *scr, bool free);
     void (__thiscall *Reset) (scrThread *scr, unsigned int hash, int newStack,
                               void *stackSize);
-    int (__thiscall *ParseThread) (scrThread *scr, unsigned int param_2);
-    void (__thiscall *Loop) (scrThread *scr);
+    int (__thiscall *Run) (scrThread *scr, unsigned int param_2);
+    void (__thiscall *Update) (scrThread *scr);
     void (__thiscall *Kill) (scrThread *scr);
 };
 

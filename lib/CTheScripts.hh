@@ -6,13 +6,7 @@
 #include <any>
 #include <cstdarg>
 #include <gtaThread.hh>
-
-template <typename T> class HashPair
-{
-public:
-    uint32_t hash;
-    T        data;
-};
+#include "atPrimitives.hh"
 
 union CScriptParams
 {
@@ -51,7 +45,7 @@ struct NativeData
     }
 };
 
-typedef HashPair<void (*) (NativeData *)> NativeHashPair;
+typedef atHashPair<void (*) (NativeData *)> NativeHashPair;
 
 /*******************************************************/
 class CTheScripts
@@ -63,9 +57,9 @@ public:
     static NativeHashPair **m_aNatives;
     static unsigned int *   m_nMaximumNatives;
 
-    static HashPair<scrProgram *> *&m_aScriptPrograms ();
-    static unsigned int &           m_nNumScriptPrograms ();
-    static unsigned int &           m_nMaxScriptPrograms ();
+    static atHashPair<scrProgram *> *&m_aScriptPrograms ();
+    static unsigned int &             m_nNumScriptPrograms ();
+    static unsigned int &             m_nMaxScriptPrograms ();
 
     static int *&m_pGlobals ();
 
@@ -89,33 +83,11 @@ class CNativeManager
 
     static void NativeHook ();
 
-    // Packs parameters
-    template <typename T>
-    static void
-    Pack (CScriptParams *&params, T value)
-    {
-        memcpy (params, &value, 4);
-        params++;
-    }
-
-    template <typename First, typename... Rest>
-    static void
-    Pack (CScriptParams *&params, First first, Rest... rest)
-    {
-        Pack (params, first);
-        Pack (params, rest...);
-    }
-
-    static void
-    Pack (CScriptParams *&params)
-    {
-    }
-
     template <typename... Args>
     static void
     StoreParams (CScriptParams *params, Args... args)
     {
-        Pack (params, args...);
+        ((memcpy (params, &args, 4), params++), ...);
     }
 
 public:

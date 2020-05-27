@@ -91,10 +91,13 @@ ForceSeed = false # Force the seed on existing save files
 Enabled = true
 
 #######################################################
-# Voice Line Randomizer - Randomizes dialogues spoken by characters in missions.
-[SoundsRandomizer] # Random Dialogues for now
+# Sounds Randomizer - Randomizes various elements of the game audio.
+[SoundsRandomizer]
 
 Enabled = true
+RandomizeVoiceLines = true # dialogue spoken in missions
+RandomizeGameSfx = true # Engine sounds, weapon sounds, etc.
+RandomizeGameMusic = true # Intro, radio, interior music, other music.
 
 #######################################################
 # Script Vehicle Randomizer - Randomizes the vehicles you are given in missions.

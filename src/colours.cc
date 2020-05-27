@@ -13,6 +13,7 @@ void (__fastcall *FUN_453920) (void *);
 void (__thiscall *CVehicle__OriginalSetRandomColour) (void *, uint8_t *,
                                                       uint8_t *, uint8_t *,
                                                       uint8_t *, int);
+char (__stdcall *FUN_005ac620) ();
 int (*sscanf_a6e120) (char *src, char *format, ...);
 
 struct HSL
@@ -151,16 +152,15 @@ public:
 
         if (ConfigManager::GetConfigs ().colours.carcols)
             {
-                RegisterHook (
-                    VersionedData ("0f ? ? 09 00 00 8d 8c 24 ? 01 00 00",
-                                   "8d ? ? b0 02 00 00 68 ? ? ? ? 50 e8"),
-                    VersionedData (59, 13), sscanf_a6e120,
-                    ColourRandomizer::RandomizeColourTable);
+                RegisterHook (ByVersion ("0f ? ? 09 00 00 8d 8c 24 ? 01 00 00",
+                                         "8d ? ? b0 02 00 00 68 ? ? ? ? 50 e8"),
+                              ByVersion (59, 13), sscanf_a6e120,
+                              ColourRandomizer::RandomizeColourTable);
 
                 RegisterHook (
-                    VersionedData ("50 8d 8e e4 0f 00 00 51 8b ? e8",
-                                   "50 8b cb e8 ? ? ? ? c6 87 98 0f 00 00 ff "),
-                    VersionedData (10, 3), CVehicle__OriginalSetRandomColour,
+                    ByVersion ("50 8d 8e e4 0f 00 00 51 8b ? e8",
+                               "50 8b cb e8 ? ? ? ? c6 87 98 0f 00 00 ff "),
+                    ByVersion (10, 3), CVehicle__OriginalSetRandomColour,
                     ColourRandomizer::RandomizeCarCols);
             }
 

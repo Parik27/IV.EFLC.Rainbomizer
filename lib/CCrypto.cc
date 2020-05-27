@@ -3,7 +3,7 @@
 #include "Patterns/Patterns.hh"
 
 /*******************************************************/
-uint32_t __cdecl CCrypto::HashStringLowercase (const char *param_1)
+uint32_t __cdecl CCrypto::atStringHash (const char *param_1)
 
 {
     char     cVar1;

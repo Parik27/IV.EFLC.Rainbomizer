@@ -19,9 +19,9 @@ void
 InitialiseGetModelFunctions ()
 {
     auto pattern = hook::pattern ("8b 44 ? ? 89 44 ? ? 66 a1 ? ? ? ?");
-    ConvertCall (pattern.get (VersionedData (0, 1)).get<void> (),
+    ConvertCall (pattern.get (ByVersion (0, 1)).get<void> (),
                  CStreaming__GetModelAndIndexFromHash);
-    ConvertCall (pattern.get (VersionedData (1, 0)).get<void> (),
+    ConvertCall (pattern.get (ByVersion (1, 0)).get<void> (),
                  CStreaming__GetModelFromHash);
 }
 
@@ -154,7 +154,7 @@ bool
 CStreaming::AttemptToLoadModel (const std::string &modelName, int numTries,
                                 bool vehicle)
 {
-    uint32_t hash = CCrypto::HashStringLowercase (modelName.c_str ());
+    uint32_t hash = CCrypto::atStringHash (modelName.c_str ());
     return CStreaming::AttemptToLoadModel (hash, numTries, vehicle);
 }
 

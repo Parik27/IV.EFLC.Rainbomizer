@@ -49,9 +49,9 @@ Common::HandleEpisodicChanges (int num)
 Common::Common ()
 {
     InitialiseAllComponents ();
-    RegisterHook (VersionedData ("e8 ? ? ? ? 8b f0 83 c4 04 85 f6 74 ? 8b 06 ",
-                                 "a3 ? ? ? ? a3 ? ? ? ? e8 ? ? ? ? 6a 00 e8"),
-                  VersionedData (0, 17), FindPlayerPed_48e602,
+    RegisterHook (ByVersion ("e8 ? ? ? ? 8b f0 83 c4 04 85 f6 74 ? 8b 06 ",
+                             "a3 ? ? ? ? a3 ? ? ? ? e8 ? ? ? ? 6a 00 e8"),
+                  ByVersion (0, 17), FindPlayerPed_48e602,
                   Common::HandleEpisodicChanges);
 
     // Add a callback to reset the indices

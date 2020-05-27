@@ -77,7 +77,7 @@ class TrafficRandomizer
     void
     InitialiseSpawnHook ()
     {
-        void *addr = hook::get_pattern (VersionedData (
+        void *addr = hook::get_pattern (ByVersion (
             "81 ec 04 01 00 00 e8 ? ? ? ? 85 c0 7f ?",
             "81 ec 08 01 00 00 a1 ? ? ? ? 33 c4 89 84 ? ? ? ? ? 56 8b b4"));
         injector::MakeJMP (addr, GetRandomCarToGenerate);
@@ -88,6 +88,9 @@ class TrafficRandomizer
     GetPedModelForVehicle (int id)
     {
         // Similar to GetRandomCarToGenerate
+        int ped = GetPedModelForVehicle_ab333d (id);
+        if (ped != -1)
+            return ped;
 
         std::set<int> peds;
         auto          groups = CStreaming::ms_instance;
@@ -124,15 +127,18 @@ public:
         InitialiseAllComponents ();
         InitialiseSpawnHook ();
 
-        RegisterHook (VersionedData ("74 ? 50 8b cb e8 ? ? ? ? 8b f8 85 ff",
-                                     "74 ? 51 8b cb e8 ? ? ? ? 8b f8 85 ff"),
+        RegisterHook (ByVersion ("74 ? 50 8b cb e8 ? ? ? ? 8b f8 85 ff",
+                                 "74 ? 51 8b cb e8 ? ? ? ? 8b f8 85 ff"),
                       5, RandomizeCarToLoad);
 
-        RegisterHook (
-            VersionedData ("eb ? 0f bf 47 2e 50 e8 ? ? ? ? 83 c4 04 8b d8 ",
-                           "0f bf 47 2e 50 e8 ? ? ? ? 83 c4 04 8b f0 "),
-            VersionedData (7, 5), GetPedModelForVehicle_ab333d,
-            GetPedModelForVehicle);
+        if (ConfigManager::GetConfigs ().traffic.enableRandomPeds)
+            {
+                RegisterHook (
+                    ByVersion ("eb ? 0f bf 47 2e 50 e8 ? ? ? ? 83 c4 04 8b d8 ",
+                               "0f bf 47 2e 50 e8 ? ? ? ? 83 c4 04 8b f0 "),
+                    ByVersion (7, 5), GetPedModelForVehicle_ab333d,
+                    GetPedModelForVehicle);
+            }
 
         Rainbomizer::Logger::LogMessage ("Initialised TrafficRandomizer");
     }

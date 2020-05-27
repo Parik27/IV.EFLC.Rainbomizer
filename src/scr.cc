@@ -34,7 +34,7 @@ struct VehiclePattern
     uint8_t flags;
 
     std::vector<bool> moveConditions;
-    Vector3 moveCoords;
+    Vector3           moveCoords;
 };
 
 class ScriptVehicleRandomizer
@@ -76,7 +76,7 @@ class ScriptVehicleRandomizer
 
     /*******************************************************/
     static uint32_t
-    GetVehicleForModel (uint32_t hash, uint8_t &flagsOut, Vector3& move)
+    GetVehicleForModel (uint32_t hash, uint8_t &flagsOut, Vector3 &move)
     {
         for (const auto &i : mVehiclePatterns)
             {
@@ -101,9 +101,9 @@ class ScriptVehicleRandomizer
 
                 flagsOut = i.flags;
 
-                if(i.moveConditions[model->m_nType])
+                if (i.moveConditions[model->m_nType])
                     move = i.moveCoords;
-                
+
                 return model->m_nModelHash;
             }
 
@@ -153,7 +153,7 @@ class ScriptVehicleRandomizer
         data->Params[1].float_param += moveCoords.x;
         data->Params[2].float_param += moveCoords.y;
         data->Params[3].float_param += moveCoords.z;
-        
+
         // This does stuff related to unloading and loading the old/new vehicles
         // CNativeManager::CallNative ("MARK_MODEL_AS_NO_LONGER_NEEDED",
         // data->Params[0].uint_param);
@@ -163,7 +163,12 @@ class ScriptVehicleRandomizer
         // Fallback for when the model couldn't get loaded (Streaming limits)
         if (!CStreaming::AttemptToLoadModel (data->Params[0].uint_param, 1,
                                              true))
-            data->Params[0].uint_param = originalHash;
+            {
+                Rainbomizer::Logger::LogMessage (
+                    "Too many vehicles loaded, returning the original vehicle");
+
+                data->Params[0].uint_param = originalHash;
+            }
 
         CNativeManager::CallOriginalNative ("CREATE_CAR", data);
         HandleCreateCarFlags (flags, *data->GetParam<uint32_t *> (4));
@@ -332,7 +337,7 @@ class ScriptVehicleRandomizer
                         vehicleName, &seats, &cars, &bikes, &helis, &boats,
                         &trains, flags, &move.x, &move.y, &move.z);
 
-                auto hash     = CCrypto::HashStringLowercase (vehicleName);
+                auto hash     = CCrypto::atStringHash (vehicleName);
                 auto flagsInt = ReadFlags (flags);
 
                 mVehiclePatterns.push_back (
@@ -343,7 +348,7 @@ class ScriptVehicleRandomizer
                                                      boats != 'N',
                                                      trains != 'N', flagsInt),
                      flagsInt,
-                     
+
                      {cars == 'C', bikes == 'C', boats == 'C', trains == 'C',
                       helis == 'C', false},
 

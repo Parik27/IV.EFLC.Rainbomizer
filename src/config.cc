@@ -54,6 +54,7 @@ TrafficConfig::Read (std::shared_ptr<cpptoml::table> table)
     CONFIG (table, forcedVehicleName, "ForcedVehicleName", std::string);
     CONFIG (table, enableBoats, "EnableBoats", bool);
     CONFIG (table, enableHelicopters, "EnableHelis", bool);
+    CONFIG (table, enableRandomPeds, "EnableRandomPedsInCars", bool);
     CONFIG (table, enableCars, "EnableCars", bool);
     CONFIG (table, enableBikes, "EnableBikes", bool);
     CONFIG (table, defaultModel, "DefaultModel", int);
@@ -80,6 +81,19 @@ WeaponStatsConfig::Read (std::shared_ptr<cpptoml::table> table)
         return;
 
     CONFIG (table, enabled, "Enabled", bool);
+}
+
+/*******************************************************/
+void
+SoundsConfig::Read (std::shared_ptr<cpptoml::table> table)
+{
+    if (!table)
+        return;
+
+    CONFIG (table, enabled, "Enabled", bool);
+    CONFIG (table, RandomizeVoiceLines, "RandomizeVoiceLines", bool);
+    CONFIG (table, RandomizeGameSFX, "RandomizeGameSfx", bool);
+    CONFIG (table, RandomizeGameMusic, "RandomizeGameMusic", bool);
 }
 
 /*******************************************************/

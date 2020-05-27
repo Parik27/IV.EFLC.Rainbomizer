@@ -6,10 +6,10 @@
 #include "injector/injector.hpp"
 #include "NativeTranslationTable.hh"
 
-int **                   CTheScripts__m_pGlobals;
-unsigned int *           CTheScripts__m_nMaximumScriptPrograms;
-unsigned int *           CTheScripts__m_nNumScriptPrograms;
-HashPair<scrProgram *> **CTheScripts__m_aScriptPrograms;
+int **                     CTheScripts__m_pGlobals;
+unsigned int *             CTheScripts__m_nMaximumScriptPrograms;
+unsigned int *             CTheScripts__m_nNumScriptPrograms;
+atHashPair<scrProgram *> **CTheScripts__m_aScriptPrograms;
 
 std::vector<std::pair<int, void (*) (NativeData *)>>
     *CNativeManager::m_aNewNatives = nullptr;
@@ -42,7 +42,7 @@ CTheScripts::m_nMaxScriptPrograms ()
 }
 
 /*******************************************************/
-HashPair<scrProgram *> *&
+atHashPair<scrProgram *> *&
 CTheScripts::m_aScriptPrograms ()
 {
     return *CTheScripts__m_aScriptPrograms;
@@ -53,7 +53,7 @@ void
 CNativeManager::OverwriteNative (const std::string &native,
                                  void (*func) (NativeData *))
 {
-    uint32_t hash = CCrypto::HashStringLowercase (native.c_str ());
+    uint32_t hash = CCrypto::atStringHash (native.c_str ());
     if (m_aNewNatives)
         {
             m_aNewNatives->push_back (std::make_pair (hash, func));
@@ -115,7 +115,7 @@ CTheScripts::GetScrProgram (uint32_t hash)
 scrProgram *
 CTheScripts::GetScrProgram (const std::string &name)
 {
-    uint32_t hash = CCrypto::HashStringLowercase (name.c_str ());
+    uint32_t hash = CCrypto::atStringHash (name.c_str ());
     return GetScrProgram (hash);
 }
 
@@ -123,7 +123,7 @@ CTheScripts::GetScrProgram (const std::string &name)
 int
 CTheScripts::GetNativeIndex (const std::string &name)
 {
-    uint32_t hash = CCrypto::HashStringLowercase (name.c_str ());
+    uint32_t hash = CCrypto::atStringHash (name.c_str ());
     return GetNativeIndex (hash);
 }
 
@@ -131,7 +131,7 @@ CTheScripts::GetNativeIndex (const std::string &name)
 int
 CTheScripts::GetNativeIndexTranslated (const std::string &name)
 {
-    uint32_t hash = CCrypto::HashStringLowercase (name.c_str ());
+    uint32_t hash = CCrypto::atStringHash (name.c_str ());
     return GetNativeIndexTranslated (hash);
 }
 
@@ -181,7 +181,7 @@ void
 InitialiseScriptProgramPatternsCE ()
 {
     CTheScripts__m_aScriptPrograms
-        = *hook::get_pattern<HashPair<scrProgram *> **> (
+        = *hook::get_pattern<atHashPair<scrProgram *> **> (
             "a1 ? ? ? ? 5f c7 44 d0 04 00 00 00 0", 1);
 
     CTheScripts__m_nNumScriptPrograms = *hook::get_pattern<unsigned int *> (
@@ -196,7 +196,7 @@ void
 InitialiseScriptProgramPatterns ()
 {
     CTheScripts__m_aScriptPrograms
-        = *hook::get_pattern<HashPair<scrProgram *> **> (
+        = *hook::get_pattern<atHashPair<scrProgram *> **> (
             "a1 ? ? ? ? 5f c7 44 d0 04 00 00 00 0", 1);
 
     CTheScripts__m_nNumScriptPrograms = *hook::get_pattern<unsigned int *> (
@@ -259,7 +259,7 @@ CTheScripts::m_pRunningThread ()
 void
 CNativeManager::CallOriginalNative (const std::string &name, NativeData *data)
 {
-    uint32_t hash = CCrypto::HashStringLowercase (name.c_str ());
+    uint32_t hash = CCrypto::atStringHash (name.c_str ());
     m_aOriginalNatives[hash](data);
 }
 
@@ -267,7 +267,7 @@ CNativeManager::CallOriginalNative (const std::string &name, NativeData *data)
 void
 CNativeManager::CallNativeRaw (const std::string &name, NativeData *data)
 {
-    uint32_t hash = CCrypto::HashStringLowercase (name.c_str ());
+    uint32_t hash = CCrypto::atStringHash (name.c_str ());
     auto &   native
         = (*CTheScripts::m_aNatives)[CTheScripts::GetNativeIndexTranslated (
             hash)];

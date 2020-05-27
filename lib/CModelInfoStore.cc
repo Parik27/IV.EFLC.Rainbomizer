@@ -1,9 +1,30 @@
 #include "CModelInfoStore.hh"
 #include "Patterns/Patterns.hh"
 #include "Utils.hh"
+#include <CCrypto.hh>
 
 int (*CModelInfoStore__GetMaximumNumberOfPassengers) (int model);
 int *CModelInfoStore__nTotalModelPointers;
+
+/*******************************************************/
+uint32_t
+CModelInfoStore::FindVehicleModelWithGameName (uint32_t hash)
+{
+    for (uint32_t i = 0; i < m_nTotalModelPointers (); i++)
+        if (m_aModelPointers[i]->GetType () == MODEL_INFO_VEHICLE)
+            if (CCrypto::atStringHash (
+                    GetModelInfoPointer<CVehicleModelInfo> (i)->m_szGameName)
+                == hash)
+                return i;
+    return -1;
+}
+
+/*******************************************************/
+uint32_t
+CModelInfoStore::FindVehicleModelWithGameName (const char *name)
+{
+    return FindVehicleModelWithGameName (CCrypto::atStringHash (name));
+}
 
 /*******************************************************/
 void
