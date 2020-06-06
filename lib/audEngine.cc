@@ -6,6 +6,33 @@ audBaseGameMetadata *(__thiscall *audEngine__GetGameMetadataItem) (
     audEngine *, const char *);
 
 /*******************************************************/
+uint32_t
+audSoundMetadata::GetCategoryHash ()
+{
+    if(!this->m_nFlags.bHasCategoryHash)
+        return -1;
+
+    injector::memory_pointer_raw ptr = this;
+    ptr = ptr + 15;
+
+    if(m_nFlags.bField0) ptr = ptr + 2;
+    if(m_nFlags.bField1) ptr = ptr + 2;
+    if(m_nFlags.bField2) ptr = ptr + 2;
+    if(m_nFlags.bField3) ptr = ptr + 2;
+    if(m_nFlags.bField4) ptr = ptr + 2;
+    if(m_nFlags.bField5) ptr = ptr + 2;
+    if(m_nFlags.bField6) ptr = ptr + 2;
+    if(m_nFlags.bField7) ptr = ptr + 2;
+    if(m_nFlags.bField8) ptr = ptr + 4;
+    if(m_nFlags.bField9) ptr = ptr + 4;
+    if(m_nFlags.bField10) ptr = ptr + 2;
+    if(m_nFlags.bField11) ptr = ptr + 2;
+    if(m_nFlags.bField12) ptr = ptr + 2;
+
+    return *ptr.get<uint32_t>();
+}
+
+/*******************************************************/
 audConfigMetadata<audBaseGameMetadata> *
 audEngine::GetGameMetadata ()
 {

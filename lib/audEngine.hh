@@ -72,7 +72,42 @@ struct audSoundMetadata
     uint32_t   NameOffset;
     uint32_t   __unk05;
     int16_t    __unk09;
-    uint32_t   Flags;
+
+    union
+    {
+        struct
+        {
+            bool bField0 : 1;
+            bool bField1 : 1;
+            bool bField2 : 1;
+            bool bField3 : 1;
+            bool bField4 : 1;
+            bool bField5 : 1;
+            bool bField6 : 1;
+            bool bField7 : 1;
+            bool bField8 : 1;
+            bool bField9 : 1;
+            bool bField10 : 1;
+            bool bField11 : 1;
+            bool bField12 : 1;
+            bool bHasCategoryHash : 1;
+            bool bField14 : 1;
+            bool bField15 : 1;
+            bool bField16 : 1;
+            bool bField17 : 1;
+            bool bField18 : 1;
+            bool bField19 : 1;
+            bool bField20 : 1;
+            bool bField21 : 1;
+            bool bField22 : 1;
+            bool bField23 : 1;
+            bool padding : 8;
+        };
+
+        uint32_t flags_int;
+    } m_nFlags;
+
+    uint32_t GetCategoryHash ();
 };
 
 template <typename T> struct audConfigMetadata

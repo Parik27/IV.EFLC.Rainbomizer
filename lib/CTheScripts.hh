@@ -38,7 +38,7 @@ struct NativeData
     CScriptParams *Params;
 
     template <typename T>
-    T
+    T&
     GetParam (int arg)
     {
         return *(T *) &Params[arg];

@@ -475,12 +475,9 @@ class SoundsRandomizer
         auto metadata = audEngine::sm_Instance->GetGameMetadata ();
 
         // Types that will be randomized by this function
-        std::array randomizedTypes{GM_CRIME,        GM_WEAPON,
-                                   GM_DOOR,         GM_INTERIOR,
-                                   GM_AMBIENT_ZONE, GM_COLLISION,
-                                   GM_CLOTHING,     GM_AMBIENT_EMITTER,
-                                   GM_FOOTSTEPS,    GM_MELEE_COMBAT,
-                                   GM_PED,          GM_VEHICLE};
+        std::array randomizedTypes{GM_CRIME,        GM_WEAPON,   GM_DOOR,
+                                   GM_COLLISION,    GM_CLOTHING, GM_FOOTSTEPS,
+                                   GM_MELEE_COMBAT, GM_PED,      GM_VEHICLE};
 
         auto object = metadata->GetByHash (hash);
         if (!object
@@ -539,20 +536,37 @@ class SoundsRandomizer
     /*******************************************************/
     /* Music Randomizer Patches                            */
     /*******************************************************/
+    static bool
+    ShouldMetadataBeRandomized (audSoundMetadata* metadata, uint32_t hash)
+    {
+        // Randomize streaming sounds only (that's all the music)
+        if (metadata->Type != audStreamingSound)
+            return false;
+
+        // Don't randomize cutscenes
+        if (metadata->GetCategoryHash() == "cutscenes"_joaat)
+            return false;
+
+        // To prevent softlocks whilst dancing
+        switch (hash)
+            {
+            case "dancing_hercules_mix"_joaat:
+            case "dancing_maisonette_mix"_joaat:
+            case "dancing_bahamamammas_mix"_joaat:
+                return false;
+            }
+
+        return true;
+    }
+
+    /*******************************************************/
     static audSoundMetadata *
     GetRandomizedGameMusic (audConfigMetadata<audSoundMetadata> *mgr,
                             audSoundMetadata *metadata, uint32_t orHash)
     {
         std::vector<audSoundMetadata *> validDatas;
 
-        // Alright, we should keep that but skip randomizing the cutscenes
-        // themselves
-        std::array randomizedTypes{audLoopingSound, audStreamingSound};
-
-        if (!metadata
-            || std::find (std::begin (randomizedTypes),
-                          std::end (randomizedTypes), metadata->Type)
-                   == std::end (randomizedTypes))
+        if (!metadata || !ShouldMetadataBeRandomized (metadata, orHash))
             return metadata;
 
         mgr->for_each ([&] (audSoundMetadata *obj, uint32_t hash) {
