@@ -171,6 +171,22 @@ class MissionRandomizer
 
     /*******************************************************/
     static void
+    HandleClubMissionFlowFlags (bool missionEnd)
+    {
+        const int MFF_CLUBS_SHUTDOWN = 15847;
+        if (Rainbomizer::Common::GetStoredEpisodeNumber() != 2)
+            return;
+
+        static int previousState = 0;
+        if(!missionEnd)
+            previousState = CTheScripts::m_pGlobals ()[MFF_CLUBS_SHUTDOWN];
+        
+        CTheScripts::m_pGlobals ()[MFF_CLUBS_SHUTDOWN]
+            = (missionEnd) ? previousState : 0;
+    }
+    
+    /*******************************************************/
+    static void
     AdjustScriptCodeForNewStrand (const std::string &newThread,
                                   const std::string &originalThread)
     {
@@ -281,6 +297,8 @@ class MissionRandomizer
                     = CTheScripts::m_pGlobals ()[IS_BOHAN_SAFEHOUSE_OPEN];
                 CTheScripts::m_pGlobals ()[IS_BOHAN_SAFEHOUSE_OPEN] = 0;
             }
+
+        HandleClubMissionFlowFlags (false);
     }
 
     /*******************************************************/
@@ -330,6 +348,8 @@ class MissionRandomizer
                 if (!passed)
                     CNativeManager::CallNative ("DO_SCREEN_FADE_OUT", 1000);
             }
+
+        HandleClubMissionFlowFlags (true);
     }
 
     /*******************************************************/
