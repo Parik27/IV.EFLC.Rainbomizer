@@ -76,34 +76,30 @@ class ColourRandomizer
     /*******************************************************/
     static void __fastcall HookRender (void *thisCritical)
     {
+        /* i is the number of colours initialised till now */
+
         const int   MAX_COLOURS = 73;
         const float CYCLE_TIME  = 3;
 
-        static HSL  colours[MAX_COLOURS];
-        static bool coloursInitialised = false;
+        static HSL     colours[MAX_COLOURS];
+        static uint8_t i = 0;
 
-        if (CHud::aColourNameHashes[0] > 0)
+        for (; i < MAX_COLOURS && CHud::aColourNameHashes[i] > 0; ++i)
             {
-                if (!coloursInitialised)
-                    {
-                        for (int i = 0; i < MAX_COLOURS; i++)
-                            {
-                                colours[i]   = RGBToHSL (CHud::aColours[i]);
-                                colours[i].s = 1;
-                            }
-
-                        coloursInitialised = true;
-                    }
-                for (int i = 0; i < MAX_COLOURS; i++)
-                    {
-                        double time = 1000.0 * clock () / CLOCKS_PER_SEC;
-
-                        auto [h, s, l] = colours[i];
-                        h              = fmod (time / 10 + h, 360);
-
-                        CHud::aColours[i] = HSLToRGB ({h, s, l});
-                    }
+                colours[i]   = RGBToHSL (CHud::aColours[i]);
+                colours[i].s = 1;
             }
+
+        for (int j = 0; j < i; j++)
+            {
+                double time = 1000.0 * clock () / CLOCKS_PER_SEC;
+
+                auto [h, s, l] = colours[j];
+                h              = fmod (time / 10 + h, 360);
+
+                CHud::aColours[j] = HSLToRGB ({h, s, l});
+            }
+
         return FUN_453920 (thisCritical);
     }
 
