@@ -13,6 +13,7 @@
 #include "config.hh"
 #include <array>
 #include <CCrypto.hh>
+#include <eGlobalVariables.hh>
 
 int (__thiscall *scrThread__RunOriginal) (scrThread *scr, unsigned int param_2);
 
@@ -46,9 +47,6 @@ struct PreviousChange
     uint8_t  originalValue;
     uint8_t  newValue;
 };
-
-const int IS_BOHAN_SAFEHOUSE_OPEN     = 9955;
-const int IS_ALGONQUIN_SAFEHOUSE_OPEN = 9966;
 
 class MissionRandomizer
 {
@@ -173,7 +171,6 @@ class MissionRandomizer
     static void
     HandleClubMissionFlowFlags (bool missionEnd)
     {
-        const int MFF_CLUBS_SHUTDOWN = 15847;
         if (Rainbomizer::Common::GetStoredEpisodeNumber() != 2)
             return;
 
@@ -276,8 +273,6 @@ class MissionRandomizer
     static void
     ApplyMissionSpecificFixes ()
     {
-        const int GERRY_CONTACT = 17645;
-
         switch (mMissionHash)
             {
             // gerry1 - Actions Speak Louder Than Words
@@ -293,6 +288,7 @@ class MissionRandomizer
             case "roman5"_joaat:
             case "roman6"_joaat:
             case "roman7"_joaat:
+            case "roman11"_joaat:
                 mStoredBohanHouseState
                     = CTheScripts::m_pGlobals ()[IS_BOHAN_SAFEHOUSE_OPEN];
                 CTheScripts::m_pGlobals ()[IS_BOHAN_SAFEHOUSE_OPEN] = 0;
@@ -332,6 +328,28 @@ class MissionRandomizer
             case "roman7"_joaat:
                 CTheScripts::m_pGlobals ()[IS_BOHAN_SAFEHOUSE_OPEN]
                     = mStoredBohanHouseState;
+                break;
+                
+            // Roman's Sorrow - Fix locked savehouses
+            case "roman11"_joaat:
+                if (mStoredBohanHouseState == 0
+                    && mOriginalMissionHash != "roman11"_joaat)
+                    {
+                        static_assert("cj_ext_door_17"_joaat == 0x820550A0);
+                        
+                        // Enable Broker and disable Bohan savehouse 
+                        CNativeManager::CallNative ("ENABLE_SAVE_HOUSE",
+                                                    BROKER_SAVEHOUSE_INDEX, 1);
+                        CNativeManager::CallNative ("ENABLE_SAVE_HOUSE",
+                                                    BOHAN_SAVEHOUSE_INDEX, 0);
+                        CNativeManager::CallNative (
+                            "SET_STATE_OF_CLOSEST_DOOR_OF_TYPE",
+                            "cj_ext_door_17"_joaat, 896.0f, -504.0f, 15.0f, 1,
+                            0.0f);
+
+                        CTheScripts::m_pGlobals ()[ROMAN_APARTMENT_BURNED_DOWN]
+                            = 0;
+                    }
                 break;
             }
 
@@ -380,8 +398,6 @@ class MissionRandomizer
     static void
     HandleMissionStart ()
     {
-        const int PLAYER_PHONE_MODEL = 101;
-
         // Set the number of unlocked cities to lock/unlock cities
         if (mRandomizedMission.citiesUnlocked > 0)
             {

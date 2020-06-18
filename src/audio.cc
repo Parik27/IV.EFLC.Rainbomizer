@@ -11,6 +11,7 @@
 #include "logger.hh"
 #include "audEngine.hh"
 #include "CModelInfoStore.hh"
+#include <stdexcept>
 
 // All the audio gxt tables
 const std::array<std::vector<std::string>, 3> gxtTables
@@ -458,9 +459,8 @@ class SoundsRandomizer
     /*******************************************************/
     /* Sfx Randomizer Patches                              */
     /*******************************************************/
-    static __fastcall audBaseGameMetadata *
-    RandomizeGameMetadataRequestByName (audEngine *engine, void *edx,
-                                        const char *name)
+    static audBaseGameMetadata *__fastcall RandomizeGameMetadataRequestByName (
+        audEngine *engine, void *edx, const char *name)
     {
         return RandomizeGameMetadataRequestByHash (engine, edx,
                                                    CCrypto::atStringHash (
@@ -468,9 +468,8 @@ class SoundsRandomizer
     }
 
     /*******************************************************/
-    static __fastcall audBaseGameMetadata *
-    RandomizeGameMetadataRequestByHash (audEngine *engine, void *edx,
-                                        uint32_t hash)
+    static audBaseGameMetadata *__fastcall RandomizeGameMetadataRequestByHash (
+        audEngine *engine, void *edx, uint32_t hash)
     {
         auto metadata = audEngine::sm_Instance->GetGameMetadataMgr ();
 
@@ -578,18 +577,16 @@ class SoundsRandomizer
     }
 
     /*******************************************************/
-    static __fastcall audSoundMetadata *
-    GetRandomizedGameMusicByOffset (audMetadataMgr<audSoundMetadata> *mgr,
-                                    void *edx, uint32_t offset)
+    static audSoundMetadata *__fastcall GetRandomizedGameMusicByOffset (
+        audMetadataMgr<audSoundMetadata> *mgr, void *edx, uint32_t offset)
     {
         auto metadata = MetadataGetAtOffset_77752f (mgr, offset);
         return GetRandomizedGameMusic (mgr, metadata, offset);
     }
 
     /*******************************************************/
-    static __fastcall audSoundMetadata *
-    GetRandomizedGameMusicByHash (audMetadataMgr<audSoundMetadata> *mgr,
-                                  void *edx, uint32_t hash)
+    static audSoundMetadata *__fastcall GetRandomizedGameMusicByHash (
+        audMetadataMgr<audSoundMetadata> *mgr, void *edx, uint32_t hash)
     {
         auto metadata = MetadataGetByHash_77753d (mgr, hash);
         return GetRandomizedGameMusic (mgr, metadata, hash);
