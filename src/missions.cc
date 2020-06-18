@@ -58,7 +58,7 @@ class MissionRandomizer
     static uint32_t                                     mOriginalMissionHash;
     static PreviousChange                               mPreviousChange;
     static int                                          mStoredBohanHouseState;
-    static const char *                                 mForcedMission;
+    static int                                          mStoredMobilePhone;
 
     // Related to teleportation
     static bool    mbFading;
@@ -169,19 +169,82 @@ class MissionRandomizer
 
     /*******************************************************/
     static void
+    SetRomansApartmentState (bool isBurned)
+    {
+        std::array buildings{
+            // Safehouses
+            std::make_tuple (896.52f, -502.84f, 19.48f, 175.0f,
+                             "rt4_she_ksun"_joaat, "rt4_she_fire_ksun"_joaat),
+            std::make_tuple (896.52f, -502.84f, 19.48f, 175.0f,
+                             "lodrt4_she_ksun"_joaat, "lodrt4fir_sheks"_joaat),
+
+            // Cab Depot
+            std::make_tuple (822.56f, -270.34f, 15.6157f, 75.0f,
+                             "rh5a_ksun"_joaat, "rh5aburnt_ksun"_joaat),
+            std::make_tuple (822.5629f, -270.342f, 15.6157f, 75.0f,
+                             "lod_rh5a2_ksun"_joaat,
+                             "lod_rh5aburnt_ksun"_joaat)};
+
+        for (auto i : buildings)
+            {
+                const auto &[x, y, z, r, normal, burned] = i;
+                CNativeManager::CallNative ("SWAP_NEAREST_BUILDING_MODEL", x, y,
+                                            z, r, (isBurned) ? normal : burned,
+                                            (isBurned) ? burned : normal);
+
+                CTheScripts::m_pGlobals ()[ROMAN_APARTMENT_BURNED_DOWN]
+                    = isBurned;
+            }
+    }
+
+    /*******************************************************/
+    static inline bool
+    ShouldFixCabDepot ()
+    {
+        return mRandomizedMission.citiesUnlocked == 1
+               && mOriginalMissionHash != "roman11"_joaat;
+    }
+
+    /*******************************************************/
+    static void
+    HandleRomansSorrowChanges (bool missionEnd)
+    {
+        if (Rainbomizer::Common::GetStoredEpisodeNumber () != 0)
+            return;
+
+        static bool revertDepot     = false;
+        static bool depotBurnedDown = false;
+
+        if (!missionEnd && ShouldFixCabDepot ())
+            {
+                revertDepot = true;
+                depotBurnedDown
+                    = CTheScripts::m_pGlobals ()[ROMAN_APARTMENT_BURNED_DOWN];
+                SetRomansApartmentState (false);
+            }
+
+        if (missionEnd && revertDepot)
+            {
+                SetRomansApartmentState (depotBurnedDown);
+                revertDepot = false;
+            }
+    }
+
+    /*******************************************************/
+    static void
     HandleClubMissionFlowFlags (bool missionEnd)
     {
-        if (Rainbomizer::Common::GetStoredEpisodeNumber() != 2)
+        if (Rainbomizer::Common::GetStoredEpisodeNumber () != 2)
             return;
 
         static int previousState = 0;
-        if(!missionEnd)
+        if (!missionEnd)
             previousState = CTheScripts::m_pGlobals ()[MFF_CLUBS_SHUTDOWN];
-        
+
         CTheScripts::m_pGlobals ()[MFF_CLUBS_SHUTDOWN]
             = (missionEnd) ? previousState : 0;
     }
-    
+
     /*******************************************************/
     static void
     AdjustScriptCodeForNewStrand (const std::string &newThread,
@@ -281,10 +344,16 @@ class MissionRandomizer
                 CTheScripts::m_pGlobals ()[GERRY_CONTACT] = 1;
                 break;
 
+            // It's Your Call - mission takes away your phone / gives you an
+            // old one on failing/passing respectively
+            case "roman2"_joaat:
+                mStoredMobilePhone
+                    = CTheScripts::m_pGlobals ()[PLAYER_PHONE_MODEL];
+                [[fallthrough]];
+
             // It's Your Call, Easy Fare, Jamaican Heat, Uncle Vlad
             // Sets Bohan and Algonquin safehouses as their state affects
             // the spawning of Roman's taxi
-            case "roman2"_joaat:
             case "roman5"_joaat:
             case "roman6"_joaat:
             case "roman7"_joaat:
@@ -295,6 +364,7 @@ class MissionRandomizer
             }
 
         HandleClubMissionFlowFlags (false);
+        HandleRomansSorrowChanges (false);
     }
 
     /*******************************************************/
@@ -323,32 +393,48 @@ class MissionRandomizer
                 break;
 
             case "roman2"_joaat:
+                // Restore  player's phone model since it's most likely gonna be
+                // replaced by the mission
+                CTheScripts::m_pGlobals ()[PLAYER_PHONE_MODEL]
+                    = std::max (CTheScripts::m_pGlobals ()[PLAYER_PHONE_MODEL],
+                                mStoredMobilePhone);
+
+                [[fallthrough]];
+
             case "roman5"_joaat:
             case "roman6"_joaat:
             case "roman7"_joaat:
                 CTheScripts::m_pGlobals ()[IS_BOHAN_SAFEHOUSE_OPEN]
                     = mStoredBohanHouseState;
                 break;
-                
+
             // Roman's Sorrow - Fix locked savehouses
             case "roman11"_joaat:
                 if (mStoredBohanHouseState == 0
                     && mOriginalMissionHash != "roman11"_joaat)
                     {
-                        static_assert("cj_ext_door_17"_joaat == 0x820550A0);
-                        
-                        // Enable Broker and disable Bohan savehouse 
-                        CNativeManager::CallNative ("ENABLE_SAVE_HOUSE",
-                                                    BROKER_SAVEHOUSE_INDEX, 1);
-                        CNativeManager::CallNative ("ENABLE_SAVE_HOUSE",
-                                                    BOHAN_SAVEHOUSE_INDEX, 0);
+                        static_assert ("cj_ext_door_17"_joaat == 0x820550A0);
+
+                        // Enable Broker and disable Bohan savehouse
+                        CNativeManager::CallNative (
+                            "ENABLE_SAVE_HOUSE",
+                            CTheScripts::m_pGlobals ()[BROKER_SAVEHOUSE_INDEX],
+                            1);
+
+                        CNativeManager::CallNative (
+                            "ENABLE_SAVE_HOUSE",
+                            CTheScripts::m_pGlobals ()[BOHAN_SAVEHOUSE_INDEX],
+                            0);
+
                         CNativeManager::CallNative (
                             "SET_STATE_OF_CLOSEST_DOOR_OF_TYPE",
-                            "cj_ext_door_17"_joaat, 896.0f, -504.0f, 15.0f, 1,
+                            "cj_ext_door_17"_joaat, 896.0f, -504.0f, 15.0f, 0,
                             0.0f);
 
                         CTheScripts::m_pGlobals ()[ROMAN_APARTMENT_BURNED_DOWN]
                             = 0;
+
+                        SetRomansApartmentState (false);
                     }
                 break;
             }
@@ -365,9 +451,18 @@ class MissionRandomizer
             case "roman1"_joaat:
                 if (!passed)
                     CNativeManager::CallNative ("DO_SCREEN_FADE_OUT", 1000);
+                break;
+
+            case "roman11"_joaat:
+                SetRomansApartmentState (true);
+                CNativeManager::CallNative ("SET_STATE_OF_CLOSEST_DOOR_OF_TYPE",
+                                            "cj_ext_door_17"_joaat, 896.0f,
+                                            -504.0f, 15.0f, 1, 0.0f);
+                break;
             }
 
         HandleClubMissionFlowFlags (true);
+        HandleRomansSorrowChanges (true);
     }
 
     /*******************************************************/
@@ -648,9 +743,9 @@ int            MissionRandomizer::mStoredIslandsUnlocked = -1;
 bool           MissionRandomizer::mbFading               = false;
 bool           MissionRandomizer::mbFadeInAfterTeleport  = true;
 int            MissionRandomizer::miFadeTimer            = 0;
-const char *   MissionRandomizer::mForcedMission         = "roman14";
 PreviousChange MissionRandomizer::mPreviousChange;
 int            MissionRandomizer::mStoredBohanHouseState = 0;
 Vector3        MissionRandomizer::mvPosAfterFade;
+int            MissionRandomizer::mStoredMobilePhone = 0;
 
 MissionRandomizer _missions;
