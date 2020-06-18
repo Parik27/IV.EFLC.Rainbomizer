@@ -5,6 +5,8 @@
 #include "CModelInfo.hh"
 #include <filesystem>
 #include "logger.hh"
+#include "config.hh"
+#include <CCrypto.hh>
 
 CPed *(*FindPlayerPed_48e602) (int);
 
@@ -99,7 +101,9 @@ Common::InitialiseIndices ()
                         // skip them
                         auto veh = reinterpret_cast<CVehicleModelInfo *> (info);
 
-                        if (veh->m_nType != VEHICLE_TYPE_TRAIN)
+                        if (veh->m_nType != VEHICLE_TYPE_TRAIN &&
+                            (!ConfigManager::GetConfigs().general.disableTugas ||
+                             veh->m_nModelHash != "tuga"_joaat))
                             mVehicleIndices.push_back (i);
 
                         break;

@@ -118,22 +118,15 @@ class ScriptVehicleRandomizer
            These are components (extras) 1 and 3 (Tested by Fry) */
 
         if (flags & VehiclePattern::NO_ROTORS)
-            {
-                Rainbomizer::Logger::LogMessage ("[NO_ROTORS]: %x", handle);
-                for (auto i : {1, 3})
-                    CNativeManager::CallNative ("TURN_OFF_VEHICLE_EXTRA",
-                                                handle, i, true);
-            }
+            for (auto i : {1, 3})
+                CNativeManager::CallNative ("TURN_OFF_VEHICLE_EXTRA", handle, i,
+                                            true);
 
         /* This flag starts the rotors immediately after a helicopter is
          * spawned. */
 
         if (flags & VehiclePattern::START_ROTORS)
-            {
-                Rainbomizer::Logger::LogMessage ("[START_ROTORS]: %x", handle);
-                CNativeManager::CallNative ("SET_HELI_BLADES_FULL_SPEED",
-                                            handle);
-            }
+            CNativeManager::CallNative ("SET_HELI_BLADES_FULL_SPEED", handle);
     }
 
     /*******************************************************/
@@ -178,24 +171,29 @@ class ScriptVehicleRandomizer
     static void
     InitialiseCarSeatsCache (int)
     {
-        auto indices   = Rainbomizer::Common::GetVehicleIndices ();
-        auto timestamp = clock ();
+        const auto &indices   = Rainbomizer::Common::GetVehicleIndices ();
+        auto        timestamp = clock ();
 
-        for (auto i : indices)
+        for (const auto &i : indices)
             {
-                auto model
+                const auto model
                     = CModelInfoStore::GetModelInfoPointer<CVehicleModelInfo> (
                         i);
 
                 if (CStreaming::AttemptToLoadModel (model->m_nModelHash))
                     mSeatsCache[i]
                         = CModelInfoStore::GetMaximumNumberOfPassengers (i) + 1;
+                else
+                    Rainbomizer::Logger::LogMessage (
+                        "Failed to initialise seat count for vehicle: %s",
+                        model->m_szGameName);
 
                 CStreaming::FreeWdrModel (i);
             }
 
         Rainbomizer::Logger::LogMessage (
-            "Initialised Seat Count cache in %.2f seconds",
+            "Initialised Seat Count (%d/%d) cache in %.2f seconds",
+            mSeatsCache.size (), indices.size (),
             1.0f * (clock () - timestamp) / CLOCKS_PER_SEC);
     }
 
@@ -230,6 +228,7 @@ class ScriptVehicleRandomizer
         if (model->m_nType != VEHICLE_TYPE_CAR)
             return false;
 
+        // Source: sub_8708 (carwash.sc)
         static const std::array<uint32_t, 51> mNotAllowed{
             0x45d56ada, 0x7a61b330, 0x32b91ae8, 0x92e56a2c, 0x898eccea,
             0xd577c962, 0xc6c3242d, 0xc6c3242d, 0x73920f8e, 0x73920f8e,
@@ -252,8 +251,8 @@ class ScriptVehicleRandomizer
     static bool
     DoesVehicleHaveGuns (CVehicleModelInfo *model)
     {
-        static const std::array mGunVehicles{562680400u, 788747387u,
-                                             837858166u};
+        static const std::array mGunVehicles{"apc"_joaat, "buzzard"_joaat,
+                                             "annihilator"_joaat};
 
         return std::find (mGunVehicles.begin (), mGunVehicles.end (),
                           model->m_nModelHash)

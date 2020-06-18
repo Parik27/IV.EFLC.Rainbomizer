@@ -110,7 +110,7 @@ struct audSoundMetadata
     uint32_t GetCategoryHash ();
 };
 
-template <typename T> struct audConfigMetadata
+template <typename T> struct audMetadataMgr
 {
     T *m_pData;
 
@@ -172,18 +172,18 @@ template <typename T> struct audConfigMetadata
 
 class audEngine
 {
-    static int mGameMetadataOffset;
+    static int mGameMetadataMgrOffset;
 
 public:
     static audEngine *                      sm_Instance;
-    audConfigMetadata<audBaseGameMetadata> *GetGameMetadata ();
+    audMetadataMgr<audBaseGameMetadata> *GetGameMetadataMgr ();
 
     audBaseGameMetadata *GetGameMetadataItem (const char *name);
 
     static int
     GetGameMetadataOffset ()
     {
-        return mGameMetadataOffset;
+        return mGameMetadataMgrOffset;
     }
 
     static void InitialisePatterns ();

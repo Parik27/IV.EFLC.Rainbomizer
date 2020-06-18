@@ -24,6 +24,7 @@ const char configDefault[] = R"(
 # General Configuration
 
 Enabled	  = true
+DisableTugas = false
 
 #######################################################
 # Traffic Randomizer - Randomizes cars that spawn in traffic

@@ -72,8 +72,12 @@ CPed::InitialisePatternsCE ()
     CPed::m_pWeaponsOffset
         = *hook::get_pattern<int> ("6a 00 6a 00 6a 32 6a 07 8d", 10);
 
-#warning "CPed::GetBoneMatrix pattern not converted to CE"
-#warning "rage::crSkeleton::ConvertBoneIdToIndex not converted to CE"
+    ReadCall (hook::get_pattern ("83 c4 08 8b cf 50 e8 ? ? ? ? 8b 54 ? 0c ", 6),
+              CPed__GetBoneMatrix);
+
+    ReadCall (
+        hook::get_pattern ("56 ff 74 ? 10 ff 70 04 e8 ? ? ? ? 83 c4 08 ", 8),
+        crSkeleton__ConvertBoneIdToIndex);
 }
 
 /*******************************************************/

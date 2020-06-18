@@ -19,6 +19,9 @@ struct BaseConfig
 /*******************************************************/
 struct GeneralConfig : public BaseConfig
 {
+    bool disableTugas = false;
+
+    void Read (std::shared_ptr<cpptoml::table> table);
 };
 
 /*******************************************************/

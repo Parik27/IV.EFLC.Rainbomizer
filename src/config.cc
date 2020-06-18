@@ -26,6 +26,16 @@ BaseConfig::Read (std::shared_ptr<cpptoml::table> table)
 
 /*******************************************************/
 void
+GeneralConfig::Read (std::shared_ptr<cpptoml::table> table)
+{
+    if (!table)
+        return;
+
+    CONFIG (table, disableTugas, "DisableTugas", bool);
+}
+
+/*******************************************************/
+void
 MissionConfig::Read (std::shared_ptr<cpptoml::table> table)
 {
     if (!table)

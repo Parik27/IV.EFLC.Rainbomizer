@@ -33,11 +33,11 @@ audSoundMetadata::GetCategoryHash ()
 }
 
 /*******************************************************/
-audConfigMetadata<audBaseGameMetadata> *
-audEngine::GetGameMetadata ()
+audMetadataMgr<audBaseGameMetadata> *
+audEngine::GetGameMetadataMgr ()
 {
-    return (injector::raw_ptr (this) + mGameMetadataOffset)
-        .get_raw<audConfigMetadata<audBaseGameMetadata>> ();
+    return (injector::raw_ptr (this) + mGameMetadataMgrOffset)
+        .get_raw<audMetadataMgr<audBaseGameMetadata>> ();
 }
 
 /*******************************************************/
@@ -64,9 +64,9 @@ audEngine::InitialisePatterns ()
     ReadCall (addr + 14, audEngine__GetGameMetadataItem);
     sm_Instance = *(addr + 10).get_raw<audEngine *> ();
 
-    mGameMetadataOffset = injector::ReadMemory<uint32_t> (
+    mGameMetadataMgrOffset = injector::ReadMemory<uint32_t> (
         injector::raw_ptr (audEngine__GetGameMetadataItem) + 2);
 }
 
 audEngine *audEngine::sm_Instance         = nullptr;
-int        audEngine::mGameMetadataOffset = 0x2c8;
+int        audEngine::mGameMetadataMgrOffset = 0x2c8;
