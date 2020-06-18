@@ -57,6 +57,21 @@ RandomInt (int max)
 }
 
 /*******************************************************/
+unsigned int
+RandomUInt (unsigned int min, unsigned int max)
+{
+    std::uniform_int_distribution<unsigned int> dist{min, max};
+    return dist (RandEngine ());
+}
+
+/*******************************************************/
+unsigned int
+RandomUInt (unsigned int max)
+{
+    return RandomUInt (0, max);
+}
+
+/*******************************************************/
 bool
 IsCompleteEdition ()
 {

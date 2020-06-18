@@ -17,11 +17,13 @@ ConvertCall (Addr address, Func &func)
     func = Func (address);
 }
 
-float RandomFloat (float max);
-float RandomFloat (float min, float max);
-int   RandomInt (int max);
-int   RandomInt (int min, int max);
-void  InitialiseAllComponents ();
+float        RandomFloat (float max);
+float        RandomFloat (float min, float max);
+int          RandomInt (int max);
+int          RandomInt (int min, int max);
+unsigned int RandomUInt (unsigned int max);
+unsigned int RandomUInt (unsigned int min, unsigned int max);
+void         InitialiseAllComponents ();
 
 bool IsCompleteEdition ();
 

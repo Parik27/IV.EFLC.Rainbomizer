@@ -59,12 +59,34 @@ class MissionRandomizer
     static PreviousChange                               mPreviousChange;
     static int                                          mStoredBohanHouseState;
     static int                                          mStoredMobilePhone;
+    static uint32_t                                     mCurrentMissionSeed;
 
     // Related to teleportation
     static bool    mbFading;
     static bool    mbFadeInAfterTeleport;
     static int     miFadeTimer;
     static Vector3 mvPosAfterFade;
+
+    /*******************************************************/
+    static void
+    InitialiseStoredSeed ()
+    {
+        uint32_t seed
+            = CNativeManager::CallNativeRet<uint32_t> ("GET_FLOAT_STAT", 252);
+
+        if (seed == mCurrentMissionSeed && seed != 0)
+            return;
+        
+        if (seed == 0)
+            {
+                seed = RandomUInt(UINT_MAX);
+                CNativeManager::CallNative ("SET_FLOAT_STAT", 252, seed);
+            }
+        else
+            Rainbomizer::Logger::LogMessage ("Seeding from save file: %u", seed);
+        
+        InitialiseMissionsMap (seed);
+    }
 
     /*******************************************************/
     static std::string
@@ -76,6 +98,7 @@ class MissionRandomizer
 
         if (mMissionMaps.count (old))
             {
+                InitialiseStoredSeed ();
                 if (config.forcedMissionEnabled)
                     if (mMissionMaps.count (config.forcedMissionID))
                         return config.forcedMissionID;
@@ -279,6 +302,8 @@ class MissionRandomizer
 
         if (mMissionMaps.count (originalThread))
             {
+                InitialiseStoredSeed ();
+                
                 data->Params[0].cstr_param = newThread.data ();
                 adjustScript               = true;
 
@@ -656,6 +681,8 @@ class MissionRandomizer
 
         for (int i = 0; i < missions.size (); i++)
             mMissionMaps[missions[i]] = order[i];
+
+        mCurrentMissionSeed = seed;
     }
 
     /*******************************************************/
@@ -747,5 +774,6 @@ PreviousChange MissionRandomizer::mPreviousChange;
 int            MissionRandomizer::mStoredBohanHouseState = 0;
 Vector3        MissionRandomizer::mvPosAfterFade;
 int            MissionRandomizer::mStoredMobilePhone = 0;
+uint32_t       MissionRandomizer::mCurrentMissionSeed = 0;
 
 MissionRandomizer _missions;
