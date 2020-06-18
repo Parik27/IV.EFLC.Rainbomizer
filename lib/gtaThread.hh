@@ -50,7 +50,7 @@ struct scrThread
 };
 static_assert (sizeof (scrThread) == 0x70);
 
-class GtaThread : scrThread
+class GtaThread : public scrThread
 {
 public:
     char         m_szProgramName[24];

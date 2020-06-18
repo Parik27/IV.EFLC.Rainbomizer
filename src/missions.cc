@@ -171,7 +171,7 @@ class MissionRandomizer
     static void
     SetRomansApartmentState (bool isBurned)
     {
-        std::array buildings{
+        static const std::array buildings{
             // Safehouses
             std::make_tuple (896.52f, -502.84f, 19.48f, 175.0f,
                              "rt4_she_ksun"_joaat, "rt4_she_fire_ksun"_joaat),

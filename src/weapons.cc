@@ -17,6 +17,7 @@
 #include "logger.hh"
 #include <CPlayer.hh>
 #include <random>
+#include <array>
 
 bool
 IsModelPartOfGroup (uint32_t hash, const std::vector<std::string> &mList)
@@ -153,14 +154,31 @@ class WeaponRandomizer
     }
 
     /*******************************************************/
+    static bool
+    DoesWeaponMatchPattern (int weapon)
+    {
+        static const std::array patterns{
+            std::make_pair ("yusuf3"_joaat, "w_e2_dsr1"_joaat),
+            std::make_pair ("bulgarin1"_joaat, "w_e2_stickybomb"_joaat),
+            std::make_pair ("tony5"_joaat, "w_e2_stickybomb"_joaat)};
+
+        auto pattern = std::make_pair (
+            CTheScripts::m_pRunningThread ()->m_context.dwScriptHash,
+            CWeaponInfo::GetInfoFromIndex (weapon)->m_nWeaponModelHash);
+
+        for (const auto &i : patterns)
+            if (i == pattern)
+                return true;
+
+        return false;
+    }
+
+    /*******************************************************/
     static int
     GetNewWeaponForWeapon (int weapon, bool player, std::mt19937 &engine)
     {
-        if (CTheScripts::m_pRunningThread () && player
-            && CTheScripts::m_pRunningThread ()->m_szProgramName
-                   == std::string ("yusuf3")
-            && CWeaponInfo::GetInfoFromIndex (weapon)->m_nWeaponModelHash
-                   == CCrypto::atStringHash ("w_e2_dsr1"))
+        if (CTheScripts::m_pRunningThread () && player &&
+            DoesWeaponMatchPattern(weapon))
             return weapon;
 
         return mValidWeapons[mDistribution (engine)];
@@ -180,7 +198,7 @@ class WeaponRandomizer
 
         if (std::find (mValidWeapons.begin (), mValidWeapons.end (), weapon)
             != mValidWeapons.end ())
-            return GetNewWeaponForWeapon (weapon, isPlayer, engine); //
+            return GetNewWeaponForWeapon (weapon, isPlayer, engine);
 
         return weapon;
     }
