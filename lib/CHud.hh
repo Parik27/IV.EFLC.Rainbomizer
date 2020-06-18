@@ -10,7 +10,7 @@ public:
     static CARGB *aColours;
 
     // aColourNameHashes
-    static int *aColourNameHashes;
+    static uint32_t *aColourNameHashes;
 
     static void InitialisePatternsCE ();
     static void InitialisePatterns ();
