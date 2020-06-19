@@ -20,4 +20,6 @@ enum eGlobalVariables
 
     // The Lost and Damned
     MISSION_STRANDS_TLAD = 12307,
+    CLUBHOUSE_OPEN = 11006,
+    CLUBHOUSE_INDEX = 11007
 };

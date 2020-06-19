@@ -221,6 +221,46 @@ class MissionRandomizer
     }
 
     /*******************************************************/
+    static void
+    SetClubhouseState (bool unlocked)
+    {
+        // Unlock doors
+        static const std::array doors{
+            std::make_tuple ("cj_gate_3_7r"_joaat, -1762.4f, 350.3f, 25.9f),
+            std::make_tuple ("cj_gate_3_7l"_joaat, -1767.4f, 341.6f, 25.9f),
+            std::make_tuple ("cj_ext_door_11"_joaat, -1730.0f, 326.0f, 43.0f)};
+
+        for (const auto &i : doors)
+            {
+                const auto &[hash, x, y, z] = i;
+                CNativeManager::CallNative ("SET_STATE_OF_CLOSEST_DOOR_OF_TYPE",
+                                            hash, x, y, z, !unlocked, 0.0f);
+            }
+
+        // Swap models
+        static const std::array buildings{
+            std::make_tuple (-1716.52f, 362.84f, 27.48f, 75.0f,
+                             "nj03ac3200"_joaat, 929285946u),
+            std::make_tuple (-1716.52f, 362.84f, 27.48f, 75.0f,
+                             "lod3ac3200"_joaat, 1790619695u),
+        };
+
+        for (const auto &i: buildings)
+            {
+                const auto &[x, y, z, r, normal, burned] = i;
+                CNativeManager::CallNative ("SWAP_NEAREST_BUILDING_MODEL", x, y,
+                                            z, r, (unlocked) ? burned : normal,
+                                            (unlocked) ? normal : burned);
+            }
+
+        // Enable save house
+        CTheScripts::m_pGlobals ()[CLUBHOUSE_OPEN] = unlocked;
+        CNativeManager::CallNative ("ENABLE_SAVE_HOUSE",
+                                    CTheScripts::m_pGlobals ()[CLUBHOUSE_INDEX],
+                                    unlocked);
+    }
+
+    /*******************************************************/
     static inline bool
     ShouldFixCabDepot ()
     {
@@ -303,7 +343,7 @@ class MissionRandomizer
         if (mMissionMaps.count (originalThread))
             {
                 InitialiseStoredSeed ();
-                
+
                 data->Params[0].cstr_param = newThread.data ();
                 adjustScript               = true;
 
@@ -462,6 +502,10 @@ class MissionRandomizer
                         SetRomansApartmentState (false);
                     }
                 break;
+
+            // https://cdn.discordapp.com/attachments/682894128530456587/720002584533794816/Homeless.jpg
+            // Fry fix :KappaYT:
+            case "stubbs4"_joaat: SetClubhouseState (true); break;
             }
 
         /*******************************************************/
@@ -484,6 +528,8 @@ class MissionRandomizer
                                             "cj_ext_door_17"_joaat, 896.0f,
                                             -504.0f, 15.0f, 1, 0.0f);
                 break;
+
+            case "stubbs4"_joaat: SetClubhouseState (false); break;
             }
 
         HandleClubMissionFlowFlags (true);
