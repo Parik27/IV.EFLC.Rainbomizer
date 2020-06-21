@@ -1,15 +1,15 @@
 #include "CDrawCommands.hh"
 #include "Utils.hh"
 
-CBaseDC *(__stdcall *CBaseDC__operatorNew) (uint32_t size, uint32_t param2);
+void *(*CBaseDC__operatorNew) (uint32_t size, uint32_t param2);
 CDrawSLODPedDC *(__thiscall *CDrawSLODPedDC_ctor) (CDrawSLODPedDC *, void *,
                                                    void *, uint8_t, uint8_t,
                                                    void *);
 void (*CBaseDC__Render) (CBaseDC*);
 
 /*******************************************************/
-CBaseDC *
-CBaseDC::operator_new (uint32_t size, uint32_t param2)
+void*
+CBaseDC::operator new (size_t size, uint32_t param2)
 {
     return CBaseDC__operatorNew (size, param2);
 }

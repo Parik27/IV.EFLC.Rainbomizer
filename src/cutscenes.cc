@@ -83,13 +83,9 @@ class CutsceneRandomizer
             != CModelInfoStore::CModelLookup__superlod->m_nIndex)
             return DrawCutscenePed_0b99b41 (ped, param_2, param_3);
 
-        CDrawSLODPedDC *dc
-            = (CDrawSLODPedDC*) CBaseDC::operator_new (28, 0);
-
-        //dc = new (dc)
-        //CDrawSLODPedDC (ped->GetAnimFrag (), param_2, ped->m_bAlpha,
-        //ped->m_bBrightness, param_3);
-        //dc->Render ();
+        (new CDrawSLODPedDC (ped->GetAnimFrag (), param_2, ped->m_bAlpha,
+                             ped->m_bBrightness, param_3))
+            ->Render ();
     }
 
 public:
