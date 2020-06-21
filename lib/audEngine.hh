@@ -66,6 +66,27 @@ struct audBaseGameMetadata
     uint8_t           __field08;
 };
 
+struct audWeaponGameMetadata : audBaseGameMetadata
+{
+    uint32_t FireHash;
+    uint32_t EchoHash;
+    uint32_t CasingBounceHash;
+    uint32_t SwipeSoundHash;
+    uint32_t CollisionHash;
+    uint32_t MeleeCollisionHash;
+    uint32_t HeftHash;
+    uint32_t PutDownHash;
+    uint32_t RattleCollisionHash;
+    uint32_t PickupSoundHash;
+    uint8_t __field00;
+    uint32_t SafetyOnSound;
+    uint32_t SafetyOffSound;
+    uint32_t SlomoSwooshSound;
+    uint32_t __field04;
+    uint32_t SlomoXfadeHash;
+    uint32_t SlomoCollisionHash;
+};
+
 struct audSoundMetadata
 {
     eSoundType Type;

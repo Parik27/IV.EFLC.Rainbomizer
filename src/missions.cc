@@ -224,17 +224,21 @@ class MissionRandomizer
     static void
     SetClubhouseState (bool unlocked)
     {
-        // Unlock doors
+        //Unlock doors
+
+        static_assert("cj_ext_door_11"_joaat == 807349477u);
+        
         static const std::array doors{
-            std::make_tuple ("cj_gate_3_7r"_joaat, -1762.4f, 350.3f, 25.9f),
-            std::make_tuple ("cj_gate_3_7l"_joaat, -1767.4f, 341.6f, 25.9f),
-            std::make_tuple ("cj_ext_door_11"_joaat, -1730.0f, 326.0f, 43.0f)};
+            std::make_tuple (1643309849u, -1715.0f, 354.0f, 26.0f),
+            std::make_tuple (1643309849u, -1726.0f, 342.0f, 27.0f),
+            std::make_tuple ("cj_ext_door_11"_joaat, -1730.0f, 326.0f, 43.0f)
+        };
 
         for (const auto &i : doors)
             {
                 const auto &[hash, x, y, z] = i;
                 CNativeManager::CallNative ("SET_STATE_OF_CLOSEST_DOOR_OF_TYPE",
-                                            hash, x, y, z, !unlocked, 0.0f);
+                                            hash, x, y, z, (int) !unlocked, 0.0f);
             }
 
         // Swap models
@@ -422,10 +426,15 @@ class MissionRandomizer
             case "roman5"_joaat:
             case "roman6"_joaat:
             case "roman7"_joaat:
-            case "roman11"_joaat:
                 mStoredBohanHouseState
                     = CTheScripts::m_pGlobals ()[IS_BOHAN_SAFEHOUSE_OPEN];
                 CTheScripts::m_pGlobals ()[IS_BOHAN_SAFEHOUSE_OPEN] = 0;
+                break;
+
+            case "roman11"_joaat:
+                mStoredBohanHouseState
+                    = CTheScripts::m_pGlobals ()[IS_BOHAN_SAFEHOUSE_OPEN];
+                break;
             }
 
         HandleClubMissionFlowFlags (false);
@@ -775,7 +784,7 @@ class MissionRandomizer
 
         return true;
     }
-
+    
 public:
     /*******************************************************/
     MissionRandomizer ()

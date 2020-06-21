@@ -526,7 +526,21 @@ class SoundsRandomizer
 
         metadata->for_each ([&] (audBaseGameMetadata *obj, uint32_t hash) {
             if (obj->Type == object->Type)
-                objects.push_back (obj);
+                {
+                    if (obj->Type == GM_WEAPON)
+                        {
+                            auto _obj
+                                = static_cast<audWeaponGameMetadata *> (obj);
+                            auto _object
+                                = static_cast<audWeaponGameMetadata *> (object);
+
+                            if (_obj->FireHash == "null_sound"_joaat
+                                && _object->FireHash != "null_sound"_joaat)
+                                return;
+                        }
+                    
+                    objects.push_back (obj);
+                }
         });
 
         return objects[RandomInt (objects.size () - 1)];

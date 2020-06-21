@@ -153,12 +153,11 @@ public:
     static void InitialisePatterns ();
 };
 
-class CPed
+class CPed : public CEntity
 {
     static int m_pWeaponsOffset;
 
 public:
-    char           __unk00[672] = {0};
     CPedInventory &m_pWeapons ();
 
     Matrix34 *GetBoneMatrix (int bone);

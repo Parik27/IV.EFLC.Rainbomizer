@@ -16,6 +16,8 @@
 #include "audScriptAudioEntity.hh"
 #include "CPlayer.hh"
 #include "CPools.hh"
+#include "CDrawCommands.hh"
+#include "CEntity.hh"
 
 /*******************************************************/
 std::mt19937 &
@@ -109,6 +111,8 @@ InitialiseAllComponents ()
             CPlayer::InitialisePatternsCE ();
             CPools::InitialisePatternsCE ();
             CPed::InitialisePatternsCE ();
+            CBaseDC::InitialisePatternsCE ();
+            CEntity::InitialisePatternsCE ();
         }
     else
         {
@@ -126,6 +130,8 @@ InitialiseAllComponents ()
             CPlayer::InitialisePatterns ();
             CPools::InitialisePatterns ();
             CPed::InitialisePatterns ();
+            CBaseDC::InitialisePatterns ();
+            CEntity::InitialisePatterns ();
         }
     initialised = true;
 }

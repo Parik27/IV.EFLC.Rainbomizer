@@ -39,14 +39,7 @@ short
 CPed::GetBoneIndexFromId (ePedBone boneId)
 {
     // Gets skeleton function thingy or something, copied from game code.
-    injector::memory_pointer_raw skel = nullptr;
-    skel = injector::thiscall<void *(CPed *)>::vtbl<40> (this);
-    if (!skel)
-        skel = *injector::ReadMemory<void **> (this + 0x100);
-    else
-        skel = injector::thiscall<void *(void *)>::vtbl<56> (
-            skel.get_raw<void *> ());
-
+    injector::memory_pointer_raw skel = this->GetAnimFrag();
     return crSkeleton__ConvertBoneIdToIndex (*(skel + 4).get_raw<void **> (),
                                              boneId);
 }

@@ -4,8 +4,12 @@
 #include "common.hh"
 #include "config.hh"
 #include "logger.hh"
+#include "CPed.hh"
+#include "CDrawCommands.hh"
+#include "CModelInfoStore.hh"
 
 int (*scanf__8665d0) (char *str, char *format, ...);
+void (__thiscall *DrawCutscenePed_0b99b41)(CPed*, void*, void*);
 
 class CutsceneRandomizer
 {
@@ -71,6 +75,23 @@ class CutsceneRandomizer
         return true;
     }
 
+    /*******************************************************/
+    static void __fastcall FixSuperLodFings (CPed *ped, void *, void *param_2,
+                                             void *param_3)
+    {
+        if (ped->m_wModelIndex
+            != CModelInfoStore::CModelLookup__superlod->m_nIndex)
+            return DrawCutscenePed_0b99b41 (ped, param_2, param_3);
+
+        CDrawSLODPedDC *dc
+            = (CDrawSLODPedDC*) CBaseDC::operator_new (28, 0);
+
+        //dc = new (dc)
+        //CDrawSLODPedDC (ped->GetAnimFrag (), param_2, ped->m_bAlpha,
+        //ped->m_bBrightness, param_3);
+        //dc->Render ();
+    }
+
 public:
     /*******************************************************/
     CutsceneRandomizer ()
@@ -84,6 +105,12 @@ public:
         RegisterHook (ByVersion ("e8 ? ? ? ? 8b 4c ? 3c 83 c4 1c",
                                  "e8 ? ? ? ? 8b 74 ? ? 83 c4 1c "),
                       0, scanf__8665d0, HookedAddCutsceneModel);
+
+        // c2 10 00 53 8b 5c ? ? 57 8b 7c ? ? 57
+        RegisterHook (
+            ByVersion ("c2 10 00 53 8b 5c ? ? 57 8b 7c ? ? 57 ",
+                       "c2 10 00 ff 74 ? ? ff 74 ? ? e8 ? ? ? ? ff 74"),
+            ByVersion (15, 11), DrawCutscenePed_0b99b41, FixSuperLodFings);
 
         Rainbomizer::Logger::LogMessage ("Initialised CutsceneRandomizer");
     }
