@@ -38,7 +38,7 @@ RandomFloat (float min, float max)
 
 /*******************************************************/
 float
-RandomInt (float max)
+RandomFloat (float max)
 {
     return RandomFloat (0, max);
 }

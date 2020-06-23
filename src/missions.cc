@@ -539,6 +539,9 @@ class MissionRandomizer
                 break;
 
             case "stubbs4"_joaat: SetClubhouseState (false); break;
+            case "roman4"_joaat:
+                CTheScripts::m_pGlobals ()[REMOVE_ROMAN_FAKE_BLIP] = 1;
+                break;
             }
 
         HandleClubMissionFlowFlags (true);

@@ -8,6 +8,7 @@
 #include "CTimer.hh"
 #include "config.hh"
 #include "logger.hh"
+#include <CVehicle.hh>
 
 void (__fastcall *FUN_453920) (void *);
 void (__thiscall *CVehicle__OriginalSetRandomColour) (void *, uint8_t *,
@@ -15,6 +16,7 @@ void (__thiscall *CVehicle__OriginalSetRandomColour) (void *, uint8_t *,
                                                       uint8_t *, int);
 char (__stdcall *FUN_005ac620) ();
 int (*sscanf_a6e120) (char *src, char *format, ...);
+void (__thiscall *FUN_00bbfea0) (CVehicleMaterials *, CVehicle *, int);
 
 struct HSL
 {
@@ -72,6 +74,7 @@ RGBToHSL (CARGB input)
 class ColourRandomizer
 {
     static int m_nTotalColours;
+    static injector::scoped_jmp mHookbbfea0;
 
     /*******************************************************/
     static void __fastcall HookRender (void *thisCritical)
@@ -104,39 +107,39 @@ class ColourRandomizer
     }
 
     /*******************************************************/
-    static void __fastcall RandomizeCarCols (void *info, void *edx,
-                                             uint8_t *prim, uint8_t *seco,
-                                             uint8_t *tert, uint8_t *quat,
-                                             int incr)
+    static void __fastcall RandomizeCarColour (CVehicleMaterials *mats, void *,
+                                               CVehicle *veh, uint32_t modelId)
     {
-        CVehicle__OriginalSetRandomColour (info, prim, seco, tert, quat, incr);
+        mHookbbfea0.restore();
+        FUN_00bbfea0(mats, veh, modelId);
+        InitialiseRandomColoursHook();
 
-        if (m_nTotalColours != 0)
+        if (mats->m_bBurned)
+            return;
+        
+        for (int i = 0; i < VEHICLE_COLOUR_COUNT; i++)
             {
-                *prim = RandomInt (m_nTotalColours);
-                *seco = RandomInt (m_nTotalColours);
-                *tert = RandomInt (m_nTotalColours);
-                *quat = RandomInt (m_nTotalColours);
+                CARGB colour = HSLToRGB (
+                    {RandomFloat (360), 1.0, RandomInt (100) / 100.0f});
+
+                mats->m_aMaterialColours[i].r = colour.r / 255.0f;
+                mats->m_aMaterialColours[i].g = colour.g / 255.0f;
+                mats->m_aMaterialColours[i].b = colour.b / 255.0f;                
             }
     }
-
+    
     /*******************************************************/
     static void
-    RandomizeColourTable (char *line, char *format, int *r, int *g, int *b,
-                          char *Sprefix, char *Sname)
+    InitialiseRandomColoursHook ()
     {
-        sscanf_a6e120 (line, format, r, g, b, Sprefix, Sname);
+        static void *addr = hook::get_pattern (
+            ByVersion ("55 8b ec 83 e4 f0 83 ec 24 f3 0f 10 0d ? ? ? ? 53 ",
+                       "55 8b ec 83 e4 f0 83 ec 38 f3 0f 10 05 ? ? ? ? 56 "));
 
-        CARGB colour = HSLToRGB (
-            {m_nTotalColours / 133.0f * 360, 1.0, RandomInt (100) / 100.0f});
-
-        *r = colour.r;
-        *g = colour.g;
-        *b = colour.b;
-
-        m_nTotalColours++;
+        ConvertCall(addr, FUN_00bbfea0);
+        mHookbbfea0.make_jmp(addr, RandomizeCarColour);
     }
-
+    
 public:
     /*******************************************************/
     ColourRandomizer ()
@@ -147,25 +150,17 @@ public:
         InitialiseAllComponents ();
 
         if (ConfigManager::GetConfigs ().colours.carcols)
-            {
-                RegisterHook (ByVersion ("0f ? ? 09 00 00 8d 8c 24 ? 01 00 00",
-                                         "8d ? ? b0 02 00 00 68 ? ? ? ? 50 e8"),
-                              ByVersion (59, 13), sscanf_a6e120,
-                              ColourRandomizer::RandomizeColourTable);
-
-                RegisterHook (
-                    ByVersion ("50 8d 8e e4 0f 00 00 51 8b ? e8",
-                               "50 8b cb e8 ? ? ? ? c6 87 98 0f 00 00 ff "),
-                    ByVersion (10, 3), CVehicle__OriginalSetRandomColour,
-                    ColourRandomizer::RandomizeCarCols);
-            }
+            InitialiseRandomColoursHook();
 
         if (ConfigManager::GetConfigs ().colours.hud)
             RegisterHook ("8d b7 e0 0f 00 00 b9 ? ? ? ? e8 ", 11, FUN_453920,
                           ColourRandomizer::HookRender);
-
+        
         Rainbomizer::Logger::LogMessage ("Initialised ColourRandomizer");
     }
-} _cols;
+};
 
 int ColourRandomizer::m_nTotalColours = 0;
+injector::scoped_jmp ColourRandomizer::mHookbbfea0{};
+
+ColourRandomizer _cols;

@@ -13,6 +13,7 @@ enum eGlobalVariables
     BOHAN_SAVEHOUSE_INDEX        = 9956,
     ROMAN_APARTMENT_BURNED_DOWN  = 15688,
     ROMAN_APARTMENT_BURNED_DOWN2 = 64690,
+    REMOVE_ROMAN_FAKE_BLIP       = 64904,
 
     // The Ballad of Gay Tony
     MFF_CLUBS_SHUTDOWN    = 15847,

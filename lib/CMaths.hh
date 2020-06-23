@@ -24,3 +24,11 @@ struct Matrix34
 
     void scale (const Vector3 &coef, bool adjustTransform);
 };
+
+struct grcColour
+{
+    float r;
+    float g;
+    float b;
+    float _pad;
+};
