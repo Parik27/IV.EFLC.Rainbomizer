@@ -6,7 +6,7 @@
 
 <a href="https://media.discordapp.net/attachments/681997133351747585/682871480048025644/unknown.png"> <img src="https://media.discordapp.net/attachments/681997133351747585/682871480048025644/unknown.png?width=912&height=513"></a>
 
-A modification for Grand Theft Auto: IV and Episodes for Liberty City that randomizes various aspects of the game from vehicles and sounds to missions and weapons. 
+A modification for Grand Theft Auto IV and Episodes from Liberty City that randomizes various aspects of the game from vehicles and sounds to missions and weapons.
 <hr>
 <p align="center">
   <a href="http://rainbomizer.com/"><strong>homepage</strong></a> • 
@@ -34,11 +34,11 @@ A modification for Grand Theft Auto: IV and Episodes for Liberty City that rando
 <span id="installation"></span>
 ## Installation
 
-Rainbomizer requires an **ASI-Loader** to function. It works with **all** versions of the game, but only the latest (Steam), 1.0.4.0, 1.1.2.0 and 1.0.8.0 versions have been tested
+Rainbomizer requires an **ASI-Loader** to function. It works with **all** versions of the game, but only the latest (Steam), 1.0.4.0, 1.1.2.0, 1.0.7.0, and 1.0.8.0 versions have been tested.
 
 1. Install **one** of the listed ASI Loaders: 
     - [Ultimate ASI Loader](https://github.com/ThirteenAG/Ultimate-ASI-Loader/releases/download/v4.52/Ultimate-ASI-Loader.zip) by [ThirteenAG](https://github.com/ThirteenAG) is a popular option since it supports CrashDumps, which will be necessary if you want to report a crash.
-    - [xliveless](https://gtaforums.com/topic/388658-relgtaiv-xliveless/) (1.0.8.0 and below only) - required for versions before Complete Edition. Removes requirement for xliveless and also includes an ASI-Loader
+    - [xliveless](https://gtaforums.com/topic/388658-relgtaiv-xliveless) (1.0.8.0 and below only) - required for versions before Complete Edition. Removes requirement for xliveless and also includes an ASI-Loader
 
 2. Download Rainbomizer from [Releases](https://github.com/Parik27/IV.EFLC.Rainbomizer/releases) and **extract the archive** to the root directory of GTA IV. 
   
@@ -74,13 +74,16 @@ More information about how to configure specific randomizers is provided in the 
 #### Major Contributors
 
 - [123robot](https://www.twitch.tv/123robot) - Creating external files, gathering data, providing ideas, lots of testing, and general support throughout development.
-- [Fryterp23](https://www.twitch.tv/fryterp23) - Creating episodes external files, lots of testing, providing general support and ideas throught development.
+- [Fryterp23](https://www.twitch.tv/fryterp23) - Creating episodes external files, lots of testing, and providing general support and ideas throughout development.
 
 #### Additional Contributors
 
 - [hoxi](https://www.twitch.tv/hoxi___) - Beta testing and help with patterns early in development.
 - [Powdinet](https://www.twitch.tv/powdinet) - Help with implementation of the Mission Randomizer.
-- [SpeedyFolf](https://www.twitch.tv/speedyfolf) - Beta testing
+
+#### Beta Testers
+- [SpeedyFolf](https://www.twitch.tv/speedyfolf)
+- [Hugo_One](https://www.twitch.tv/hugo_one)
 
 <span id="contribute"></span>
 ## Contribution
