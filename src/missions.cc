@@ -194,7 +194,7 @@ class MissionRandomizer
     static void
     SetRomansApartmentState (bool isBurned)
     {
-        static const std::array buildings{
+        static constexpr std::array buildings{
             // Safehouses
             std::make_tuple (896.52f, -502.84f, 19.48f, 175.0f,
                              "rt4_she_ksun"_joaat, "rt4_she_fire_ksun"_joaat),
@@ -228,7 +228,7 @@ class MissionRandomizer
 
         static_assert("cj_ext_door_11"_joaat == 807349477u);
         
-        static const std::array doors{
+        static constexpr std::array doors{
             std::make_tuple (1643309849u, -1715.0f, 354.0f, 26.0f),
             std::make_tuple (1643309849u, -1726.0f, 342.0f, 27.0f),
             std::make_tuple ("cj_ext_door_11"_joaat, -1730.0f, 326.0f, 43.0f)
@@ -242,7 +242,7 @@ class MissionRandomizer
             }
 
         // Swap models
-        static const std::array buildings{
+        static constexpr std::array buildings{
             std::make_tuple (-1716.52f, 362.84f, 27.48f, 75.0f,
                              "nj03ac3200"_joaat, 929285946u),
             std::make_tuple (-1716.52f, 362.84f, 27.48f, 75.0f,
@@ -392,8 +392,8 @@ class MissionRandomizer
     GetMissionStrand (int val)
     {
 
-        static auto globals = std::array{10982, 12307, 12383};
-        static auto sizes   = std::array{84, 228, 229};
+        static constexpr auto globals = std::array{10982, 12307, 12383};
+        static constexpr auto sizes   = std::array{84, 228, 229};
         int         episode = Rainbomizer::Common::GetStoredEpisodeNumber ();
 
         return reinterpret_cast<MissionStrandInfo *> (

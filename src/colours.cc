@@ -9,6 +9,7 @@
 #include "config.hh"
 #include "logger.hh"
 #include <CVehicle.hh>
+#include <UtilsHooking.hh>
 
 void (__fastcall *FUN_453920) (void *);
 void (__thiscall *CVehicle__OriginalSetRandomColour) (void *, uint8_t *,
@@ -74,7 +75,6 @@ RGBToHSL (CARGB input)
 class ColourRandomizer
 {
     static int m_nTotalColours;
-    static injector::scoped_jmp mHookbbfea0;
 
     /*******************************************************/
     static void __fastcall HookRender (void *thisCritical)
@@ -107,39 +107,32 @@ class ColourRandomizer
     }
 
     /*******************************************************/
-    static void __fastcall RandomizeCarColour (CVehicleMaterials *mats, void *,
-                                               CVehicle *veh, uint32_t modelId)
-    {
-        mHookbbfea0.restore();
-        FUN_00bbfea0(mats, veh, modelId);
-        InitialiseRandomColoursHook();
-
-        if (mats->m_bBurned)
-            return;
-        
-        for (int i = 0; i < VEHICLE_COLOUR_COUNT; i++)
-            {
-                CARGB colour = HSLToRGB (
-                    {RandomFloat (360), 1.0, RandomInt (100) / 100.0f});
-
-                mats->m_aMaterialColours[i].r = colour.r / 255.0f;
-                mats->m_aMaterialColours[i].g = colour.g / 255.0f;
-                mats->m_aMaterialColours[i].b = colour.b / 255.0f;                
-            }
-    }
-    
-    /*******************************************************/
     static void
     InitialiseRandomColoursHook ()
     {
-        static void *addr = hook::get_pattern (
-            ByVersion ("55 8b ec 83 e4 f0 83 ec 24 f3 0f 10 0d ? ? ? ? 53 ",
-                       "55 8b ec 83 e4 f0 83 ec 38 f3 0f 10 05 ? ? ? ? 56 "));
+        ReplaceJmpHook__thiscall<0xbbfea0, void, CVehicleMaterials, CVehicle *,
+                                 uint32_t> (
+            hook::get_pattern (ByVersion (
+                "55 8b ec 83 e4 f0 83 ec 24 f3 0f 10 0d ? ? ? ? 53 ",
+                "55 8b ec 83 e4 f0 83 ec 38 f3 0f 10 05 ? ? ? ? 56 ")),
+            [] (CVehicleMaterials *mats, CVehicle *veh, uint32_t modelId) {
+                if (mats->m_bBurned)
+                    return;
 
-        ConvertCall(addr, FUN_00bbfea0);
-        mHookbbfea0.make_jmp(addr, RandomizeCarColour);
+                for (int i = 0; i < VEHICLE_COLOUR_COUNT; i++)
+                    {
+                        CARGB colour = HSLToRGB (
+                            {RandomFloat (360), 1.0, RandomInt (100) / 100.0f});
+
+                        mats->m_aMaterialColours[i].r = colour.r / 255.0f;
+                        mats->m_aMaterialColours[i].g = colour.g / 255.0f;
+                        mats->m_aMaterialColours[i].b = colour.b / 255.0f;
+                    }
+            },
+            CALLBACK_ORDER_AFTER)
+            .Activate ();
     }
-    
+
 public:
     /*******************************************************/
     ColourRandomizer ()
@@ -158,9 +151,6 @@ public:
         
         Rainbomizer::Logger::LogMessage ("Initialised ColourRandomizer");
     }
-};
+} _cols;
 
 int ColourRandomizer::m_nTotalColours = 0;
-injector::scoped_jmp ColourRandomizer::mHookbbfea0{};
-
-ColourRandomizer _cols;

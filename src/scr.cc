@@ -229,7 +229,7 @@ class ScriptVehicleRandomizer
             return false;
 
         // Source: sub_8708 (carwash.sc)
-        static const std::array<uint32_t, 51> mNotAllowed{
+        static constexpr std::array<uint32_t, 51> mNotAllowed{
             0x45d56ada, 0x7a61b330, 0x32b91ae8, 0x92e56a2c, 0x898eccea,
             0xd577c962, 0xc6c3242d, 0xc6c3242d, 0x73920f8e, 0x73920f8e,
             0x50b0215a, 0x58e49664, 0x35ed670b, 0x47b9138a, 0x21eee87d,
@@ -251,8 +251,8 @@ class ScriptVehicleRandomizer
     static bool
     DoesVehicleHaveGuns (CVehicleModelInfo *model)
     {
-        static const std::array mGunVehicles{"apc"_joaat, "buzzard"_joaat,
-                                             "annihilator"_joaat};
+        constexpr std::array mGunVehicles{"apc"_joaat, "buzzard"_joaat,
+                                          "annihilator"_joaat};
 
         return std::find (mGunVehicles.begin (), mGunVehicles.end (),
                           model->m_nModelHash)

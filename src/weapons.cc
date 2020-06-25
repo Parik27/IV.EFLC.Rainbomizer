@@ -18,6 +18,7 @@
 #include <CPlayer.hh>
 #include <random>
 #include <array>
+#include <UtilsHooking.hh>
 
 bool
 IsModelPartOfGroup (uint32_t hash, const std::vector<std::string> &mList)
@@ -32,7 +33,6 @@ IsModelPartOfGroup (uint32_t hash, const std::vector<std::string> &mList)
 
 class WeaponRandomizer
 {
-    static injector::scoped_jmp            mHooka98500;
     static std::vector<int>                mValidWeapons;
     static std::discrete_distribution<int> mDistribution;
 
@@ -157,7 +157,7 @@ class WeaponRandomizer
     static bool
     DoesWeaponMatchPattern (int weapon)
     {
-        static const std::array patterns{
+        static constexpr std::array patterns{
             std::make_pair ("yusuf3"_joaat, "w_e2_dsr1"_joaat),
             std::make_pair ("bulgarin1"_joaat, "w_e2_stickybomb"_joaat),
             std::make_pair ("tony5"_joaat, "w_e2_stickybomb"_joaat)};
@@ -177,8 +177,8 @@ class WeaponRandomizer
     static int
     GetNewWeaponForWeapon (int weapon, bool player, std::mt19937 &engine)
     {
-        if (CTheScripts::m_pRunningThread () && player &&
-            DoesWeaponMatchPattern(weapon))
+        if (CTheScripts::m_pRunningThread () && player
+            && DoesWeaponMatchPattern (weapon))
             return weapon;
 
         return mValidWeapons[mDistribution (engine)];
@@ -204,19 +204,15 @@ class WeaponRandomizer
     }
 
     /*******************************************************/
-    static void __fastcall RandomizeWeapon (CPedInventory *weapons, void *edx,
-                                            int weapon, int ammo, char param4,
-                                            char param5, bool shown)
+    static void
+    RandomizeWeapon (CPedInventory *weapons, int &weapon, int ammo, char param4,
+                     char param5, bool shown)
     {
-        mHooka98500.restore ();
-
         auto newWeapon = GetNewWeaponForWeapon (weapon, weapons);
         if (ConfigManager::GetConfigs ().weaponStats.enabled)
             RandomizeWeaponStat (newWeapon);
 
-        weapons->GiveWeapon (newWeapon, ammo, param4, param5, shown);
-
-        InitialiseRandomWeaponsHook ();
+        weapon = newWeapon;
     }
 
     /*******************************************************/
@@ -228,7 +224,10 @@ class WeaponRandomizer
                        "53 55 56 8b f1 8b 4c ? ? 57 51 "),
             ByVersion (-11, 0));
 
-        mHooka98500.make_jmp (addr, WeaponRandomizer::RandomizeWeapon);
+        ReplaceJmpHook__thiscall<0xa98500, void, CPedInventory, int, int, char,
+                                 char, bool> (addr, RandomizeWeapon,
+                                              CALLBACK_ORDER_BEFORE)
+            .Activate ();
     }
 
 public:
@@ -250,7 +249,6 @@ public:
     }
 };
 
-injector::scoped_jmp            WeaponRandomizer::mHooka98500{};
 std::vector<int>                WeaponRandomizer::mValidWeapons;
 std::discrete_distribution<int> WeaponRandomizer::mDistribution;
 

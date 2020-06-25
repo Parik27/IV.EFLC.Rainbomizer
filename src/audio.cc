@@ -12,6 +12,7 @@
 #include "audEngine.hh"
 #include "CModelInfoStore.hh"
 #include <stdexcept>
+#include <UtilsHooking.hh>
 
 // All the audio gxt tables
 const std::array<std::vector<std::string>, 3> gxtTables
@@ -100,7 +101,6 @@ struct SoundPair
 
 class SoundsRandomizer
 {
-    static injector::scoped_jmp                             mHook8f5b00;
     static std::unordered_map<uint32_t, std::string>        mTexts;
     static std::array<std::pair<uint32_t, std::string>, 50> mBankAudioPairs;
     static std::vector<SoundPair>                           mSounds;
@@ -108,12 +108,10 @@ class SoundsRandomizer
     static int                                              mCorrectedBankHash;
 
     /*******************************************************/
-    static void __fastcall RandomizeConversationLine (
-        audScriptAudioEntity *entity, void *edx, int index, int param_3,
-        char *identifier, char *subtitle, int param_6, int param_7)
+    static void RandomizeConversationLine (
+        audScriptAudioEntity *entity, int index, int param_3,
+        char *&identifier, char *&subtitle, int param_6, int param_7)
     {
-        mHook8f5b00.restore ();
-
         if (mSounds.size () > 0)
             {
                 auto &sound = mSounds[RandomInt (mSounds.size () - 1)];
@@ -122,22 +120,19 @@ class SoundsRandomizer
                 subtitle               = sound.subtitle.data ();
                 mBankAudioPairs[index] = {sound.bankHash, sound.sound};
             }
-
-        entity->AddLineToConversation (index, param_3, identifier, subtitle,
-                                       param_6, param_7);
-
-        InitialiseAddLineToConversationHook ();
     }
 
     /*******************************************************/
     static void
     InitialiseAddLineToConversationHook ()
     {
-        static void *addr = hook::get_pattern (
-            ByVersion ("8b 44 ? ? 6b c0 70 56 8d 34 08 8b 4c",
-                       "8b 44 ? ? 56 8b 74 ? ? 6b f6 70 03 f1"));
-
-        mHook8f5b00.make_jmp (addr, RandomizeConversationLine);
+        ReplaceJmpHook__thiscall<0x8f5b00, void, audScriptAudioEntity, int, int,
+                                 char *, char *, int, int> (
+            hook::get_pattern (
+                ByVersion ("8b 44 ? ? 6b c0 70 56 8d 34 08 8b 4c",
+                           "8b 44 ? ? 56 8b 74 ? ? 6b f6 70 03 f1")),
+            RandomizeConversationLine, CALLBACK_ORDER_BEFORE)
+            .Activate ();
     }
 
     /*******************************************************/
@@ -474,9 +469,9 @@ class SoundsRandomizer
         auto metadata = audEngine::sm_Instance->GetGameMetadataMgr ();
 
         // Types that will be randomized by this function
-        std::array randomizedTypes{GM_CRIME,        GM_WEAPON,   GM_DOOR,
-                                   GM_COLLISION,    GM_CLOTHING, GM_FOOTSTEPS,
-                                   GM_MELEE_COMBAT, GM_PED,      GM_VEHICLE};
+        static constexpr std::array randomizedTypes{
+            GM_CRIME,     GM_WEAPON,       GM_DOOR, GM_COLLISION, GM_CLOTHING,
+            GM_FOOTSTEPS, GM_MELEE_COMBAT, GM_PED,  GM_VEHICLE};
 
         auto object = metadata->GetByHash (hash);
         if (!object
@@ -673,7 +668,6 @@ public:
     }
 };
 
-injector::scoped_jmp                      SoundsRandomizer::mHook8f5b00{};
 std::unordered_map<uint32_t, std::string> SoundsRandomizer::mTexts;
 std::array<std::pair<uint32_t, std::string>, 50>
                        SoundsRandomizer::mBankAudioPairs{};
