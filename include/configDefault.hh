@@ -105,4 +105,10 @@ RandomizeGameMusic = true # Intro, radio, interior music, other music.
 [ScriptVehicleRandomizer]
 
 Enabled = true
+
+#######################################################
+# Object Randomizer - Randomizes some vehicles and objects into other random objects
+
+Enabled = true
+
 )";

@@ -107,6 +107,10 @@ struct WeaponStatsConfig : public BaseConfig
     void Read (std::shared_ptr<cpptoml::table> table);
 };
 
+struct ObjectsConfig : public BaseConfig
+{
+};
+
 /*******************************************************/
 struct Configs
 {
@@ -121,6 +125,7 @@ struct Configs
     MissionConfig       missions;
     CutsceneConfig      cutscenes;
     WeaponStatsConfig   weaponStats;
+    ObjectsConfig       objects;
 };
 
 /*******************************************************/

@@ -11,6 +11,7 @@
 #include <unordered_map>
 #include "common.hh"
 #include "logger.hh"
+#include "config.hh"
 
 //#define EDIT_MODE
 
@@ -240,7 +241,7 @@ class ObjectRandomizer
     }
 
     /*******************************************************/
-    static __fastcall CBaseDC *
+    static CBaseDC * __fastcall
     ChangeDrawnModelForVehicle (CEntity *param_1, void *, int param_2,
                                 int param_3, uint32_t *param_4,
                                 uint32_t param_5)
@@ -298,6 +299,10 @@ public:
     
     ObjectRandomizer ()
     {
+
+        if (!ConfigManager::GetConfigs ().objects.enabled)
+            return;
+        
         RegisterHook ("e8 d0 5b 02 00 ", 0, CDynamicEntity__m8C,
                       ChangeDrawnModelForVehicle);
         RegisterHook ("e8 39 5c 02 00  ", 0, CDynamicEntity__m8C,

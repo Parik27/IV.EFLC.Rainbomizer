@@ -435,6 +435,10 @@ class MissionRandomizer
                 mStoredBohanHouseState
                     = CTheScripts::m_pGlobals ()[IS_BOHAN_SAFEHOUSE_OPEN];
                 break;
+
+            case "finale1c"_joaat:
+                CNativeManager::CallNative("SET_TIME_OF_DAY", 8, 0);
+                break;
             }
 
         HandleClubMissionFlowFlags (false);
