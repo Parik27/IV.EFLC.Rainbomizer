@@ -88,9 +88,11 @@ public:
     static Ret __fastcall
     HookedFunction (Class* th, void*, Args... args)
     {
+#ifndef NDEBUG
         assert (base::mThreadId == 0
                 || base::mThreadId == GetCurrentThreadId ());
         base::mThreadId = GetCurrentThreadId ();
+#endif
 
         for (const auto &i : base::GetBeforeFunctions())
             i (th, args...);

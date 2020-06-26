@@ -6,76 +6,45 @@
 #include <CCrypto.hh>
 #include <CModelInfoStore.hh>
 #include <CMaths.hh>
-#include <windows.h>
 #include <CPed.hh>
 #include <unordered_map>
 #include "common.hh"
 #include "logger.hh"
 #include "config.hh"
 
-//#define EDIT_MODE
-
 class CVehicle;
 
 CBaseDC *(__thiscall *CDynamicEntity__m8C) (CEntity *, int, int, uint32_t *,
                                             uint32_t);
-
-/*******************************************************/
-template<int key, typename Func>
-inline void OnKeyUp(Func f)
-{
-    static bool held = false;
-    if (held && !GetAsyncKeyState(key))
-        {
-            f();
-            held = false;
-        }
-
-    if (GetAsyncKeyState (key))
-        held = true;
-}
-
-/*******************************************************/
-template<int key, typename Func>
-inline void OnKeyDown(Func f)
-{
-    if (GetAsyncKeyState (key))
-        f();
-}
-
-
 struct VehicleObject
 {
-    std::string name;
-    Vector3 rotation    = {0, 0, 0};
-    Vector3 translation = {0, 0, 0};
-    Vector3 scale       = {1, 1, 1};
+    Vector3_SinCos rotation    = {0, 0, 0};
+    Vector3        translation = {0, 0, 0};
+    Vector3        scale       = {1, 1, 1};
 };
 
 class ObjectRandomizer
 {
-    static int mOdds;
-    static std::vector<int> mObjectList;
-    static std::unordered_map<int, VehicleObject> mObjects;
-    static std::unordered_map<CEntity*, std::pair<int, int>> mEntities;
+    static int                                                mOdds;
+    static std::unordered_map<int, VehicleObject>             mObjects;
+    static std::unordered_map<CEntity *, std::pair<int, int>> mEntities;
 
     /*******************************************************/
     static void
-    AssignNewModelToEntity (CEntity* vehicle)
+    AssignNewModelToEntity (CEntity *vehicle)
     {
-
         // Free the previous resource if necessary
         if (mEntities.count (vehicle))
             CStreaming::MarkResourceAsNoLongerNeeded (
-                                                      mEntities[vehicle].second, CStreaming::g_pFileTypeWdrIndex ());
+                mEntities[vehicle].second, CStreaming::g_pFileTypeWdrIndex ());
 
-        if (RandomInt(mOdds - 1) == 0)
+        if (RandomInt (mOdds - 1) == 0 && mObjects.size ())
             {
                 // Get random map element
-                auto it = mObjects.begin();
-                std::advance(it, RandomInt (mObjects.size() - 1));
+                auto it = mObjects.begin ();
+                std::advance (it, RandomInt (mObjects.size () - 1));
                 int newModel = it->first;
-                
+
                 mEntities[vehicle]
                     = std::make_pair (vehicle->m_wModelIndex, newModel);
 
@@ -92,121 +61,6 @@ class ObjectRandomizer
     static int
     GetNewModelIndexForEntity (CEntity *vehicle)
     {
-#ifdef EDIT_MODE
-
-        static FILE* f = fopen("log.txt", "a+");
-        static int currentModel = -1;
-        static enum
-            {
-                MODE_TRANSLATION,
-                MODE_ROTATION,
-                MODE_SCALE
-            } currentMode;
-
-        // Next Object - M
-        // Previous Object - N
-        OnKeyUp<'M'>([&] {
-
-            static int currentIndex = -1;
-            ++currentIndex;
-            currentIndex %= mObjects.size();
-            currentModel = mObjectList[currentIndex];
-            Rainbomizer::Logger::LogMessage("%s %d", mObjects[currentModel].name.c_str(), currentModel);
-        });
-        
-        OnKeyUp<'N'>([&] {
-
-            static int currentIndex = -1;
-            --currentIndex;
-            currentIndex = (currentIndex < 0) ? mObjectList.size() - 1 : currentIndex;
-            currentModel = mObjectList[currentIndex];            
-        });
-
-        //Activate Translation - T
-        //Activate Rotation - Y
-        //Activate Scaling - U
-        OnKeyUp<'T'>([&] {
-            currentMode = MODE_TRANSLATION;
-        });
-        OnKeyUp<'Y'>([&] {
-            currentMode = MODE_SCALE;
-        });
-        OnKeyUp<'U'>([&] {
-            currentMode = MODE_ROTATION;
-        });
-
-        /*
-          Translation X+ - D
-          Translation X- - A
-          Translation Y+ - W
-          Translation Y- - S
-          Translation Z+ - Left Shift
-          Translation Z- - Space
-          Rotation X+ - D
-          Rotation X- - A
-          Rotation Y+ - W
-          Rotation Y- - S
-          Rotation Z+ - Left Shift
-          Rotation Z- - Space
-        */
-
-        if(currentModel == -1)
-            return currentModel;
-        
-        auto GetVector = [&] {
-            switch (currentMode)
-                {
-                case MODE_TRANSLATION:
-                    return &mObjects[currentModel].translation;
-                case MODE_ROTATION:
-                    return &mObjects[currentModel].rotation;
-                case MODE_SCALE:
-                    return &mObjects[currentModel].scale;
-                }
-        };
-        
-        OnKeyDown<'D'>([&] {
-            GetVector()->x += 0.01;
-        });
-        OnKeyDown<'A'>([&] {
-            GetVector()->x -= 0.01;
-        });
-        OnKeyDown<'W'>([&] {
-            GetVector()->y += 0.01;
-        });
-        OnKeyDown<'S'>([&] {
-            GetVector()->y -= 0.01;
-        });
-        OnKeyDown<VK_LSHIFT>([&] {
-            auto vector = GetVector();
-            vector->z += 0.01;
-            if (currentMode == MODE_SCALE) {
-                vector->x += 0.01;
-                vector->y += 0.01;
-            }
-            
-        });
-        OnKeyDown<VK_SPACE>([&] {
-            auto vector = GetVector();
-            vector->z -= 0.01;
-            if (currentMode == MODE_SCALE) {
-                vector->x -= 0.01;
-                vector->y -= 0.01;
-            }
-        });
-        OnKeyUp<'P'>([&] {
-            auto &obj = mObjects[currentModel];
-            fprintf(f, "%s %f %f %f %f %f %f %f %f %f\n",
-                    obj.name.c_str(), obj.translation.x, obj.translation.y,
-                    obj.translation.z, obj.rotation.x, obj.rotation.y,
-                    obj.rotation.z, obj.scale.x, obj.scale.y,
-                    obj.scale.z);
-            fflush(f);
-        });
-        
-        return currentModel;
-#endif
-        
         if (!mEntities.count (vehicle)
             || mEntities.at (vehicle).first != vehicle->m_wModelIndex)
             AssignNewModelToEntity (vehicle);
@@ -227,7 +81,7 @@ class ObjectRandomizer
         if (!CStreaming::HasResourceLoaded (model,
                                             CStreaming::g_pFileTypeWdrIndex ()))
             return CStreaming::RequestResource (
-                                                model, CStreaming::g_pFileTypeWdrIndex (), 0);
+                model, CStreaming::g_pFileTypeWdrIndex (), 0);
 
         param_1->field_24 &= ~67108864; // required to prevent crashes
         outModelIndex = model;
@@ -241,10 +95,11 @@ class ObjectRandomizer
     }
 
     /*******************************************************/
-    static CBaseDC * __fastcall
-    ChangeDrawnModelForVehicle (CEntity *param_1, void *, int param_2,
-                                int param_3, uint32_t *param_4,
-                                uint32_t param_5)
+    static CBaseDC *__fastcall ChangeDrawnModelForVehicle (CEntity *param_1,
+                                                           void *, int param_2,
+                                                           int       param_3,
+                                                           uint32_t *param_4,
+                                                           uint32_t  param_5)
     {
         Matrix34 *matrix = ((CPed *) param_1)->GetBoneMatrix (0);
 
@@ -268,6 +123,10 @@ class ObjectRandomizer
         FILE *modelFile
             = Rainbomizer::Common::GetRainbomizerDataFile ("Objects.txt", "r",
                                                            false);
+
+        if (!modelFile)
+            return;
+        
         fscanf (modelFile, " %d \n", &mOdds);
 
         char line[1024] = {0};
@@ -275,20 +134,19 @@ class ObjectRandomizer
             {
                 char          modelName[64] = {0};
                 VehicleObject obj;
+                Vector3       rotation = {0, 0, 0};
 
                 sscanf (line, "%s %f %f %f %f %f %f %f %f %f", modelName,
                         &obj.translation.x, &obj.translation.y,
-                        &obj.translation.z, &obj.rotation.x, &obj.rotation.y,
-                        &obj.rotation.z, &obj.scale.x, &obj.scale.y,
-                        &obj.scale.z);
+                        &obj.translation.z, &rotation.x, &rotation.y,
+                        &rotation.z, &obj.scale.x, &obj.scale.y, &obj.scale.z);
 
-                obj.name = modelName;
+                obj.rotation = rotation;
+                
                 int index;
                 if (CStreaming::GetModelAndIndexFromHash (
-                                                          CCrypto::atStringHash (modelName), &index)) {
-                    mObjects[index] = obj;
-                    mObjectList.push_back(index);
-                }
+                        CCrypto::atStringHash (modelName), &index))
+                        mObjects[index] = obj;
                 else
                     Rainbomizer::Logger::LogMessage ("Failed to find model: %s",
                                                      modelName);
@@ -296,23 +154,26 @@ class ObjectRandomizer
     }
 
 public:
-    
     ObjectRandomizer ()
     {
 
         if (!ConfigManager::GetConfigs ().objects.enabled)
             return;
-        
-        RegisterHook ("e8 d0 5b 02 00 ", 0, CDynamicEntity__m8C,
-                      ChangeDrawnModelForVehicle);
-        RegisterHook ("e8 39 5c 02 00  ", 0, CDynamicEntity__m8C,
-                      ChangeDrawnModelForVehicle);
-        
-        Rainbomizer::Common::AddEpisodeChangeCallback(ReadObjectsList);
+
+        // For non-player vehicles
+        RegisterHook (ByVersion ("51 8b ce e8 ? ? ? ? 89 44 ? ? 8b e8",
+                                 "? 55 53 e8 ? ? ? ? 6a 00 6a 0c"),
+                      3, CDynamicEntity__m8C, ChangeDrawnModelForVehicle);
+
+        // For player vehicle
+        RegisterHook (ByVersion ("53 51 8b ce e8 ? ? ? ? 8b e8",
+                                 "8b cf 55 53 e8 ? ? ? ? 8b d8"),
+                      4, CDynamicEntity__m8C, ChangeDrawnModelForVehicle);
+
+        Rainbomizer::Common::AddEpisodeChangeCallback (ReadObjectsList);
     }
 } _obj;
 
-int ObjectRandomizer::mOdds = 0;
+int                                    ObjectRandomizer::mOdds = 0;
 std::unordered_map<int, VehicleObject> ObjectRandomizer::mObjects;
-std::vector<int> ObjectRandomizer::mObjectList;
-std::unordered_map<CEntity*, std::pair<int, int>> ObjectRandomizer::mEntities;
+std::unordered_map<CEntity *, std::pair<int, int>> ObjectRandomizer::mEntities;

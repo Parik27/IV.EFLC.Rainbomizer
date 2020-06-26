@@ -171,7 +171,7 @@ ConfigManager::ConfigManager (const std::string &file)
     mConfigs.missions.Read (config->get_table ("MissionRandomizer"));
     mConfigs.cutscenes.Read (config->get_table ("CutsceneRandomizer"));
     mConfigs.weaponStats.Read (config->get_table ("WeaponStatsRandomizer"));
-    mConfigs.objects.Read (config->get_table ("ObjectRandomzier"));
+    mConfigs.objects.Read (config->get_table ("ObjectRandomizer"));
 }
 
 /*******************************************************/

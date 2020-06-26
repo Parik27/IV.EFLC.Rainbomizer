@@ -63,6 +63,13 @@ public:
 
     static int *&m_pGlobals ();
 
+    template <typename T = int>
+    static T &
+    GlobalVar (int index)
+    {
+        return *reinterpret_cast<T*>(&m_pGlobals ()[index]);
+    }
+
     static void InitialisePatternsCE ();
     static void InitialisePatterns ();
 

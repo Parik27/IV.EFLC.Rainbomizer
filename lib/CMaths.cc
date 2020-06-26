@@ -2,16 +2,19 @@
 #include <cmath>
 
 void
-Vector2::rotate(const float angle)
+Vector2::rotate(const SinCos &sinCos)
 {
-    float sinA = sinf(angle);
-    float cosA = cosf(angle);
-
     float aux_x = x;
     float aux_y = y;
 
-    x = cosA * aux_x - sinA * aux_y;
-    y = sinA * aux_x + cosA * aux_y;
+    x = sinCos.cosA * aux_x - sinCos.sinA * aux_y;
+    y = sinCos.sinA * aux_x + sinCos.cosA * aux_y;
+}
+
+void
+Vector2::rotate(const float angle)
+{
+    rotate (SinCos (angle));
 }
 
 Vector3 &Vector3::operator+= (const Vector3 &rhs)
@@ -55,8 +58,9 @@ Matrix34::scale (const Vector3 &scale, bool adjustTransform)
         }
 }
 
+template<typename T>
 void
-Matrix34::rotateX(const float angle)
+Matrix34::rotateX(const T angle)
 {
     Vector2 v;
 
@@ -83,8 +87,9 @@ Matrix34::rotateX(const float angle)
     
 }
 
+template<typename T>
 void
-Matrix34::rotateZ(const float angle)
+Matrix34::rotateZ(const T angle)
 {
     Vector2 v;
     
@@ -110,8 +115,9 @@ Matrix34::rotateZ(const float angle)
     up.z    = v.y;
 }
 
+template<typename T>
 void
-Matrix34::rotateY (const float angle)
+Matrix34::rotateY (const T angle)
 {
     Vector2 v;
     
@@ -136,15 +142,45 @@ Matrix34::rotateY (const float angle)
     right.z = v.y;
 }
 
+template<typename T>
 void
-Matrix34::rotate (const Vector3 &angles)
+Matrix34::rotate (const T &angles)
 {
-    if (angles.x)
-        rotateX(angles.x);
-    
-    if (angles.y)
-        rotateY(angles.y);
-
-    if (angles.z)
-        rotateZ(angles.z);
+    rotateX(angles.x);
+    rotateY(angles.y);
+    rotateZ(angles.z);
 }
+
+SinCos::SinCos(float angle)
+{
+    *this = angle;
+}
+
+SinCos &SinCos::operator= (const float &other)
+{
+    sinA = sinf (other);
+    cosA = cosf (other);
+
+    return *this;
+}
+
+Vector3_SinCos &Vector3_SinCos::operator= (const Vector3 &other)
+{
+    this->x = other.x;
+    this->y = other.y;
+    this->z = other.z;
+
+    return *this;
+}
+
+template void Matrix34::rotate<Vector3>(const Vector3&);
+template void Matrix34::rotate<Vector3_SinCos>(const Vector3_SinCos&);
+
+template void Matrix34::rotateX<float>(const float);
+template void Matrix34::rotateX<SinCos>(const SinCos);
+
+template void Matrix34::rotateY<float>(const float);
+template void Matrix34::rotateY<SinCos>(const SinCos);
+
+template void Matrix34::rotateZ<float>(const float);
+template void Matrix34::rotateZ<SinCos>(const SinCos);

@@ -108,6 +108,7 @@ Enabled = true
 
 #######################################################
 # Object Randomizer - Randomizes some vehicles and objects into other random objects
+[ObjectRandomizer]
 
 Enabled = true
 

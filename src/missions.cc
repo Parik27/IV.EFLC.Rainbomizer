@@ -76,15 +76,16 @@ class MissionRandomizer
 
         if (seed == mCurrentMissionSeed && seed != 0)
             return;
-        
+
         if (seed == 0)
             {
-                seed = RandomUInt(UINT_MAX);
+                seed = RandomUInt (UINT_MAX);
                 CNativeManager::CallNative ("SET_FLOAT_STAT", 252, seed);
             }
         else
-            Rainbomizer::Logger::LogMessage ("Seeding from save file: %u", seed);
-        
+            Rainbomizer::Logger::LogMessage ("Seeding from save file: %u",
+                                             seed);
+
         InitialiseMissionsMap (seed);
     }
 
@@ -215,8 +216,7 @@ class MissionRandomizer
                                             z, r, (isBurned) ? normal : burned,
                                             (isBurned) ? burned : normal);
 
-                CTheScripts::m_pGlobals ()[ROMAN_APARTMENT_BURNED_DOWN]
-                    = isBurned;
+                CTheScripts::GlobalVar (ROMAN_APARTMENT_BURNED_DOWN) = isBurned;
             }
     }
 
@@ -224,21 +224,21 @@ class MissionRandomizer
     static void
     SetClubhouseState (bool unlocked)
     {
-        //Unlock doors
+        // Unlock doors
 
-        static_assert("cj_ext_door_11"_joaat == 807349477u);
-        
+        static_assert ("cj_ext_door_11"_joaat == 807349477u);
+
         static constexpr std::array doors{
             std::make_tuple (1643309849u, -1715.0f, 354.0f, 26.0f),
             std::make_tuple (1643309849u, -1726.0f, 342.0f, 27.0f),
-            std::make_tuple ("cj_ext_door_11"_joaat, -1730.0f, 326.0f, 43.0f)
-        };
+            std::make_tuple ("cj_ext_door_11"_joaat, -1730.0f, 326.0f, 43.0f)};
 
         for (const auto &i : doors)
             {
                 const auto &[hash, x, y, z] = i;
                 CNativeManager::CallNative ("SET_STATE_OF_CLOSEST_DOOR_OF_TYPE",
-                                            hash, x, y, z, (int) !unlocked, 0.0f);
+                                            hash, x, y, z, (int) !unlocked,
+                                            0.0f);
             }
 
         // Swap models
@@ -249,7 +249,7 @@ class MissionRandomizer
                              "lod3ac3200"_joaat, 1790619695u),
         };
 
-        for (const auto &i: buildings)
+        for (const auto &i : buildings)
             {
                 const auto &[x, y, z, r, normal, burned] = i;
                 CNativeManager::CallNative ("SWAP_NEAREST_BUILDING_MODEL", x, y,
@@ -258,9 +258,9 @@ class MissionRandomizer
             }
 
         // Enable save house
-        CTheScripts::m_pGlobals ()[CLUBHOUSE_OPEN] = unlocked;
+        CTheScripts::GlobalVar (CLUBHOUSE_OPEN) = unlocked;
         CNativeManager::CallNative ("ENABLE_SAVE_HOUSE",
-                                    CTheScripts::m_pGlobals ()[CLUBHOUSE_INDEX],
+                                    CTheScripts::GlobalVar (CLUBHOUSE_INDEX),
                                     unlocked);
     }
 
@@ -286,7 +286,7 @@ class MissionRandomizer
             {
                 revertDepot = true;
                 depotBurnedDown
-                    = CTheScripts::m_pGlobals ()[ROMAN_APARTMENT_BURNED_DOWN];
+                    = CTheScripts::GlobalVar (ROMAN_APARTMENT_BURNED_DOWN);
                 SetRomansApartmentState (false);
             }
 
@@ -306,9 +306,9 @@ class MissionRandomizer
 
         static int previousState = 0;
         if (!missionEnd)
-            previousState = CTheScripts::m_pGlobals ()[MFF_CLUBS_SHUTDOWN];
+            previousState = CTheScripts::GlobalVar (MFF_CLUBS_SHUTDOWN);
 
-        CTheScripts::m_pGlobals ()[MFF_CLUBS_SHUTDOWN]
+        CTheScripts::GlobalVar (MFF_CLUBS_SHUTDOWN)
             = (missionEnd) ? previousState : 0;
     }
 
@@ -394,11 +394,10 @@ class MissionRandomizer
 
         static constexpr auto globals = std::array{10982, 12307, 12383};
         static constexpr auto sizes   = std::array{84, 228, 229};
-        int         episode = Rainbomizer::Common::GetStoredEpisodeNumber ();
+        int episode = Rainbomizer::Common::GetStoredEpisodeNumber ();
 
-        return reinterpret_cast<MissionStrandInfo *> (
-            &CTheScripts::m_pGlobals ()[globals[episode]
-                                        + sizes[episode] * val]);
+        return &CTheScripts::GlobalVar<MissionStrandInfo> (
+            globals[episode] + sizes[episode] * val);
     }
 
     /*******************************************************/
@@ -410,14 +409,14 @@ class MissionRandomizer
             // gerry1 - Actions Speak Louder Than Words
             // You need Gerry's contact to call him for the bomb
             case "gerry1"_joaat:
-                CTheScripts::m_pGlobals ()[GERRY_CONTACT] = 1;
+                CTheScripts::GlobalVar (GERRY_CONTACT) = 1;
                 break;
 
             // It's Your Call - mission takes away your phone / gives you an
             // old one on failing/passing respectively
             case "roman2"_joaat:
                 mStoredMobilePhone
-                    = CTheScripts::m_pGlobals ()[PLAYER_PHONE_MODEL];
+                    = CTheScripts::GlobalVar (PLAYER_PHONE_MODEL);
                 [[fallthrough]];
 
             // It's Your Call, Easy Fare, Jamaican Heat, Uncle Vlad
@@ -427,17 +426,24 @@ class MissionRandomizer
             case "roman6"_joaat:
             case "roman7"_joaat:
                 mStoredBohanHouseState
-                    = CTheScripts::m_pGlobals ()[IS_BOHAN_SAFEHOUSE_OPEN];
-                CTheScripts::m_pGlobals ()[IS_BOHAN_SAFEHOUSE_OPEN] = 0;
+                    = CTheScripts::GlobalVar (IS_BOHAN_SAFEHOUSE_OPEN);
+                CTheScripts::GlobalVar (IS_BOHAN_SAFEHOUSE_OPEN) = 0;
                 break;
 
             case "roman11"_joaat:
                 mStoredBohanHouseState
-                    = CTheScripts::m_pGlobals ()[IS_BOHAN_SAFEHOUSE_OPEN];
+                    = CTheScripts::GlobalVar (IS_BOHAN_SAFEHOUSE_OPEN);
                 break;
 
+            // Mr. and Mrs. Bellic - set time of day to prevent instafail
             case "finale1c"_joaat:
-                CNativeManager::CallNative("SET_TIME_OF_DAY", 8, 0);
+                CNativeManager::CallNative ("SET_TIME_OF_DAY", 8, 0);
+                break;
+
+            // Three's A Crowd - Prevent softlock if doing mission after the
+            // original
+            case "roman3"_joaat:
+                CTheScripts::GlobalVar (ROMAN3_ARE_STORES_OPEN) = 1;
                 break;
             }
 
@@ -473,8 +479,8 @@ class MissionRandomizer
             case "roman2"_joaat:
                 // Restore  player's phone model since it's most likely gonna be
                 // replaced by the mission
-                CTheScripts::m_pGlobals ()[PLAYER_PHONE_MODEL]
-                    = std::max (CTheScripts::m_pGlobals ()[PLAYER_PHONE_MODEL],
+                CTheScripts::GlobalVar (PLAYER_PHONE_MODEL)
+                    = std::max (CTheScripts::GlobalVar (PLAYER_PHONE_MODEL),
                                 mStoredMobilePhone);
 
                 [[fallthrough]];
@@ -482,7 +488,7 @@ class MissionRandomizer
             case "roman5"_joaat:
             case "roman6"_joaat:
             case "roman7"_joaat:
-                CTheScripts::m_pGlobals ()[IS_BOHAN_SAFEHOUSE_OPEN]
+                CTheScripts::GlobalVar (IS_BOHAN_SAFEHOUSE_OPEN)
                     = mStoredBohanHouseState;
                 break;
 
@@ -494,22 +500,22 @@ class MissionRandomizer
                         static_assert ("cj_ext_door_17"_joaat == 0x820550A0);
 
                         // Enable Broker and disable Bohan savehouse
-                        CNativeManager::CallNative (
-                            "ENABLE_SAVE_HOUSE",
-                            CTheScripts::m_pGlobals ()[BROKER_SAVEHOUSE_INDEX],
-                            1);
+                        CNativeManager::CallNative ("ENABLE_SAVE_HOUSE",
+                                                    CTheScripts::GlobalVar (
+                                                        BROKER_SAVEHOUSE_INDEX),
+                                                    1);
 
-                        CNativeManager::CallNative (
-                            "ENABLE_SAVE_HOUSE",
-                            CTheScripts::m_pGlobals ()[BOHAN_SAVEHOUSE_INDEX],
-                            0);
+                        CNativeManager::CallNative ("ENABLE_SAVE_HOUSE",
+                                                    CTheScripts::GlobalVar (
+                                                        BOHAN_SAVEHOUSE_INDEX),
+                                                    0);
 
                         CNativeManager::CallNative (
                             "SET_STATE_OF_CLOSEST_DOOR_OF_TYPE",
                             "cj_ext_door_17"_joaat, 896.0f, -504.0f, 15.0f, 0,
                             0.0f);
 
-                        CTheScripts::m_pGlobals ()[ROMAN_APARTMENT_BURNED_DOWN]
+                        CTheScripts::GlobalVar (ROMAN_APARTMENT_BURNED_DOWN)
                             = 0;
 
                         SetRomansApartmentState (false);
@@ -519,6 +525,11 @@ class MissionRandomizer
             // https://cdn.discordapp.com/attachments/682894128530456587/720002584533794816/Homeless.jpg
             // Fry fix :KappaYT:
             case "stubbs4"_joaat: SetClubhouseState (true); break;
+
+                // Give player an upgraded phone
+            case "playboy2"_joaat:
+                CTheScripts::GlobalVar (PLAYER_PHONE_MODEL) = 2;
+                break;
             }
 
         /*******************************************************/
@@ -544,7 +555,7 @@ class MissionRandomizer
 
             case "stubbs4"_joaat: SetClubhouseState (false); break;
             case "roman4"_joaat:
-                CTheScripts::m_pGlobals ()[REMOVE_ROMAN_FAKE_BLIP] = 1;
+                CTheScripts::GlobalVar (REMOVE_ROMAN_FAKE_BLIP) = 1;
                 break;
             }
 
@@ -608,8 +619,8 @@ class MissionRandomizer
 
         // Give the player a phone if they don't have one (GTAIV only)
         if (Rainbomizer::Common::GetStoredEpisodeNumber () == 0)
-            CTheScripts::m_pGlobals ()[PLAYER_PHONE_MODEL]
-                = std::max (CTheScripts::m_pGlobals ()[PLAYER_PHONE_MODEL], 1);
+            CTheScripts::GlobalVar (PLAYER_PHONE_MODEL)
+                = std::max (CTheScripts::GlobalVar (PLAYER_PHONE_MODEL), 1);
 
         ApplyMissionSpecificFixes ();
     }
@@ -791,7 +802,7 @@ class MissionRandomizer
 
         return true;
     }
-    
+
 public:
     /*******************************************************/
     MissionRandomizer ()
@@ -835,7 +846,7 @@ int            MissionRandomizer::miFadeTimer            = 0;
 PreviousChange MissionRandomizer::mPreviousChange;
 int            MissionRandomizer::mStoredBohanHouseState = 0;
 Vector3        MissionRandomizer::mvPosAfterFade;
-int            MissionRandomizer::mStoredMobilePhone = 0;
+int            MissionRandomizer::mStoredMobilePhone  = 0;
 uint32_t       MissionRandomizer::mCurrentMissionSeed = 0;
 
 MissionRandomizer _missions;
