@@ -116,6 +116,8 @@ public:
             = *base::mHookedAddress;
         base::mStoredValue   = base::mOriginalValue;
 
+        DWORD oldProtect = 0;
+        injector::UnprotectMemory (base::mHookedAddress, 8, oldProtect);
         injector::MakeJMP (base::mHookedAddress, HookedFunction);
 
         base::mInitialised = true;
