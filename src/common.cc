@@ -39,6 +39,9 @@ Common::HandleEpisodicChanges (int num)
                                 mPreviousEpisode, episode);
 
             mPreviousEpisode = episode;
+            InitialiseIndices (); // This code is here to ensure that any
+                                  // episodic callbacks that access the indices
+                                  // don't fail because of incorrect indices
 
             for (auto i : GetCallbacks ())
                 i (episode);
@@ -55,14 +58,6 @@ Common::Common ()
                              "a3 ? ? ? ? a3 ? ? ? ? e8 ? ? ? ? 6a 00 e8"),
                   ByVersion (0, 17), FindPlayerPed_48e602,
                   Common::HandleEpisodicChanges);
-
-    // Add a callback to reset the indices
-    this->AddEpisodeChangeCallback ([&] (int) {
-        this->mPedIndices.clear ();
-        this->mVehicleIndices.clear ();
-
-        this->mIndicesInitialised = false;
-    });
 }
 
 /*******************************************************/

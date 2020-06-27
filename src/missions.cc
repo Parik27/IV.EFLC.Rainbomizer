@@ -457,23 +457,22 @@ class MissionRandomizer
     {
         switch (mMissionHash)
             {
-                // billy1, roman1, tony1 - First missions so fade out and never
-                // fade back in
 
+            case "roman1"_joaat:
+                CNativeManager::CallNative ("SET_PLAYER_CONTROL",
+                                            GetPlayerId (), 1);
+                [[fallthrough]];
+
+            // billy1, roman1, tony1 - First missions so fade out and never
+            // fade back in
             case "billy1"_joaat:
             case "tony1"_joaat:
                 if (!passed)
-                    CNativeManager::CallNative ("DO_SCREEN_FADE_IN", 1000);
-                break;
-
-                // roman1 freezes you at the end to play the safehouse intro
-                // scene
-            case "roman1"_joaat:
-                if (!passed)
-                    CNativeManager::CallNative ("DO_SCREEN_FADE_IN", 1000);
-
-                CNativeManager::CallNative ("SET_PLAYER_CONTROL",
-                                            GetPlayerId (), 1);
+                    {
+                        CNativeManager::CallNative (
+                            "SUPPRESS_FADE_IN_AFTER_DEATH_ARREST", 0);
+                        CNativeManager::CallNative ("DO_SCREEN_FADE_IN", 1000);
+                    }
                 break;
 
             case "roman2"_joaat:
@@ -524,7 +523,9 @@ class MissionRandomizer
 
             // https://cdn.discordapp.com/attachments/682894128530456587/720002584533794816/Homeless.jpg
             // Fry fix :KappaYT:
-            case "stubbs4"_joaat: SetClubhouseState (true); break;
+            case "stubbs4"_joaat:
+                SetClubhouseState (true);
+                break;
 
                 // Give player an upgraded phone
             case "playboy2"_joaat:

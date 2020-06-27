@@ -124,6 +124,9 @@ class ObjectRandomizer
             = Rainbomizer::Common::GetRainbomizerDataFile ("Objects.txt", "r",
                                                            false);
 
+        mObjects.clear ();
+        mEntities.clear ();
+
         if (!modelFile)
             return;
         
