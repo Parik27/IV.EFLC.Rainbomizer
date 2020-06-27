@@ -43,6 +43,28 @@ class ScriptVehicleRandomizer
     static std::vector<VehiclePattern>  mVehiclePatterns;
 
     /*******************************************************/
+    static void
+    AdjustMissionCode (scrProgram* program, uint32_t hash)
+    {
+        switch (hash)
+            {
+            case "bulgarin1"_joaat:
+                // Stop the mission from failing if you move a vehicle (common
+                // with script vehicle randomizer)
+
+                auto pattern = hook::make_range_pattern (
+                    (uintptr_t) program->m_pCodeBlock,
+                    (uintptr_t) program->m_pCodeBlock + program->m_nCodeSize,
+                    "60 2d 06 01 ? ? ? ? 06 23 ? ? ? ? 28 ? ? 3f 31 66 28 ? "
+                    "? ");
+                pattern.for_each_result ([] (hook::pattern_match match) {
+                    // jmpf to jmp (so that it always jumps)
+                    *match.get<uint8_t>(9) = 0x22;
+                });
+            }
+    }
+    
+    /*******************************************************/
     static uint32_t
     GetVehicleForPattern (const VehiclePattern &pattern)
     {
@@ -78,13 +100,17 @@ class ScriptVehicleRandomizer
     static uint32_t
     GetVehicleForModel (uint32_t hash, uint8_t &flagsOut, Vector3 &move)
     {
+        auto thread = CTheScripts::m_pRunningThread();
+        AdjustMissionCode (CTheScripts::GetScrProgram (
+                               thread->m_context.dwScriptHash),
+                           thread->m_context.dwScriptHash);
+
         for (const auto &i : mVehiclePatterns)
             {
                 if (i.vehicleHash != hash)
                     continue;
 
-                if (i.thread
-                    != CTheScripts::m_pRunningThread ()->m_szProgramName)
+                if (i.thread != thread->m_szProgramName)
                     continue;
 
                 int vehicle = GetVehicleForPattern (i);
