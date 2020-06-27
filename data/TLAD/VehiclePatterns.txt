@@ -1,32 +1,31 @@
-#Thread	Original Vehicle	Seats	Cars	Bikes	Helicopters	Boats	Trains	Flags	Alternate Coordinates			Alt Coord Notes
-									X	Y	Z	
-billy1	Revenant	1	N	Y	N	N	N					
-billy1	Hexer	1	N	Y	N	N	N					
-billy2	Revenant	1	N	Y	N	N	N					
-billy2	Hexer	1	N	Y	N	N	N					
-billy3	Revenant	1	N	Y	N	N	N					
-billy3	Hexer	1	N	Y	N	N	N					
-billy4	Revenant	1	N	Y	N	N	N					
-billy4	Hexer	1	N	Y	N	N	N					
-billy5	Revenant	1	N	Y	N	N	N					
-billy5	Hexer	1	N	Y	N	N	N					
-billy6	Revenant	1	N	Y	N	N	N					
-billy6	Hexer	1	N	Y	N	N	N					
-jim1	Yankee2	2	N	N	N	N	N					
-jim1	Angel	2	N	Y	N	N	N					
-jim1	Wayfarer	2	N	Y	N	N	N					
-stubbs1	Maverick	2	Y	Y	Y	Y	N					
-stubbs2	Pbus	1	Y	Y	C	N	N	none	10	0	0	If heli
-stubbs4	Hexer	1	N	Y	Y	N	N					
-stubbs4	Diabolus	2	Y	Y	N	Y	N					
-jim4	Gburrito	1	Y	Y	Y	Y	N					
-jim5	Pony	4	Y	N	Y	N	N					
-elizabeta1	Pres	4	Y	N	Y	N	N					
-elizabeta1	Slamvan	2	Y	Y	Y	N	N					
-elizabeta3	Double2	2	Y	Y	Y	Y	Y					
-ashley2	Pres	4	Y	N	C	N	N	none	4	5	0	If heli
-ashley2	Rom	4	Y	N	Y	N	N					
-ray1	Stretch	4	Y	N	Y	N	N					
-ray2	Pmp600	4	Y	N	Y	N	N					
-ray3	Pmp600	4	Y	N	Y	N	N					
-*	*bikes	2	Y	Y	N	N	N					
+#Thread	Original Vehicle	Seats	Cars	Bikes	Helicopters	Boats	Trains	Flags	Alternate Coordinates		
+#									X	Y	Z
+billy1	Revenant	1	N	Y	N	N	N				
+billy1	Hexer	1	N	Y	N	N	N				
+billy2	Revenant	1	N	Y	N	N	N				
+billy2	Hexer	1	N	Y	N	N	N				
+billy3	Revenant	1	N	Y	N	N	N				
+billy3	Hexer	1	N	Y	N	N	N				
+billy4	Revenant	1	N	Y	N	N	N				
+billy4	Hexer	1	N	Y	N	N	N				
+billy5	Revenant	1	N	Y	N	N	N				
+billy5	Hexer	1	N	Y	N	N	N				
+billy6	Revenant	1	N	Y	N	N	N				
+billy6	Hexer	1	N	Y	N	N	N				
+jim1	Yankee2	2	N	N	N	N	N				
+jim1	Angel	2	N	Y	N	N	N				
+jim1	Wayfarer	2	N	Y	N	N	N				
+stubbs1	Maverick	2	Y	Y	Y	Y	N				
+stubbs2	Pbus	1	Y	Y	C	N	N	none	10	0	0
+stubbs4	Hexer	1	N	Y	Y	N	N				
+stubbs4	Diabolus	2	Y	Y	N	Y	N				
+jim4	Gburrito	1	Y	Y	Y	Y	N				
+jim5	Hellfury	2	N	Y	N	N	N				
+elizabeta1	Slamvan	2	Y	Y	Y	N	N				
+elizabeta3	Double2	2	Y	Y	Y	Y	Y				
+ashley2	Pres	4	Y	N	C	N	N	none	4	5	0
+ashley2	Rom	4	Y	N	Y	N	N				
+ray1	Stretch	4	Y	N	Y	N	N				
+ray2	Pmp600	4	Y	N	Y	N	N				
+ray3	Pmp600	4	Y	N	Y	N	N				
+*	*bikes	2	Y	Y	N	N	N				
