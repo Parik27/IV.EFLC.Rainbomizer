@@ -1,5 +1,5 @@
 #Name	GXT	Strand	Mission End Coords 			Cities Unlocked		Phone Activated	Mission Start Coords		
-			X	Y	Z	Start	End		X	Y	Z
+#			X	Y	Z	Start	End		X	Y	Z
 ashley1	E1M_17	3	-1470.17	489.873	19.5703	-1	-1	Y	-76.2895	1530.153	17.6536
 ashley2	E1M_18	3	1258.17	1479.99	16.7728						
 billy1	E1M_1	0	-1703.8	356.506	25.2915						
