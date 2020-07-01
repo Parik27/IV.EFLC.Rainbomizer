@@ -1,4 +1,4 @@
-Weapon	=	Weight
+#Weapon	=	Weight
 		
 w_e2_glauncher	=	0.4
 w_e2_44amag	=	1

@@ -1,5 +1,5 @@
 #Thread	Original Vehicle	Seats	Cars	Bikes	Helicopters	Boats	Trains	Flags	Alternate Coordinates		
-									X	Y	Z
+#									X	Y	Z
 tony1	Schafter2	4	Y	N	Y	N	N				
 tony3	Schafter2	2	Y	Y	Y	N	N				
 tony3	Caddy	2	Y	Y	Y	Y	N	no_rotors			
