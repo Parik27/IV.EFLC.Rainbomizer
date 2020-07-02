@@ -508,6 +508,9 @@ f_y_asianclub_01
 f_y_asianclub_02
 f_y_cloeparker
 f_y_clubeuro_01
+superlod
+superlod
+superlod
 
 csak47
 csbagofdiamonds
@@ -651,13 +654,10 @@ cssandbag
 
 csbankdoor
 cselizabetadoor
-cspizzadoor
 csbohamdoor
 csbohamoffdoor
 csbulgdoorfront
 csbulgdoorint
-csfightdoor
-csgolfdoor
 cshercintdoor
 cshercudoor
 csmaisdoorfrnt
@@ -666,6 +666,10 @@ csrooftopdoor
 cstonydoor
 cstonydoorbed
 cstonyextdoor
+
+cspizzadoor
+csfightdoor
+csgolfdoor
 
 csbruciesofa
 csbulgsofa

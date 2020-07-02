@@ -1,4 +1,4 @@
-Weapon	=	Weight
+#Weapon	=	Weight
 		
 w_bat	=	0.5
 w_cue	=	0.5
