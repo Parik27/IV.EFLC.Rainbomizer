@@ -71,6 +71,9 @@ Common::AddEpisodeChangeCallback (std::function<void (int)> callback)
 void
 Common::InitialiseIndices ()
 {
+    mPedIndices.clear ();
+    mVehicleIndices.clear ();
+
     for (size_t i = 0; i < CModelInfoStore::m_nTotalModelPointers (); i++)
         {
             auto info = CModelInfoStore::m_aModelPointers[i];
@@ -96,9 +99,10 @@ Common::InitialiseIndices ()
                         // skip them
                         auto veh = reinterpret_cast<CVehicleModelInfo *> (info);
 
-                        if (veh->m_nType != VEHICLE_TYPE_TRAIN &&
-                            (!ConfigManager::GetConfigs().general.disableTugas ||
-                             veh->m_nModelHash != "tuga"_joaat))
+                        if (veh->m_nType != VEHICLE_TYPE_TRAIN
+                            && (!ConfigManager::GetConfigs ()
+                                     .general.disableTugas
+                                || veh->m_nModelHash != "tuga"_joaat))
                             mVehicleIndices.push_back (i);
 
                         break;

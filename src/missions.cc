@@ -14,6 +14,8 @@
 #include <array>
 #include <CCrypto.hh>
 #include <eGlobalVariables.hh>
+#include <CScriptText.hh>
+#include <vector>
 
 int (__thiscall *scrThread__RunOriginal) (scrThread *scr, unsigned int param_2);
 
@@ -32,7 +34,9 @@ std::unordered_map<std::string, MissionInfo> mMissionInfos{};
 
 struct MissionStrandInfo
 {
-    int __unk00[6];
+    int __unk00[4];
+    int m_nFlowSeqIndex;
+    int __unk05[1];
     int m_nLastMissionPassed;
     int __unk28[77];
 };
@@ -68,11 +72,19 @@ class MissionRandomizer
     static Vector3 mvPosAfterFade;
 
     /*******************************************************/
+    static uint32_t
+    GetMissionRandomizerSeedStatId ()
+    {
+        return (Rainbomizer::Common::GetStoredEpisodeNumber () == 0) ? 252
+                                                                     : 92;
+    }
+
+    /*******************************************************/
     static void
     InitialiseStoredSeed ()
     {
-        uint32_t seed
-            = CNativeManager::CallNativeRet<uint32_t> ("GET_FLOAT_STAT", 252);
+        uint32_t seed = CNativeManager::CallNativeRet<uint32_t> (
+            "GET_FLOAT_STAT", GetMissionRandomizerSeedStatId ());
 
         if (seed == mCurrentMissionSeed && seed != 0)
             return;
@@ -80,7 +92,9 @@ class MissionRandomizer
         if (seed == 0)
             {
                 seed = RandomUInt (UINT_MAX);
-                CNativeManager::CallNative ("SET_FLOAT_STAT", 252, seed);
+                CNativeManager::CallNative ("SET_FLOAT_STAT",
+                                            GetMissionRandomizerSeedStatId (),
+                                            seed);
             }
         else
             Rainbomizer::Logger::LogMessage ("Seeding from save file: %u",
@@ -704,6 +718,29 @@ class MissionRandomizer
     static int __fastcall RunThreadHook (scrThread *scr, void *edx,
                                          unsigned int param_2)
     {
+#ifndef NDEBUG
+        if (scr->m_context.dwScriptHash == "main"_joaat)
+            {
+                uint32_t seed = CNativeManager::CallNativeRet<uint32_t> (
+                    "GET_FLOAT_STAT", GetMissionRandomizerSeedStatId ());
+
+                // Seed
+                {
+                    auto text           = CScriptText::NewText ("NUMBER");
+                    text->m_aNumbers[0] = seed;
+                    text->m_vecPos      = {0.0, 0.0};
+                    text->m_vecScale    = {0.5, 0.7};
+                    text->m_bMonospaced = true;
+
+                    text->m_bAlignLeft      = false;
+                    text->m_bAlignRight     = true;
+                    text->m_bAlignCentre    = false;
+                    text->m_bDrawBeforeFade = false;
+
+                    text->m_nStrokeColour.colour = 0;
+                }
+            }
+#endif
         if (HandleFadingCode (scr))
             return 0;
 

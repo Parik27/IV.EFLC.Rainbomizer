@@ -91,7 +91,9 @@ CNativeManager::NativeHook ()
 int
 CTheScripts::GetNativeIndex (uint32_t hash)
 {
-    for (int i = 0; i < *m_nMaximumNatives; i++)
+    for (unsigned int i = hash % *m_nMaximumNatives, j = hash;
+         (*m_aNatives)[i].hash != 0;
+         j = (j >> 1) + 1, i = (j + i) % *m_nMaximumNatives)
         {
             if ((*m_aNatives)[i].hash == hash)
                 return i;
@@ -103,7 +105,9 @@ CTheScripts::GetNativeIndex (uint32_t hash)
 scrProgram *
 CTheScripts::GetScrProgram (uint32_t hash)
 {
-    for (int i = 0; i < m_nMaxScriptPrograms (); i++)
+    for (unsigned int i = hash % m_nMaxScriptPrograms (), j = hash;
+         m_aScriptPrograms ()[i].hash != 0;
+         j = (j >> 1) + 1, i = (j + i) % m_nMaxScriptPrograms ())
         {
             if (m_aScriptPrograms ()[i].hash == hash)
                 return m_aScriptPrograms ()[i].data;

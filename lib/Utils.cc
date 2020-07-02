@@ -18,6 +18,7 @@
 #include "CPools.hh"
 #include "CDrawCommands.hh"
 #include "CEntity.hh"
+#include "CScriptText.hh"
 
 /*******************************************************/
 std::mt19937 &
@@ -113,6 +114,7 @@ InitialiseAllComponents ()
             CPed::InitialisePatternsCE ();
             CBaseDC::InitialisePatternsCE ();
             CEntity::InitialisePatternsCE ();
+            CScriptText::InitialisePatternsCE ();
         }
     else
         {
@@ -132,6 +134,7 @@ InitialiseAllComponents ()
             CPed::InitialisePatterns ();
             CBaseDC::InitialisePatterns ();
             CEntity::InitialisePatterns ();
+            CScriptText::InitialisePatterns ();
         }
     initialised = true;
 }

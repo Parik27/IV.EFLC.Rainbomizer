@@ -84,6 +84,9 @@ class ScriptVehicleRandomizer
         int index;
         CStreaming::GetModelAndIndexFromHash (hash, &index);
 
+        if (!mSeatsCache.count (index))
+            return hash;
+        
         int seats = mSeatsCache.at (index);
 
         for (auto i : indices)

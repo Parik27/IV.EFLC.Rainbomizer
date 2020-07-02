@@ -80,11 +80,13 @@ const std::array<std::vector<std::string>, 3> gxtTables
             "GIRL1AU", "GIRL2AU", "ROC1AUD", "ROM1AUD", "ROCCO1",
         }}};
 
-bool (__thiscall *FUN_00787340__8f6ae9) (audScriptAudioEntity *, char *, char *,
-                                         char *);
-bool (__stdcall *audScriptAudioEntity__IsSFXSound8f6959) (char *);
-void (__thiscall *FUN_0091cac0__8f8a86) (audScriptAudioEntity *, char *, char *,
-                                         char *, float, int, char);
+class audSpeechSound;
+
+bool (__thiscall *audSpeechSound__SetSpeechSound) (class audSpeechSound *,
+                                                   uint32_t, const char *, int,
+                                                   char *);
+uint32_t (*audSpeechAudioEntity__GetNumVariantsForSound) (
+    uint32_t bankHash, const char *soundName);
 
 audSoundMetadata *(__thiscall *MetadataGetAtOffset_77752f) (
     audMetadataMgr<audSoundMetadata> *, uint32_t);
@@ -101,24 +103,24 @@ struct SoundPair
 
 class SoundsRandomizer
 {
-    static std::unordered_map<uint32_t, std::string>        mTexts;
-    static std::array<std::pair<uint32_t, std::string>, 50> mBankAudioPairs;
-    static std::vector<SoundPair>                           mSounds;
-    static bool                                             mAdjustNextBankHash;
-    static int                                              mCorrectedBankHash;
+    static std::unordered_map<uint32_t, std::string> mTexts;
+    static std::unordered_map<std::string, SoundPair *> mAudioPairs;
+
+    static std::array<std::string, 50> mAudioPairSlots;
+    static std::vector<SoundPair>      mSounds;
 
     /*******************************************************/
-    static void RandomizeConversationLine (
-        audScriptAudioEntity *entity, int index, int param_3,
-        char *&identifier, char *&subtitle, int param_6, int param_7)
+    static void
+    RandomizeConversationLine (audScriptAudioEntity *entity, int index,
+                               int param_3, char *&identifier,
+                               const char *&subtitle, int param_6, int param_7)
     {
         if (mSounds.size () > 0)
             {
                 auto &sound = mSounds[RandomInt (mSounds.size () - 1)];
 
-                identifier             = sound.sound.data ();
-                subtitle               = sound.subtitle.data ();
-                mBankAudioPairs[index] = {sound.bankHash, sound.sound};
+                subtitle                = sound.subtitle.c_str ();
+                mAudioPairs[identifier] = &sound;
             }
     }
 
@@ -127,7 +129,7 @@ class SoundsRandomizer
     InitialiseAddLineToConversationHook ()
     {
         ReplaceJmpHook__thiscall<0x8f5b00, void, audScriptAudioEntity, int, int,
-                                 char *, char *, int, int> (
+                                 char *, const char *, int, int> (
             hook::get_pattern (
                 ByVersion ("8b 44 ? ? 6b c0 70 56 8d 34 08 8b 4c",
                            "8b 44 ? ? 56 8b 74 ? ? 6b f6 70 03 f1")),
@@ -293,60 +295,6 @@ class SoundsRandomizer
     }
 
     /*******************************************************/
-    static uint32_t
-    CorrectBankHash (const char *str)
-    {
-        if (mCorrectedBankHash != -1)
-            return mCorrectedBankHash;
-
-        return CCrypto::atStringHash (str);
-    }
-
-    /*******************************************************/
-    static uint32_t
-    CorrectBankHashChecked (const char *str)
-    {
-        if (mCorrectedBankHash != -1 && mAdjustNextBankHash)
-            {
-                mAdjustNextBankHash = false;
-                return mCorrectedBankHash;
-            }
-
-        return CCrypto::atStringHash (str);
-    }
-
-    /*******************************************************/
-    static bool __fastcall SetPlaceholderBankName (audScriptAudioEntity *ent,
-                                                   void *edx, char *bank,
-                                                   char *sound, char *param_4)
-    {
-        mAdjustNextBankHash = true;
-        return FUN_00787340__8f6ae9 (ent, bank, sound, param_4);
-    }
-
-    /*******************************************************/
-    static void
-    SetNextBankAudioHash (std::string str)
-    {
-        for (auto i : mBankAudioPairs)
-            {
-                if (i.second == str)
-                    {
-                        mCorrectedBankHash = i.first;
-                        break;
-                    }
-            }
-    }
-
-    /*******************************************************/
-    static bool __stdcall SetNextBankAudioHash1 (char *soundName)
-    {
-        mCorrectedBankHash = -1;
-        SetNextBankAudioHash (soundName);
-        return audScriptAudioEntity__IsSFXSound8f6959 (soundName);
-    }
-
-    /*******************************************************/
     static char *__stdcall CorrectSubtitles (char *txt)
     {
         std::string str;
@@ -359,10 +307,9 @@ class SoundsRandomizer
                 str = "";
             }
 
-        static std::unique_ptr<char[]> ptr;
+        static std::unique_ptr<char[]> ptr = std::make_unique<char[]> (1024);
         if (CText::m_nEncoding == 8)
             {
-                ptr = std::make_unique<char[]> (str.length () + 1);
                 for (int i = 0; i < str.length (); i++)
                     ptr.get ()[i] = str[i];
                 ptr.get ()[str.length ()] = 0;
@@ -371,8 +318,6 @@ class SoundsRandomizer
             }
 
         // Conversion to widestring
-        ptr = std::make_unique<char[]> (str.length () * 2 + 2);
-
         for (int i = 0; i <= str.length (); i++)
             {
                 if (i != str.length ())
@@ -387,18 +332,6 @@ class SoundsRandomizer
     }
 
     /*******************************************************/
-    static void __fastcall SetNextBankAudioHash2 (audScriptAudioEntity *ent,
-                                                  void *edx, char *bank,
-                                                  char *sound, char *variation,
-                                                  float param_5, int param_6,
-                                                  char param_7)
-    {
-        SetNextBankAudioHash (sound);
-        FUN_0091cac0__8f8a86 (ent, bank, sound, variation, param_5, param_6,
-                              param_7);
-    }
-
-    /*******************************************************/
     static bool __fastcall CorrectSubtitleVariationLabelCheck (CText *text,
                                                                void * edx,
                                                                char * label)
@@ -406,6 +339,40 @@ class SoundsRandomizer
         return DoesTextLabelExist (label);
     }
 
+    /*******************************************************/
+    static bool __fastcall RandomizeScriptedSpeech (class audSpeechSound *sound,
+                                                    void *, uint32_t bankHash,
+                                                    const char *soundName,
+                                                    int         variation,
+                                                    char *      bankName)
+    {
+        if (mAudioPairs.count (soundName))
+            {
+                const auto &pair                = *mAudioPairs[soundName];
+                bankHash                        = pair.bankHash;
+                soundName                       = pair.sound.c_str ();
+            }
+
+        return audSpeechSound__SetSpeechSound (sound, bankHash, soundName,
+                                               variation, bankName);
+    }
+
+    /*******************************************************/
+    static uint32_t
+    CorrectVariationCount (uint32_t bankHash, const char *soundName)
+    {
+        if (mAudioPairs.count (soundName))
+            {
+                const auto &pair                = *mAudioPairs[soundName];
+                bankHash                        = pair.bankHash;
+                soundName                       = pair.sound.c_str ();
+            }
+
+        return audSpeechAudioEntity__GetNumVariantsForSound (bankHash,
+                                                             soundName);
+    }
+
+    /*******************************************************/
     void
     InitialiseVoiceLineRandomizerPatches ()
     {
@@ -414,36 +381,20 @@ class SoundsRandomizer
 
         InitialiseAddLineToConversationHook ();
 
-        RegisterHook (ByVersion ("8d bd f0 15 00 00 57 8b ce e8",
-                                 "8d 83 f0 15 00 00 50 8b ce e8"),
-                      9, audScriptAudioEntity__IsSFXSound8f6959,
-                      SetNextBankAudioHash1);
+        RegisterHook (ByVersion ("83 c4 08 50 8b ce e8 ? ? ? ? 5e c2 0c 00",
+                                 "83 c4 08 8b ce 50 e8 ? ? ? ? 5e c2 0c 00"),
+                      6, audSpeechSound__SetSpeechSound,
+                      RandomizeScriptedSpeech);
+        
+        RegisterHook (ByVersion ("56 53 8b f8 e8 ? ? ? ? 8b f0 83 c4 10",
+                                 "? 56 8b d8 e8 ? ? ? ? 83 c4 10 89 44 ? 10"),
+                      4, audSpeechAudioEntity__GetNumVariantsForSound,
+                      CorrectVariationCount);
 
         RegisterHook (
             ByVersion ("b9 ? ? ? ? e8 ? ? ? ? 80 bd d2 2b 00 00 00",
                        "b9 ? ? ? ? 50 e8 ? ? ? ? 80 bb d2 2b 00 00 00 "),
             ByVersion (5, 6), CorrectSubtitles);
-
-        RegisterHook (ByVersion ("50 89 44 ? ? e8 ? ? ? ? 83 c4 08 50",
-                                 "50 6a 00 51 89 4c ? ? e8 ? ? ? ? 83 c4 08 "),
-                      ByVersion (5, 8), CorrectBankHash);
-
-        RegisterHook (ByVersion ("8b 4c ? ? 51 52 6a 00 50 e8",
-                                 "8b f1 ff 74 ? ? 6a 00 50 e8"),
-                      9, CorrectBankHash);
-
-        RegisterHook (ByVersion ("57 52 c6 86 09 02 00 00 00 e8",
-                                 "ff 74 ? 48 c6 87 09 02 00 00 00 e8 "),
-                      ByVersion (9, 11), CorrectBankHash);
-
-        RegisterHook (ByVersion ("57 50 6a 00 52 e8 ? ? ? ? 83 c4 08",
-                                 "56 50 6a 00 ff 74 ? 54 e8 "),
-                      ByVersion (5, 8), CorrectBankHash);
-
-        RegisterHook (
-            ByVersion ("50 8d ? ? ? ? ? 89 7c ? ? e8 ? ? ? ? eb ?",
-                       "05 38 2e 00 00 03 c3 50 e8 ? ? ? ? 8b 54 ? ? eb ?"),
-            ByVersion (11, 8), FUN_0091cac0__8f8a86, SetNextBankAudioHash2);
 
         RegisterHook (
             ByVersion ("f3 a4 50 b9 ? ? ? ? e8 ? ? ? ? 84 c0",
@@ -533,7 +484,7 @@ class SoundsRandomizer
                                 && _object->FireHash != "null_sound"_joaat)
                                 return;
                         }
-                    
+
                     objects.push_back (obj);
                 }
         });
@@ -545,14 +496,14 @@ class SoundsRandomizer
     /* Music Randomizer Patches                            */
     /*******************************************************/
     static bool
-    ShouldMetadataBeRandomized (audSoundMetadata* metadata, uint32_t hash)
+    ShouldMetadataBeRandomized (audSoundMetadata *metadata, uint32_t hash)
     {
         // Randomize streaming sounds only (that's all the music)
         if (metadata->Type != audStreamingSound)
             return false;
 
         // Don't randomize cutscenes
-        if (metadata->GetCategoryHash() == "cutscenes"_joaat)
+        if (metadata->GetCategoryHash () == "cutscenes"_joaat)
             return false;
 
         // To prevent softlocks whilst dancing
@@ -560,8 +511,7 @@ class SoundsRandomizer
             {
             case "dancing_hercules_mix"_joaat:
             case "dancing_maisonette_mix"_joaat:
-            case "dancing_bahamamammas_mix"_joaat:
-                return false;
+            case "dancing_bahamamammas_mix"_joaat: return false;
             }
 
         return true;
@@ -669,10 +619,7 @@ public:
 };
 
 std::unordered_map<uint32_t, std::string> SoundsRandomizer::mTexts;
-std::array<std::pair<uint32_t, std::string>, 50>
-                       SoundsRandomizer::mBankAudioPairs{};
-int                    SoundsRandomizer::mCorrectedBankHash  = -1;
-bool                   SoundsRandomizer::mAdjustNextBankHash = false;
+std::unordered_map<std::string, SoundPair *> SoundsRandomizer::mAudioPairs;
 std::vector<SoundPair> SoundsRandomizer::mSounds;
 
 SoundsRandomizer _sounds;
