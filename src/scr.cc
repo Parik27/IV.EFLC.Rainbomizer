@@ -235,13 +235,13 @@ class ScriptVehicleRandomizer
 
         while (flag != NULL)
             {
-                if (std::string (flags) == "guns")
+                if (std::string (flag) == "guns")
                     flags_out |= VehiclePattern::FLAGS::GUNS;
-                else if (std::string (flags) == "washable")
+                else if (std::string (flag) == "washable")
                     flags_out |= VehiclePattern::FLAGS::WASHABLE;
-                else if (std::string (flags) == "no_rotors")
+                else if (std::string (flag) == "no_rotors")
                     flags_out |= VehiclePattern::FLAGS::NO_ROTORS;
-                else if (std::string (flags) == "start_rotors")
+                else if (std::string (flag) == "start_rotors")
                     flags_out |= VehiclePattern::FLAGS::START_ROTORS;
 
                 flag = strtok (NULL, "+");

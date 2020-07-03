@@ -169,7 +169,7 @@ class WeaponRandomizer
         for (const auto &i : patterns)
             if (i == pattern)
                 return true;
-
+        
         return false;
     }
 

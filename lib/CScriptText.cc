@@ -24,13 +24,13 @@ CScriptText::InitialisePatternsCE ()
     m_pTotalScriptTexts = *hook::get_pattern<uint32_t*> (
         "8b 0d ? ? ? ? 33 ff 85 c9 0f 84 ? ? ? ? be ? ? ? ?", 2);
     
-    m_aScriptTexts = reinterpret_cast<CScriptText_Str *> (
-        *hook::get_pattern<uint8_t*> (
-            "39 2d ? ? ? ? 0f 86 ? ? ? ? 56 57 be ? ? ? ?", 15)
-        - 58);
+    //m_aScriptTexts = reinterpret_cast<CScriptText_Str *> (
+        //*hook::get_pattern<uint8_t*> (
+    //"39 2d ? ? ? ? 0f 86 ? ? ? ? 56 57 be ? ? ? ?", 15)
+    //- 58);
 
-    m_pScript2dViewport = *hook::get_pattern<void **> (
-        "69 c9 7c a1", 4);
+    //m_pScript2dViewport = *hook::get_pattern<void **> (
+    //"69 c9 7c a1", 4);
 }
 
 // CScriptText_Str **CScriptText::m_apScriptTexts;

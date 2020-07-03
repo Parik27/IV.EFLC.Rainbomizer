@@ -713,34 +713,11 @@ class MissionRandomizer
                 mMissionHash = -1;
             }
     }
-
+    
     /*******************************************************/
     static int __fastcall RunThreadHook (scrThread *scr, void *edx,
                                          unsigned int param_2)
     {
-#ifndef NDEBUG
-        if (scr->m_context.dwScriptHash == "main"_joaat)
-            {
-                uint32_t seed = CNativeManager::CallNativeRet<uint32_t> (
-                    "GET_FLOAT_STAT", GetMissionRandomizerSeedStatId ());
-
-                // Seed
-                {
-                    auto text           = CScriptText::NewText ("NUMBER");
-                    text->m_aNumbers[0] = seed;
-                    text->m_vecPos      = {0.0, 0.0};
-                    text->m_vecScale    = {0.5, 0.7};
-                    text->m_bMonospaced = true;
-
-                    text->m_bAlignLeft      = false;
-                    text->m_bAlignRight     = true;
-                    text->m_bAlignCentre    = false;
-                    text->m_bDrawBeforeFade = false;
-
-                    text->m_nStrokeColour.colour = 0;
-                }
-            }
-#endif
         if (HandleFadingCode (scr))
             return 0;
 
@@ -841,6 +818,22 @@ class MissionRandomizer
         return true;
     }
 
+    /*******************************************************/
+    static void
+    FixNumberOfInstancesOfStreamedScript (NativeData* data)
+    {
+        if (CCrypto::atStringHash (data->GetParam<char *> (0))
+                == mOriginalMissionHash
+            && mMissionHash != -1)
+            {
+                *(uint32_t *) data->m_ret = 1;
+                return;
+            }
+
+        CNativeManager::CallOriginalNative (
+            "GET_NUMBER_OF_INSTANCES_OF_STREAMED_SCRIPT", data);
+    }
+
 public:
     /*******************************************************/
     MissionRandomizer ()
@@ -867,6 +860,9 @@ public:
         CNativeManager::OverwriteNative ("MARK_SCRIPT_AS_NO_LONGER_NEEDED",
                                          MarkScriptAsNoLongerNeeded);
         CNativeManager::OverwriteNative ("START_NEW_SCRIPT", StartNewScript);
+        CNativeManager::OverwriteNative (
+            "GET_NUMBER_OF_INSTANCES_OF_STREAMED_SCRIPT",
+            FixNumberOfInstancesOfStreamedScript);
 
         Rainbomizer::Logger::LogMessage ("Initialised MissionRandomizer");
     }
