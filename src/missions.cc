@@ -27,6 +27,7 @@ struct MissionInfo
     int     citiesUnlockedStart;
     bool    phoneMission;
     Vector3 startPos;
+    Vector3 altStartPos;
     int     stackSize;
 };
 
@@ -64,6 +65,7 @@ class MissionRandomizer
     static int                                          mStoredBohanHouseState;
     static int                                          mStoredMobilePhone;
     static uint32_t                                     mCurrentMissionSeed;
+    static bool                                         mAlternativeEnding;
 
     // Related to teleportation
     static bool    mbFading;
@@ -75,8 +77,7 @@ class MissionRandomizer
     static uint32_t
     GetMissionRandomizerSeedStatId ()
     {
-        return (Rainbomizer::Common::GetStoredEpisodeNumber () == 0) ? 252
-                                                                     : 92;
+        return (Rainbomizer::Common::GetStoredEpisodeNumber () == 0) ? 252 : 92;
     }
 
     /*******************************************************/
@@ -416,6 +417,29 @@ class MissionRandomizer
 
     /*******************************************************/
     static void
+    SetGlobalVariablesForAlternativeEndings (bool missionEnd)
+    {
+        // Only for IV
+        if (Rainbomizer::Common::GetStoredEpisodeNumber() != 0)
+            return;
+
+        static bool storedOriginalEnding     = false;
+        const int   ENDING_MISSION_FLOW_FLAG = 12;
+
+        int &endingFlowFlag = CTheScripts::GlobalVar (
+            MISSION_FLOW_FLAGS_IV + ENDING_MISSION_FLOW_FLAG + 1);
+
+        if (!missionEnd)
+            {
+                storedOriginalEnding = endingFlowFlag;
+                endingFlowFlag       = mAlternativeEnding;
+            }
+        else
+            endingFlowFlag = storedOriginalEnding;
+    }
+
+    /*******************************************************/
+    static void
     ApplyMissionSpecificFixes ()
     {
         switch (mMissionHash)
@@ -462,6 +486,7 @@ class MissionRandomizer
             }
 
         HandleClubMissionFlowFlags (false);
+        SetGlobalVariablesForAlternativeEndings (false);
         HandleRomansSorrowChanges (false);
     }
 
@@ -575,6 +600,7 @@ class MissionRandomizer
             }
 
         HandleClubMissionFlowFlags (true);
+        SetGlobalVariablesForAlternativeEndings (true);
         HandleRomansSorrowChanges (true);
     }
 
@@ -618,12 +644,15 @@ class MissionRandomizer
                                             mRandomizedMission.citiesUnlocked);
             }
 
+        const auto &startPos = mAlternativeEnding
+                                   ? mRandomizedMission.altStartPos
+                                   : mRandomizedMission.startPos;
+
         if (mOriginalMission.phoneMission)
-            TeleportPlayerWithFades (mRandomizedMission.startPos,
-                                     mRandomizedMission.phoneMission);
+            TeleportPlayerWithFades (startPos, mRandomizedMission.phoneMission);
 
         else
-            TeleportPlayerImmediately (mRandomizedMission.startPos);
+            TeleportPlayerImmediately (startPos);
 
         if (mRandomizedMission.phoneMission && !mOriginalMission.phoneMission)
             {
@@ -713,7 +742,7 @@ class MissionRandomizer
                 mMissionHash = -1;
             }
     }
-    
+
     /*******************************************************/
     static int __fastcall RunThreadHook (scrThread *scr, void *edx,
                                          unsigned int param_2)
@@ -770,6 +799,7 @@ class MissionRandomizer
         for (int i = 0; i < missions.size (); i++)
             mMissionMaps[missions[i]] = order[i];
 
+        mAlternativeEnding  = engine () % 2;
         mCurrentMissionSeed = seed;
     }
 
@@ -796,15 +826,21 @@ class MissionRandomizer
                 char    phoneMission        = 'N';
                 int     citiesUnlockedStart = -1;
                 Vector3 posStarting         = {842.122f, 935.903f, 1.861f};
-                int     stackSize           = 8192;
+                Vector3 altPosStarting;
+                int     stackSize = 8192;
 
-                sscanf (line,
-                        "%s %*s %d %f %f %f %d %d %c %f %f %f %*c %*f %*f "
-                        "%*f %d",
-                        thread, &strand, &pos.x, &pos.y, &pos.z,
-                        &citiesUnlocked, &citiesUnlockedStart, &phoneMission,
-                        &posStarting.x, &posStarting.y, &posStarting.z,
-                        &stackSize);
+                int read
+                    = sscanf (line,
+                              "%s %*s %d %f %f %f %d %d %c %f %f %f %*c %f %f "
+                              "%f %d",
+                              thread, &strand, &pos.x, &pos.y, &pos.z,
+                              &citiesUnlocked, &citiesUnlockedStart,
+                              &phoneMission, &posStarting.x, &posStarting.y,
+                              &posStarting.z, &altPosStarting.x,
+                              &altPosStarting.y, &altPosStarting.z, &stackSize);
+
+                if (read < 14)
+                    altPosStarting = posStarting;
 
                 mMissionInfos[thread] = {strand,
                                          pos,
@@ -812,6 +848,7 @@ class MissionRandomizer
                                          citiesUnlockedStart,
                                          phoneMission == 'Y',
                                          posStarting,
+                                         altPosStarting,
                                          stackSize};
             }
 
@@ -882,5 +919,6 @@ int            MissionRandomizer::mStoredBohanHouseState = 0;
 Vector3        MissionRandomizer::mvPosAfterFade;
 int            MissionRandomizer::mStoredMobilePhone  = 0;
 uint32_t       MissionRandomizer::mCurrentMissionSeed = 0;
+bool           MissionRandomizer::mAlternativeEnding  = false;
 
 MissionRandomizer _missions;

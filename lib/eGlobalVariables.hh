@@ -15,6 +15,7 @@ enum eGlobalVariables
     ROMAN_APARTMENT_BURNED_DOWN2 = 64690,
     REMOVE_ROMAN_FAKE_BLIP       = 64904,
     ROMAN3_ARE_STORES_OPEN       = 8353,
+    MISSION_FLOW_FLAGS_IV        = 15654,
 
     // The Ballad of Gay Tony
     MFF_CLUBS_SHUTDOWN    = 15847,
@@ -22,6 +23,6 @@ enum eGlobalVariables
 
     // The Lost and Damned
     MISSION_STRANDS_TLAD = 12307,
-    CLUBHOUSE_OPEN = 11006,
-    CLUBHOUSE_INDEX = 11007
+    CLUBHOUSE_OPEN       = 11006,
+    CLUBHOUSE_INDEX      = 11007
 };
