@@ -109,13 +109,25 @@ class SoundsRandomizer
     static std::array<std::string, 50> mAudioPairSlots;
     static std::vector<SoundPair>      mSounds;
 
+    static std::vector<uint32_t>       mVoiceLineExceptions;
+
+    /*******************************************************/
+    static bool
+    ShouldRandomizeVoiceLine (uint32_t hash)
+    {
+        return std::find (std::begin (mVoiceLineExceptions),
+                          std::end (mVoiceLineExceptions), hash)
+               == std::end (mVoiceLineExceptions);
+    }
+
     /*******************************************************/
     static void
     RandomizeConversationLine (audScriptAudioEntity *entity, int index,
                                int param_3, char *&identifier,
                                const char *&subtitle, int param_6, int param_7)
     {
-        if (mSounds.size () > 0)
+        if (mSounds.size () > 0
+            && ShouldRandomizeVoiceLine (CCrypto::atStringHash (subtitle)))
             {
                 auto &sound = mSounds[RandomInt (mSounds.size () - 1)];
 
@@ -258,6 +270,30 @@ class SoundsRandomizer
 
     /*******************************************************/
     static void
+    InitialiseAudioExceptions ()
+    {
+        mVoiceLineExceptions.clear();
+        
+        FILE* exceptionFile =
+            Rainbomizer::Common::GetRainbomizerDataFile ("AudioExceptions.txt");
+
+        if (!exceptionFile)
+            return;
+
+        char line[128] = {0};
+        while (fgets (line, 128, exceptionFile))
+            {
+                if (strlen (line) > 2 && line[0] != '#')
+                    {
+                        line[strcspn (line, "\n")] = 0;
+                        mVoiceLineExceptions.push_back (
+                            CCrypto::atStringHash (line));
+                    }
+            }
+    }
+
+    /*******************************************************/
+    static void
     InitialiseAudioDataForEpisode (int episode)
     {
         std::unordered_map<uint32_t, SoundPair> soundPairs;
@@ -281,6 +317,7 @@ class SoundsRandomizer
         Rainbomizer::Logger::LogMessage ("Number of voice lines: %d",
                                          soundPairs.size ());
         FindBankSlotsForSoundPairs (soundPairs);
+        InitialiseAudioExceptions ();
 
         std::for_each (soundPairs.begin (), soundPairs.end (),
                        [] (auto value) { mSounds.push_back (value.second); });
@@ -623,5 +660,6 @@ public:
 std::unordered_map<uint32_t, std::string> SoundsRandomizer::mTexts;
 std::unordered_map<std::string, SoundPair *> SoundsRandomizer::mAudioPairs;
 std::vector<SoundPair> SoundsRandomizer::mSounds;
+std::vector<uint32_t> SoundsRandomizer::mVoiceLineExceptions;
 
 SoundsRandomizer _sounds;
