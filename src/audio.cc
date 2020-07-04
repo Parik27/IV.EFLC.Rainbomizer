@@ -295,12 +295,14 @@ class SoundsRandomizer
     }
 
     /*******************************************************/
-    static char *__stdcall CorrectSubtitles (char *txt)
+    static char *__stdcall CorrectSubtitles (char *label)
     {
+        CText::g_Text->m_nKeyGxtTable () = 6; // 6 = Audio Subtitles Slot?
+
         std::string str;
         try
             {
-                str = mTexts.at (CCrypto::atStringHash (txt));
+                str = mTexts.at (CCrypto::atStringHash (label));
             }
         catch (const std::out_of_range &e)
             {
@@ -348,9 +350,9 @@ class SoundsRandomizer
     {
         if (mAudioPairs.count (soundName))
             {
-                const auto &pair                = *mAudioPairs[soundName];
-                bankHash                        = pair.bankHash;
-                soundName                       = pair.sound.c_str ();
+                const auto &pair = *mAudioPairs[soundName];
+                bankHash         = pair.bankHash;
+                soundName        = pair.sound.c_str ();
             }
 
         return audSpeechSound__SetSpeechSound (sound, bankHash, soundName,
@@ -363,9 +365,9 @@ class SoundsRandomizer
     {
         if (mAudioPairs.count (soundName))
             {
-                const auto &pair                = *mAudioPairs[soundName];
-                bankHash                        = pair.bankHash;
-                soundName                       = pair.sound.c_str ();
+                const auto &pair = *mAudioPairs[soundName];
+                bankHash         = pair.bankHash;
+                soundName        = pair.sound.c_str ();
             }
 
         return audSpeechAudioEntity__GetNumVariantsForSound (bankHash,
@@ -385,7 +387,7 @@ class SoundsRandomizer
                                  "83 c4 08 8b ce 50 e8 ? ? ? ? 5e c2 0c 00"),
                       6, audSpeechSound__SetSpeechSound,
                       RandomizeScriptedSpeech);
-        
+
         RegisterHook (ByVersion ("56 53 8b f8 e8 ? ? ? ? 8b f0 83 c4 10",
                                  "? 56 8b d8 e8 ? ? ? ? 83 c4 10 89 44 ? 10"),
                       4, audSpeechAudioEntity__GetNumVariantsForSound,

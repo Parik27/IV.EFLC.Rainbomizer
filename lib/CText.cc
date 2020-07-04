@@ -84,15 +84,15 @@ GTEXT_MEMBER_ARR (bool *, m_abStreamingAdditionalText, 16 + 16 * N + N);
 GTEXT_MEMBER_ARR (CText__data2 *, field_A0, 16 + 16 * N + 2 * N);
 GTEXT_MEMBER_ARR (CText__string *, m_szAdditionalTextNames,
                   16 + 16 * N + 2 * N + 16 * N);
-GTEXT_MEMBER (int, m_nKeyGxtTable, 16 + 16 * N + 2 * N + 16 * N + 64 * N);
+GTEXT_MEMBER (int, m_nKeyGxtTable, 16 + 16 * N + 2 * N + 16 * N + 8 * N);
 GTEXT_MEMBER (unsigned char, m_cTextType,
-              20 + 16 * N + 2 * N + 16 * N + 64 * N);
+              20 + 16 * N + 2 * N + 16 * N + 9 * N);
 GTEXT_MEMBER (bool, m_bAdditionalTextLoaded,
-              21 + 16 * N + 2 * N + 16 * N + 64 * N);
-GTEXT_MEMBER (unsigned char, field_166, 22 + 16 * N + 2 * N + 16 * N + 64 * N);
-GTEXT_MEMBER (unsigned char, field_167, 23 + 16 * N + 2 * N + 16 * N + 64 * N);
+              21 + 16 * N + 2 * N + 16 * N + 8 * N);
+GTEXT_MEMBER (unsigned char, field_166, 22 + 16 * N + 2 * N + 16 * N + 8 * N);
+GTEXT_MEMBER (unsigned char, field_167, 23 + 16 * N + 2 * N + 16 * N + 8 * N);
 GTEXT_MEMBER (CText_Data<CText__data2>, m_paGxtTables,
-              24 + 16 * N + 2 * N + 16 * N + 64 * N);
+              24 + 16 * N + 2 * N + 16 * N + 8 * N);
 
 #undef N
 #undef GTEXT_MEMBER
