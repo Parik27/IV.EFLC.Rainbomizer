@@ -25,7 +25,7 @@ struct VehicleObject
 
 class ObjectRandomizer
 {
-    static int                                                mOdds;
+    static float                                              mOdds;
     static std::unordered_map<int, VehicleObject>             mObjects;
     static std::unordered_map<CEntity *, std::pair<int, int>> mEntities;
 
@@ -38,7 +38,7 @@ class ObjectRandomizer
             CStreaming::MarkResourceAsNoLongerNeeded (
                 mEntities[vehicle].second, CStreaming::g_pFileTypeWdrIndex ());
 
-        if (RandomInt (mOdds - 1) == 0 && mObjects.size ())
+        if (RandomFloat (100) <= mOdds && mObjects.size ())
             {
                 // Get random map element
                 auto it = mObjects.begin ();
@@ -129,8 +129,8 @@ class ObjectRandomizer
 
         if (!modelFile)
             return;
-        
-        fscanf (modelFile, " %d \n", &mOdds);
+
+        fscanf (modelFile, " %f \n", &mOdds);
 
         char line[1024] = {0};
         while (fgets (line, 1024, modelFile))
@@ -145,11 +145,11 @@ class ObjectRandomizer
                         &rotation.z, &obj.scale.x, &obj.scale.y, &obj.scale.z);
 
                 obj.rotation = rotation;
-                
+
                 int index;
                 if (CStreaming::GetModelAndIndexFromHash (
                         CCrypto::atStringHash (modelName), &index))
-                        mObjects[index] = obj;
+                    mObjects[index] = obj;
                 else
                     Rainbomizer::Logger::LogMessage ("Failed to find model: %s",
                                                      modelName);
@@ -177,6 +177,6 @@ public:
     }
 } _obj;
 
-int                                    ObjectRandomizer::mOdds = 0;
+float                                              ObjectRandomizer::mOdds = 0;
 std::unordered_map<int, VehicleObject> ObjectRandomizer::mObjects;
 std::unordered_map<CEntity *, std::pair<int, int>> ObjectRandomizer::mEntities;

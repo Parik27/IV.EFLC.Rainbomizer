@@ -34,14 +34,16 @@ DisableTugas = false
 Enabled = true
 
 # This will make a specific vehicle spawn in traffic
-ForcedVehicleEnabled = false
-ForcedVehicleName = "admiral"
+# ForcedVehicleEnabled = false
+# ForcedVehicleName = "admiral"
 
 # Change these options to disable certain types of vehicles from spawning in traffic
-EnableBoats = true
-EnableCars = true
-EnableHelis = true
-EnableBikes = true
+# EnableBoats = true
+# EnableCars = true
+# EnableHelis = true
+# EnableBikes = true
+
+EnableRandomPedsInCars = false
 
 #######################################################
 # Colour Randomizer - Randomizes the colours of various in-game elements, including cars, the HUD, and the markers. 

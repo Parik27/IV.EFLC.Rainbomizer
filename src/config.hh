@@ -36,7 +36,7 @@ struct TrafficConfig : public BaseConfig
     bool enableCars        = true;
     bool enableBikes       = true;
 
-    bool enableRandomPeds = true;
+    bool enableRandomPeds = false;
 
     int defaultModel = 0;
 

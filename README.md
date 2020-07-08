@@ -2,7 +2,7 @@
 [![Discord](https://img.shields.io/discord/681996979974570066.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/BYVBQw7)
 [![Patreon](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fshieldsio-patreon.herokuapp.com%2Fparik%2Fpledges)](https://www.patreon.com/parik)
 
-# Rainbomizer: IV 🌈
+# Rainbomizer: IV/EFLC 🌈
 
 <a href="https://media.discordapp.net/attachments/681997133351747585/682871480048025644/unknown.png"> <img src="https://media.discordapp.net/attachments/681997133351747585/682871480048025644/unknown.png?width=912&height=513"></a>
 
@@ -30,6 +30,7 @@ A modification for Grand Theft Auto IV and Episodes from Liberty City that rando
 - :sound: **Sounds Randomizer** - Randomizes dialogues, sound effects and music played in-game. The intensity of this randomizer can be modified in the configuration file. 
 - :movie_camera: **Cutscene Randomizer** - Randomizes models used in motion-captured cutscenes.
 - :iphone: **Cheat Randomizer** - Randomizes which cheats activates when you enter a cheat.
+- :bird: **Object Randomizer** - Randomizes random vehicles into random objects.
 
 <span id="installation"></span>
 ## Installation
@@ -38,7 +39,7 @@ Rainbomizer requires an **ASI-Loader** to function. It works with **all** versio
 
 1. Install **one** of the listed ASI Loaders: 
     - [Ultimate ASI Loader](https://github.com/ThirteenAG/Ultimate-ASI-Loader/releases/download/v4.52/Ultimate-ASI-Loader.zip) by [ThirteenAG](https://github.com/ThirteenAG) is a popular option since it supports CrashDumps, which will be necessary if you want to report a crash.
-    - [xliveless](https://gtaforums.com/topic/388658-relgtaiv-xliveless) (1.0.8.0 and below only) - required for versions before Complete Edition. Removes requirement for xliveless and also includes an ASI-Loader
+    - [xliveless](https://gtaforums.com/topic/388658-relgtaiv-xliveless) (1.0.8.0 and below only) - required for versions before Complete Edition. xliveless removes requirement for GFWL and also includes an ASI-Loader
 
 2. Download Rainbomizer from [Releases](https://github.com/Parik27/IV.EFLC.Rainbomizer/releases) and **extract the archive** to the root directory of GTA IV. 
   
