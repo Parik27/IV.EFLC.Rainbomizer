@@ -24,7 +24,7 @@ jobs:
         mkdir output/rainbomizer
         cp rainbomizer.asi output/IV.EFLC.Rainbomizer.asi
         cp -r ../data output/rainbomizer/data/
-	cp ../README.txt output/
+        cp ../README.txt output/
         
     - name: Upload
       uses: actions/upload-artifact@v1
