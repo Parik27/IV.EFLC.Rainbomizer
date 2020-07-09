@@ -8,12 +8,45 @@
 #include "common.hh"
 #include "config.hh"
 #include "logger.hh"
+#include <CCarGrp.hh>
+#include <algorithm>
+#include <CCrypto.hh>
 
 int (*GetPedModelForVehicle_ab333d) (int);
 CVehicleModelInfo *(*CModelInfoStore__AllocateVehicleModel9adc6d) (char *);
 
 class TrafficRandomizer
 {
+
+    /*******************************************************/
+    inline static bool
+    IsCarPartOfGroupExtra (uint32_t model, ePopcycleGrps group)
+    {
+        if (group != POPCYCLE_GROUP_COPS)
+            return false;
+
+        switch (CModelInfoStore::m_aModelPointers[model]->m_nModelHash)
+            {
+            case "polmav"_joaat:
+            case "annihilator"_joaat: return true;
+            }
+
+        return false;
+    }
+
+    /*******************************************************/
+    inline static void
+    RemoveGroupFromCarsSet (std::set<int> &cars, ePopcycleGrps group)
+    {
+        for (auto it = cars.begin (); it != cars.end ();)
+            {
+                if (CCarGrp::IsCarPartOfGroup (*it, group)
+                    || IsCarPartOfGroupExtra (*it, group))
+                    it = cars.erase (it);
+                else
+                    ++it;
+            }
+    }
 
     /*******************************************************/
     static int
@@ -40,6 +73,11 @@ class TrafficRandomizer
             if (info->m_nType != eVehicleType::VEHICLE_TYPE_TRAIN)
                 cars.insert (val);
         });
+
+        // To prevent an insane amount of cop cars spawning if you have a wanted
+        // level.
+        if (wanted)
+            RemoveGroupFromCarsSet (cars, POPCYCLE_GROUP_COPS);
 
         if (cars.size () < 1)
             return -1;

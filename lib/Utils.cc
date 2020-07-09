@@ -19,6 +19,7 @@
 #include "CDrawCommands.hh"
 #include "CEntity.hh"
 #include "CScriptText.hh"
+#include "CCarGrp.hh"
 
 /*******************************************************/
 std::mt19937 &
@@ -115,6 +116,7 @@ InitialiseAllComponents ()
             CBaseDC::InitialisePatternsCE ();
             CEntity::InitialisePatternsCE ();
             CScriptText::InitialisePatternsCE ();
+            CCarGrp::InitialisePatternsCE ();
         }
     else
         {
@@ -135,6 +137,7 @@ InitialiseAllComponents ()
             CBaseDC::InitialisePatterns ();
             CEntity::InitialisePatterns ();
             CScriptText::InitialisePatterns ();
+            CCarGrp::InitialisePatterns ();
         }
     initialised = true;
 }
