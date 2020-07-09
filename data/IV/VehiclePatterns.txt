@@ -35,7 +35,7 @@ jimmy1	Schafter	4	Y	N	Y	N	N
 jimmy1	Sultan	4	Y	N	N	N	N	washable	
 bell2	Steed	2	Y	Y	C	N	N	none	0	-14	0
 bell2	Squalo	2	N	N	N	C	N	none	0	0	2					
-bell7	Washington	2	C	Y	N	N	N	none	26	0	0 			
+bell7	Washington	2	C	Y	C	N	N	none	26	0	0 			
 bell7	Speedo	4	Y	N	Y	N	N	none	10	8	0
 gambetti1	Lokus	4	Y	Y	Y	N	N	no_rotors			
 gambetti3	Pony	1	Y	Y	Y	Y	N				
