@@ -15,7 +15,7 @@ packie1	Yankee	2	Y	Y	C	N	N	no_rotors	30	10	1
 packie2	Dinghy	2	C	C	C	Y	N	none	-60	29	8.4
 cia3	Maverick	1	Y	Y	Y	N	N				
 cia4	Maverick	2	N	N	Y	N	N				
-gerry2	Pcj	1	C	Y	C	N	N	none	18.6	-15	0.5
+gerry2	Pcj	1	C	Y	C	N	N	no_rotors	18.6	-15	0.5
 derrick2	Squalo	2	N	N	N	Y	N				
 derrick2	Reefer	1	N	N	N	Y	N				
 derrick2	Dinghy	2	Y	Y	Y	Y	N				
