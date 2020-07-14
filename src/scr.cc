@@ -393,6 +393,20 @@ class ScriptVehicleRandomizer
             "VehiclePatterns.txt"));
     }
 
+    /*******************************************************/
+    static void TruckHustleHDestroyedFix (NativeData* data)
+    {
+        if (CTheScripts::m_pRunningThread ()->m_context.dwScriptHash
+            == "bell6"_joaat)
+            {
+                *reinterpret_cast<uint32_t *> (data->m_ret) = 0;
+                return;
+            }
+
+        CNativeManager::CallOriginalNative ("CHECK_STUCK_TIMER", data);
+    }
+    
+
 public:
     /*******************************************************/
     ScriptVehicleRandomizer ()
@@ -406,6 +420,7 @@ public:
             InitialiseScriptPatterns);
 
         CNativeManager::OverwriteNative ("CREATE_CAR", CreateCarNativeHook);
+        CNativeManager::OverwriteNative ("CHECK_STUCK_TIMER", TruckHustleHDestroyedFix);
         Rainbomizer::Logger::LogMessage ("Initialised ScriptVehicleRandomizer");
     }
 };
