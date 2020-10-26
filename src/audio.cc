@@ -541,6 +541,10 @@ class SoundsRandomizer
         if (metadata->Type != audStreamingSound)
             return false;
 
+        // Don't randomize music streams loaded by scripts
+        if (CTheScripts::m_pRunningThread ())
+            return false;
+
         // Don't randomize cutscenes
         if (metadata->GetCategoryHash () == "cutscenes"_joaat)
             return false;
