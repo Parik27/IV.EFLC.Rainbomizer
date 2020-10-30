@@ -1,6 +1,5 @@
 ![Build](https://github.com/Parik27/Rainbomizer/workflows/Build/badge.svg)
 [![Discord](https://img.shields.io/discord/681996979974570066.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/BYVBQw7)
-[![Patreon](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fshieldsio-patreon.herokuapp.com%2Fparik%2Fpledges)](https://www.patreon.com/parik)
 
 # Rainbomizer: IV/EFLC 🌈
 
