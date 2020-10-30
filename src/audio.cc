@@ -13,6 +13,7 @@
 #include "CModelInfoStore.hh"
 #include <stdexcept>
 #include <UtilsHooking.hh>
+#include <algorithm>
 
 // All the audio gxt tables
 const std::array<std::vector<std::string>, 3> gxtTables
