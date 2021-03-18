@@ -85,6 +85,17 @@ ColourConfig::Read (std::shared_ptr<cpptoml::table> table)
 
 /*******************************************************/
 void
+CutsceneConfig::Read(std::shared_ptr<cpptoml::table> table)
+{
+    if (!table)
+        return;
+
+    BaseConfig::Read(table);
+    CONFIG (table, enableNSFW, "EnableNSFWModels", bool);
+}
+
+/*******************************************************/
+void
 WeaponStatsConfig::Read (std::shared_ptr<cpptoml::table> table)
 {
     if (!table)

@@ -98,6 +98,9 @@ struct MissionConfig : public BaseConfig
 /*******************************************************/
 struct CutsceneConfig : public BaseConfig
 {
+    bool enableNSFW = false;
+
+    void Read(std::shared_ptr<cpptoml::table> table);
 };
 
 /******************************************************/
