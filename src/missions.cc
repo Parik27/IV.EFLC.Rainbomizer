@@ -712,7 +712,11 @@ class MissionRandomizer
 
         TeleportPlayerImmediately (mvPosAfterFade);
         if (mbFadeInAfterTeleport)
+        {
             CNativeManager::CallNative ("DO_SCREEN_FADE_IN", 1000);
+            CNativeManager::CallNative ("SET_PLAYER_CONTROL",
+                                            GetPlayerId (), 1);
+        }
 
         mbFading = false;
         return false;
