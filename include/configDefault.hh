@@ -92,6 +92,7 @@ ForceSeed = false # Force the seed on existing save files
 [CutsceneRandomizer]
 
 Enabled = true
+EnableNSFWModels = false
 
 #######################################################
 # Sounds Randomizer - Randomizes various elements of the game audio.
