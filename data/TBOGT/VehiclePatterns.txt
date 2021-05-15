@@ -51,4 +51,13 @@ rocco1	Schafter 	4	Y	N	Y	Y	N
 rocco1	Nrg900	2	Y	Y	Y	Y	N				
 tony11	Schafter2	2	Y	Y	Y	N	N				
 tony11	Bati2	2	Y	Y	C	N	N	no_rotors	0	-5	0
-tony8	Buzzard	1	N	N	Y	N	N	guns			
+tony8	Buzzard	1	N	N	Y	N	N	guns
+racesp	Jetmax	-1	N	N	N	Y	N					
+racesp	Floater	-1	N	N	N	Y	N					
+racesp	Blade	-1	N	N	N	Y	N					
+racesp	Smuggler	-1	N	N	N	Y	N					
+racesp	F620	1	Y	Y	Y	N	N					
+racesp	Bullet	1	Y	Y	Y	N	N					
+racesp	Comet	1	Y	Y	Y	N	N					
+racesp	Buffalo	1	Y	Y	Y	N	N					
+basejumping	Marquis	-1	N	N	N	Y	N	
