@@ -23,10 +23,10 @@ A modification for Grand Theft Auto IV and Episodes from Liberty City that rando
 - :helicopter: **Traffic Randomizer** - Randomizes cars that spawn in traffic. 
 - :car: **Parked Car Randomizer** - Randomizes cars parked around the map.
 - :blue_car: **Mission Vehicle Randomizer** - Randomizes vehicles you are given in missions, making sure that the vehicle you're given is usable for that mission.
-- :rainbow: **Colour Randomizer** - Randomizes colours of various in-game elements, including cars, the HUD and more. 
+- :rainbow: **Colour Randomizer** - Randomizes colours of various in-game elements, including cars, the HUD, and more. 
 - :page_with_curl: **Mission Randomizer** - Randomizes order of missions in-game. Upon completion of a mission, the game progresses as if you completed the original mission.
 - :gun: **Weapon Randomizer** - Randomizes weapons given to the player and enemies.
-- :sound: **Sounds Randomizer** - Randomizes dialogues, sound effects and music played in-game. The intensity of this randomizer can be modified in the configuration file. 
+- :sound: **Sounds Randomizer** - Randomizes dialogue, sound effects, and music played in-game. The intensity of this randomizer can be modified in the configuration file. 
 - :movie_camera: **Cutscene Randomizer** - Randomizes models used in motion-captured cutscenes.
 - :iphone: **Cheat Randomizer** - Randomizes which cheats activates when you enter a cheat.
 - :bird: **Object Randomizer** - Randomizes random vehicles into random objects.
@@ -88,10 +88,10 @@ More information about how to configure specific randomizers is provided in the 
 <span id="contribute"></span>
 ## Contribution
 
-You can contribute to the project by reporting any crashes/issues you encounter in the [Issues](https://github.com/Parik27/Rainbomizer/issues) section of the repository.
+You can contribute to the project by reporting any crashes/issues you encounter in the [Issues](https://github.com/Parik27/IV.EFLC.Rainbomizer/issues) section of the repository.
 
 Pull requests are welcome, but are required to follow the current style used in the project.
 
 You can also keep up with or contribute to development as it happens by [joining the official Rainbomizer Discord!](https://discord.gg/BYVBQw7) You can give #suggestions, ask for #support, or view current development in #iv-eflc.
 
-The lib folder in the repository's base is intended for reuse in other projects, and should not contain any Rainbomizer specific code.
+The lib folder in the repository's base is intended for reuse in other projects and should not contain any Rainbomizer specific code.
