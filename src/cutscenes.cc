@@ -71,6 +71,8 @@ class CutsceneRandomizer
                         continue;
                     }
                 line[strcspn (line, "\n")] = 0;
+                if (std::string(line) == "cs_stubbs" && !ConfigManager::GetConfigs().cutscenes.enableNSFW)
+                    continue;
                 mModels.back ().push_back (line);
             }
 
