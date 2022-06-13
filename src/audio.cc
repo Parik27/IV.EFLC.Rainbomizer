@@ -164,8 +164,11 @@ class SoundsRandomizer
                 else
                     {
                         std::string string = "";
-                        for (char *str = data.m_aData + offset; *str; str += 2)
-                            string.push_back (*str);
+                        for (char* str = data.m_aData + offset; *str; str += 2)
+                            {
+                                string.push_back (*str);
+                                string.push_back (*(str + 1));
+                            }
 
                         mTexts[hash] = std::string (string);
                     }
@@ -207,9 +210,18 @@ class SoundsRandomizer
     GetTextLabel (const std::string &label)
     {
         uint32_t hash = CCrypto::atStringHash (label.c_str ());
-        if (mTexts.count (hash))
+        if (!mTexts.count (hash))
+            return "";
+
+        if (CText::m_nEncoding == 8)
             return mTexts[hash];
-        return "";
+
+        // text label strings should not contain any non-ASCII characters, so convert them to the traditional 8-bit characters
+        std::string wideText = mTexts[hash];
+        std::string textLabel = "";
+        for (int i = 0; i < wideText.length (); i += 2)
+            textLabel.push_back (wideText[i]);
+        return textLabel;
     }
 
     /*******************************************************/
@@ -348,25 +360,10 @@ class SoundsRandomizer
             }
 
         static std::unique_ptr<char[]> ptr = std::make_unique<char[]> (1024);
-        if (CText::m_nEncoding == 8)
-            {
-                for (int i = 0; i < str.length (); i++)
-                    ptr.get ()[i] = str[i];
-                ptr.get ()[str.length ()] = 0;
-
-                return ptr.get ();
-            }
-
-        // Conversion to widestring
-        for (int i = 0; i <= str.length (); i++)
-            {
-                if (i != str.length ())
-                    ptr.get ()[i * 2] = str[i];
-                else
-                    ptr.get ()[i * 2] = 0;
-
-                ptr.get ()[(i * 2) + 1] = 0;
-            }
+        memcpy(ptr.get (), str.c_str (), str.length ());
+        ptr.get ()[str.length ()] = 0;
+        if (CText::m_nEncoding != 8)
+            ptr.get ()[str.length () + 1] = 0;
 
         return ptr.get ();
     }
