@@ -3,7 +3,9 @@
 
 # Rainbomizer: IV/EFLC 🌈
 
-<a href="https://media.discordapp.net/attachments/681997133351747585/682871480048025644/unknown.png"> <img src="https://media.discordapp.net/attachments/681997133351747585/682871480048025644/unknown.png?width=912&height=513"></a>
+<p align="center">
+  <a href="https://ibb.co/t8j7nn9"><img src="https://i.ibb.co/hDQPrrS/image.png" alt="image" border="0"></a>
+</p>
 
 A modification for Grand Theft Auto IV and Episodes from Liberty City that randomizes various aspects of the game from vehicles and sounds to missions and weapons.
 <hr>
